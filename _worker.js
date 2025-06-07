@@ -1692,7 +1692,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						});
 					}
 
-					function toggleNotice() {
+					window.toggleNotice = function() {
 						const noticeContent = document.getElementById('noticeContent');
 						const noticeToggle = document.getElementById('noticeToggle');
 						if (noticeContent.style.display === 'none' || noticeContent.style.display === '') {
@@ -1705,7 +1705,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 
 					// 链接保存功能
-					function addLink() {
+					window.addLink = function() {
 						const nameInput = document.getElementById('linkName');
 						const urlInput = document.getElementById('linkUrl');
 						const name = nameInput.value.trim();
@@ -1748,7 +1748,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						alert('链接保存成功！');
 					}
 
-					function deleteLink(name) {
+					window.deleteLink = function(name) {
 						if (!confirm('确定要删除这个链接吗？')) {
 							return;
 						}
@@ -1772,7 +1772,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					savedLinks.sort((a, b) => b.timestamp - a.timestamp);
 
 					// 处理转换函数 - 提前定义避免未定义错误
-					function processConversion() {
+					window.processConversion = function() {
 						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
 						const infoDiv = document.getElementById('infoDiv');
 						const inputYAML = document.getElementById('inputYAML');
@@ -1886,7 +1886,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 					
 					// 下载SOCKS配置函数
-					function downloadSOCKSConfig() {
+					window.downloadSOCKSConfig = function() {
 						const outputYAML = document.getElementById('outputYAML');
 						const content = outputYAML.value;
 						
@@ -1905,7 +1905,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 					
 					// 复制SOCKS配置函数
-					function copySOCKSConfig() {
+					window.copySOCKSConfig = function() {
 						const outputYAML = document.getElementById('outputYAML');
 						const content = outputYAML.value;
 						
@@ -1943,7 +1943,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 
 					// 导出和导入功能
-					function exportLinks() {
+					window.exportLinks = function() {
 						const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
 						if (savedLinks.length === 0) {
 							alert('没有可导出的链接');
@@ -1960,7 +1960,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						URL.revokeObjectURL(url);
 					}
 
-					function importLinks() {
+					window.importLinks = function() {
 						const input = document.createElement('input');
 						input.type = 'file';
 						input.accept = '.json';
@@ -2099,35 +2099,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					
 
 					
-					// 处理转换函数 - 移到前面避免未定义错误
-				function processConversion() {
-						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
-						const infoDiv = document.getElementById('infoDiv');
-						const inputYAML = document.getElementById('inputYAML');
-						
-						if (base64Mode) {
-							// 如果是Base64模式，先解码Base64内容
-							const base64Content = document.getElementById('base64Content').value.trim();
-							if (!base64Content) {
-								infoDiv.textContent = '请先输入Base64编码内容';
-								infoDiv.style.color = '#dc3545';
-								return;
-							}
-							
-							try {
-								infoDiv.textContent = '正在解码Base64内容并生成SOCKS配置...';
-								infoDiv.style.color = '#17a2b8';
-								
-								// 解码Base64
-								let decodedContent;
-								try {
-									decodedContent = atob(base64Content);
-								} catch (decodeError) {
-									throw new Error('Base64解码失败，请检查输入内容是否为有效的Base64编码');
-								}
-								
-								// 检查解码后的内容是否包含节点信息
-								if (decodedContent.includes('://') || decodedContent.includes('proxies:')) {
+
 									// 如果是节点链接列表，转换为YAML格式
 									if (decodedContent.includes('://') && !decodedContent.includes('proxies:')) {
 										const lines = decodedContent.split('\n').filter(line => line.trim());
@@ -2219,20 +2191,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 					}
 					
-					// 复制SOCKS配置到剪贴板
-					function copySOCKSConfig() {
-						const outputYAML = document.getElementById('outputYAML');
-						if (outputYAML.value) {
-							navigator.clipboard.writeText(outputYAML.value).then(() => {
-								alert('SOCKS配置已复制到剪贴板');
-							}).catch(err => {
-								console.error('复制失败:', err);
-								alert('复制失败，请手动选择文本复制');
-							});
-						} else {
-							alert('没有可复制的配置内容');
-						}
-					}
+
 					
 					// 显示下载按钮
 					function showDownloadButtons() {
@@ -2250,23 +2209,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						\`;
 					}
 					
-					// 下载SOCKS配置文件
-					function downloadSOCKSConfig() {
-						const outputYAML = document.getElementById('outputYAML');
-						if (outputYAML.value) {
-							const blob = new Blob([outputYAML.value], {type: 'text/yaml'});
-							const downloadUrl = URL.createObjectURL(blob);
-							const a = document.createElement('a');
-							a.href = downloadUrl;
-							a.download = 'socks-config.yaml';
-							document.body.appendChild(a);
-							a.click();
-							document.body.removeChild(a);
-							URL.revokeObjectURL(downloadUrl);
-						} else {
-							alert('没有可下载的配置内容');
-						}
-					}
+
 					
 					// 文件拖拽功能
 					function setupFileDrop() {
