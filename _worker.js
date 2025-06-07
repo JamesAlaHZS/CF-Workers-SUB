@@ -1099,52 +1099,53 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						.download-section {
 							margin-top: 15px;
-							padding: 15px;
-							background: rgba(255, 255, 255, 0.9);
-							border-radius: 8px;
-							border: 1px solid rgba(255, 255, 255, 0.3);
+							padding: 0;
+							background: transparent;
+							border: none;
 						}
 						
 						.download-btn {
 							display: inline-block;
-							padding: 10px 20px;
+							padding: 12px 24px;
 							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 							color: white;
 							text-decoration: none;
-							border-radius: 6px;
-							font-size: 14px;
+							border: none;
+							border-radius: 8px;
+							font-size: 15px;
 							font-weight: 600;
-							margin-right: 10px;
-							margin-bottom: 10px;
+							margin-right: 15px;
+							margin-bottom: 15px;
+							cursor: pointer;
+							box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 							transition: all 0.3s ease;
 						}
 						
 						.download-btn:hover {
-							background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+							background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
 							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-							text-decoration: none;
-							color: white;
+							box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 						}
 						
 						.copy-text-btn {
-							padding: 10px 20px;
+							padding: 12px 24px;
 							background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
 							color: white;
 							border: none;
-							border-radius: 6px;
-							font-size: 14px;
+							border-radius: 8px;
+							font-size: 15px;
 							font-weight: 600;
 							cursor: pointer;
-							margin-right: 10px;
-							margin-bottom: 10px;
+							margin-right: 15px;
+							margin-bottom: 15px;
+							box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 							transition: all 0.3s ease;
 						}
 						
 						.copy-text-btn:hover {
-							background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+							background: linear-gradient(135deg, #495057 0%, #343a40 100%);
 							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+							box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
 						}
 						
 						.converter-result {
