@@ -537,123 +537,995 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 			<!DOCTYPE html>
 			<html>
 				<head>
-					<title>${FileName} 订阅编辑</title>
+					<title>${FileName} 订阅管理中心</title>
 					<meta charset="utf-8">
 					<meta name="viewport" content="width=device-width, initial-scale=1">
 					<style>
-						body {
+						* {
 							margin: 0;
-							padding: 15px; /* 调整padding */
+							padding: 0;
 							box-sizing: border-box;
-							font-size: 13px; /* 设置全局字体大小 */
 						}
-						.editor-container {
-							width: 100%;
-							max-width: 100%;
+						
+						body {
+							font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							min-height: 100vh;
+							color: #333;
+							line-height: 1.6;
+						}
+						
+						.container {
+							max-width: 1200px;
 							margin: 0 auto;
+							padding: 20px;
 						}
-						.editor {
+						
+						.header {
+							text-align: center;
+							margin-bottom: 30px;
+							color: white;
+						}
+						
+						.header h1 {
+							font-size: 2.5rem;
+							margin-bottom: 10px;
+							text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+						}
+						
+						.header p {
+							font-size: 1.1rem;
+							opacity: 0.9;
+						}
+						
+						.card {
+							background: rgba(255, 255, 255, 0.95);
+							border-radius: 15px;
+							padding: 25px;
+							margin-bottom: 25px;
+							box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+							backdrop-filter: blur(10px);
+							border: 1px solid rgba(255,255,255,0.2);
+							position: relative;
+							overflow: hidden;
+							transition: all 0.3s ease;
+						}
+						
+						.card:hover {
+							transform: translateY(-2px);
+							box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+						}
+						
+						.card::before {
+							content: '';
+							position: absolute;
+							top: 0;
+							left: -100%;
 							width: 100%;
-							height: 300px; /* 调整高度 */
-							margin: 15px 0; /* 调整margin */
-							padding: 10px; /* 调整padding */
-							box-sizing: border-box;
-							border: 1px solid #ccc;
-							border-radius: 4px;
-							font-size: 13px;
-							line-height: 1.5;
-							overflow-y: auto;
-							resize: none;
+							height: 2px;
+							background: linear-gradient(90deg, transparent, #667eea, transparent);
+							transition: left 0.5s ease;
 						}
-						.save-container {
-							margin-top: 8px; /* 调整margin */
-							display: flex;
-							align-items: center;
-							gap: 10px; /* 调整gap */
+						
+						.card:hover::before {
+							left: 100%;
 						}
-						.save-btn, .back-btn {
-							padding: 6px 15px; /* 调整padding */
+						
+						.card-title {
+							font-size: 1.4rem;
+							font-weight: 600;
+							margin-bottom: 20px;
+							color: #2c3e50;
+							border-bottom: 2px solid #f39c12;
+							padding-bottom: 10px;
+							position: relative;
+						}
+						
+						.subscription-grid {
+							display: grid;
+							grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+							gap: 20px;
+							margin-bottom: 20px;
+						}
+						
+						.sub-item {
+							background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+							border-radius: 12px;
+							padding: 20px;
+							text-align: center;
+							transition: all 0.3s ease;
+							cursor: pointer;
+							border: none;
+							color: white;
+							text-decoration: none;
+							display: block;
+						}
+						
+						.sub-item:hover {
+							transform: translateY(-5px);
+							box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+							text-decoration: none;
+							color: white;
+						}
+						
+						.sub-item h3 {
+							font-size: 1.2rem;
+							margin-bottom: 10px;
+							font-weight: 600;
+						}
+						
+						.sub-item .url {
+							font-size: 0.9rem;
+							opacity: 0.9;
+							word-break: break-all;
+							background: rgba(255,255,255,0.2);
+							padding: 8px;
+							border-radius: 6px;
+							margin-top: 10px;
+						}
+						
+						.qr-container {
+							margin-top: 15px;
+							padding: 15px;
+							background: white;
+							border-radius: 8px;
+							display: none;
+						}
+						
+						.guest-section {
+							background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+							border-radius: 12px;
+							padding: 20px;
+							margin-top: 20px;
+						}
+						
+						.toggle-btn {
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							color: white;
 							border: none;
-							border-radius: 4px;
+							padding: 12px 24px;
+							border-radius: 25px;
 							cursor: pointer;
+							font-size: 1rem;
+							font-weight: 600;
+							transition: all 0.3s ease;
+							margin-bottom: 15px;
 						}
+						
+						.toggle-btn:hover {
+							transform: translateY(-2px);
+							box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+						}
+						
+						.editor-container {
+							margin-top: 20px;
+						}
+						
+						.editor {
+							width: 100%;
+							min-height: 300px;
+							padding: 20px;
+							border: 2px solid #e0e0e0;
+							border-radius: 12px;
+							font-size: 14px;
+							line-height: 1.6;
+							resize: vertical;
+							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+							background: #f8f9fa;
+							transition: border-color 0.3s ease;
+						}
+						
+						.editor:focus {
+							outline: none;
+							border-color: #667eea;
+							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+						}
+						
+						.save-container {
+							margin-top: 15px;
+							display: flex;
+							align-items: center;
+							gap: 15px;
+							flex-wrap: wrap;
+						}
+						
 						.save-btn {
-							background: #4CAF50;
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							color: white;
+							border: none;
+							padding: 12px 24px;
+							border-radius: 25px;
+							cursor: pointer;
+							font-size: 1rem;
+							font-weight: 600;
+							transition: all 0.3s ease;
 						}
+						
 						.save-btn:hover {
-							background: #45a049;
+							transform: translateY(-2px);
+							box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 						}
-						.back-btn {
-							background: #666;
+						
+						.save-btn:disabled {
+							opacity: 0.6;
+							cursor: not-allowed;
+							transform: none;
 						}
-						.back-btn:hover {
-							background: #555;
-						}
+						
 						.save-status {
 							color: #666;
+							font-weight: 500;
+						}
+						
+						.info-section {
+							background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+							border-radius: 12px;
+							padding: 20px;
+							margin-bottom: 20px;
+						}
+						
+						.info-section h3 {
+							color: #d35400;
+							margin-bottom: 15px;
+						}
+						
+						.info-item {
+							margin-bottom: 10px;
+							padding: 10px;
+							background: rgba(255,255,255,0.3);
+							border-radius: 8px;
+						}
+						
+						.info-item strong {
+							color: #c0392b;
+						}
+						
+						.footer-info {
+							text-align: center;
+							color: white;
+							margin-top: 30px;
+							padding: 20px;
+							background: rgba(255,255,255,0.1);
+							border-radius: 12px;
+							backdrop-filter: blur(10px);
+						}
+						
+						.footer-info a {
+							color: #ffd700;
+							text-decoration: none;
+							font-weight: 600;
+						}
+						
+						.footer-info a:hover {
+							text-decoration: underline;
+						}
+						
+						/* 链接保存功能样式 */
+						.link-manager {
+							background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+							border-radius: 12px;
+							padding: 20px;
+							margin-bottom: 20px;
+						}
+						
+						.link-input-group {
+							display: flex;
+							gap: 10px;
+							margin-bottom: 15px;
+							flex-wrap: wrap;
+						}
+						
+						.link-input {
+							flex: 1;
+							min-width: 200px;
+							padding: 12px;
+							border: 2px solid #e0e0e0;
+							border-radius: 8px;
+							font-size: 14px;
+						}
+						
+						.link-input:focus {
+							outline: none;
+							border-color: #667eea;
+						}
+						
+						.add-link-btn {
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							color: white;
+							border: none;
+							padding: 12px 20px;
+							border-radius: 8px;
+							cursor: pointer;
+							font-weight: 600;
+							white-space: nowrap;
+						}
+						
+						.saved-links {
+							margin-top: 15px;
+						}
+						
+						.saved-link-item {
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							padding: 12px;
+							background: rgba(255,255,255,0.4);
+							border-radius: 10px;
+							margin-bottom: 10px;
+							transition: all 0.3s ease;
+							border: 1px solid rgba(255,255,255,0.2);
+						}
+						
+						.saved-link-item:hover {
+							background: rgba(255,255,255,0.6);
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+						}
+						
+						.saved-link-item a {
+							color: #2c3e50;
+							text-decoration: none;
+							font-weight: 500;
+							flex: 1;
+							margin-right: 10px;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+						
+						.saved-link-item a:hover {
+							text-decoration: underline;
+							color: #667eea;
+						}
+						
+						.saved-link-item > div {
+							display: flex;
+							gap: 8px;
+							align-items: center;
+						}
+						
+						.copy-link-btn {
+							background: #3498db;
+							color: white;
+							border: none;
+							padding: 6px 8px;
+							border-radius: 6px;
+							cursor: pointer;
+							font-size: 12px;
+							transition: all 0.3s ease;
+							min-width: 32px;
+						}
+						
+						.copy-link-btn:hover {
+							background: #2980b9;
+							transform: scale(1.05);
+						}
+						
+						.delete-link-btn {
+							background: #e74c3c;
+							color: white;
+							border: none;
+							padding: 6px 10px;
+							border-radius: 6px;
+							cursor: pointer;
+							font-size: 12px;
+							transition: all 0.3s ease;
+						}
+						
+						.delete-link-btn:hover {
+							background: #c0392b;
+							transform: scale(1.05);
+						}
+						
+						.link-management-controls {
+							display: flex;
+							gap: 10px;
+							margin-top: 15px;
+							flex-wrap: wrap;
+							justify-content: center;
+						}
+						
+						.export-import-btn {
+							background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+							color: white;
+							border: none;
+							padding: 8px 16px;
+							border-radius: 8px;
+							cursor: pointer;
+							font-size: 13px;
+							font-weight: 500;
+							transition: all 0.3s ease;
+						}
+						
+						.export-import-btn:hover {
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+						}
+						
+						/* SOCKS转换功能样式 */
+						.socks-converter {
+							background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+							border-radius: 12px;
+							padding: 20px;
+							margin-bottom: 20px;
+						}
+						
+						.conversion-mode {
+							display: flex;
+							gap: 20px;
+							margin-bottom: 20px;
+							padding: 15px;
+							background: rgba(255, 255, 255, 0.9);
+							border-radius: 8px;
+							border: 1px solid rgba(255, 255, 255, 0.3);
+						}
+						
+						.mode-label {
+							display: flex;
+							align-items: center;
+							gap: 8px;
+							cursor: pointer;
+							padding: 8px 12px;
+							border-radius: 6px;
+							transition: background-color 0.3s ease;
+							font-weight: 600;
+						}
+						
+						.mode-label:hover {
+							background-color: rgba(255, 255, 255, 0.5);
+						}
+						
+						.mode-label input[type="radio"] {
+							margin: 0;
+							accent-color: #667eea;
+						}
+						
+						.input-section {
+							margin-bottom: 20px;
+							padding: 15px;
+							background: rgba(255, 255, 255, 0.9);
+							border-radius: 8px;
+							border: 1px solid rgba(255, 255, 255, 0.3);
+						}
+						
+						.input-section label {
+							display: block;
+							margin-bottom: 8px;
+							font-weight: 600;
+							color: #495057;
+						}
+						
+						.subscription-url {
+							width: calc(100% - 130px);
+							padding: 12px 15px;
+							border: 2px solid #e0e0e0;
+							border-radius: 6px;
+							font-size: 14px;
+							margin-right: 10px;
+							transition: border-color 0.3s ease;
+							box-sizing: border-box;
+						}
+						
+						.subscription-url:focus {
+							border-color: #667eea;
+							outline: none;
+							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+						}
+						
+						.fetch-btn {
+							padding: 12px 20px;
+							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+							color: white;
+							border: none;
+							border-radius: 6px;
+							font-size: 14px;
+							font-weight: 600;
+							cursor: pointer;
+							transition: all 0.3s ease;
+							vertical-align: top;
+						}
+						
+						.fetch-btn:hover {
+							background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+						}
+						
+						.converter-input {
+							width: 100%;
+							min-height: 150px;
+							padding: 15px;
+							border: 2px solid #e0e0e0;
+							border-radius: 8px;
+							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+							font-size: 13px;
+							resize: vertical;
+							margin-bottom: 15px;
+							box-sizing: border-box;
+						}
+						
+						.converter-input:focus {
+							border-color: #667eea;
+							outline: none;
+							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+						}
+						
+						.converter-controls {
+							display: flex;
+							gap: 15px;
+							align-items: center;
+							margin-bottom: 15px;
+							flex-wrap: wrap;
+						}
+						
+						.port-input {
+							width: 120px;
+							padding: 8px;
+							border: 2px solid #e0e0e0;
+							border-radius: 6px;
+							transition: border-color 0.3s ease;
+						}
+						
+						.port-input:focus {
+							border-color: #667eea;
+							outline: none;
+						}
+						
+						.convert-btn {
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							color: white;
+							border: none;
+							padding: 10px 20px;
+							border-radius: 8px;
+							cursor: pointer;
+							font-weight: 600;
+							transition: all 0.3s ease;
+						}
+						
+						.convert-btn:hover {
+							background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+						}
+						
+						.converter-output {
+							margin-top: 15px;
+						}
+						
+						.download-section {
+							margin-top: 15px;
+							padding: 15px;
+							background: rgba(255, 255, 255, 0.9);
+							border-radius: 8px;
+							border: 1px solid rgba(255, 255, 255, 0.3);
+						}
+						
+						.download-btn {
+							display: inline-block;
+							padding: 10px 20px;
+							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+							color: white;
+							text-decoration: none;
+							border-radius: 6px;
+							font-size: 14px;
+							font-weight: 600;
+							margin-right: 10px;
+							margin-bottom: 10px;
+							transition: all 0.3s ease;
+						}
+						
+						.download-btn:hover {
+							background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+							text-decoration: none;
+							color: white;
+						}
+						
+						.copy-text-btn {
+							padding: 10px 20px;
+							background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+							color: white;
+							border: none;
+							border-radius: 6px;
+							font-size: 14px;
+							font-weight: 600;
+							cursor: pointer;
+							margin-right: 10px;
+							margin-bottom: 10px;
+							transition: all 0.3s ease;
+						}
+						
+						.copy-text-btn:hover {
+							background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+						}
+						
+						.converter-result {
+							background: #f8f9fa;
+							border: 2px solid #e0e0e0;
+							border-radius: 8px;
+							padding: 15px;
+							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+							font-size: 13px;
+							white-space: pre-wrap;
+							max-height: 300px;
+							overflow-y: auto;
+						}
+						
+						.download-link {
+							display: inline-block;
+							margin-top: 10px;
+							padding: 10px 20px;
+							background: #27ae60;
+							color: white;
+							text-decoration: none;
+							border-radius: 8px;
+							font-weight: 600;
+						}
+						
+						.download-link:hover {
+							background: #229954;
+							text-decoration: none;
+							color: white;
+						}
+						
+						/* 现代化增强样式 */
+						
+						.qr-container {
+							animation: fadeIn 0.3s ease;
+						}
+						
+						@keyframes fadeIn {
+							from { opacity: 0; transform: translateY(10px); }
+							to { opacity: 1; transform: translateY(0); }
+						}
+						
+						/* 加载动画 */
+						.loading {
+							position: relative;
+							overflow: hidden;
+						}
+						
+						.loading::after {
+							content: '';
+							position: absolute;
+							top: 0;
+							left: -100%;
+							width: 100%;
+							height: 100%;
+							background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+							animation: shimmer 1.5s infinite;
+						}
+						
+						@keyframes shimmer {
+							0% { left: -100%; }
+							100% { left: 100%; }
+						}
+						
+						/* 响应式设计 */
+						@media (max-width: 1024px) {
+							.subscription-grid {
+								grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+							}
+						}
+						
+						@media (max-width: 768px) {
+							.container {
+								padding: 12px;
+							}
+							
+							.header h1 {
+								font-size: 1.8rem;
+							}
+							
+							.header p {
+								font-size: 1rem;
+							}
+							
+							.card {
+								padding: 18px;
+								margin-bottom: 20px;
+							}
+							
+							.card-title {
+								font-size: 1.2rem;
+							}
+							
+							.subscription-grid {
+								grid-template-columns: 1fr;
+								gap: 15px;
+							}
+							
+							.sub-item {
+								padding: 16px;
+							}
+							
+							.sub-item h3 {
+								font-size: 1.1rem;
+							}
+							
+							.link-input-group {
+								flex-direction: column;
+								gap: 12px;
+							}
+							
+							.link-input {
+								min-width: auto;
+								padding: 14px;
+								font-size: 16px; /* 防止iOS缩放 */
+							}
+							
+							.add-link-btn {
+								padding: 14px 20px;
+								font-size: 16px;
+							}
+							
+							.saved-link-item {
+								flex-direction: column;
+								align-items: flex-start;
+								gap: 10px;
+							}
+							
+							.saved-link-item a {
+								margin-right: 0;
+								width: 100%;
+							}
+							
+							.saved-link-item > div {
+								width: 100%;
+								justify-content: flex-end;
+							}
+							
+							.link-management-controls {
+								flex-direction: column;
+								align-items: stretch;
+							}
+							
+							.export-import-btn {
+								padding: 12px 16px;
+								font-size: 14px;
+							}
+							
+							.converter-controls {
+								flex-direction: column;
+								align-items: stretch;
+								gap: 12px;
+							}
+							
+							.port-input {
+								width: 100%;
+								padding: 12px;
+								font-size: 16px;
+							}
+							
+							.convert-btn {
+								padding: 12px 20px;
+								font-size: 16px;
+							}
+							
+							.editor {
+								padding: 16px;
+								font-size: 14px;
+							}
+							
+							.save-container {
+								flex-direction: column;
+								align-items: stretch;
+								gap: 10px;
+							}
+							
+							.save-btn {
+								padding: 14px 24px;
+								font-size: 16px;
+							}
+						}
+						
+						@media (max-width: 480px) {
+							.container {
+								padding: 10px;
+							}
+							
+							.header h1 {
+								font-size: 1.6rem;
+							}
+							
+							.card {
+								padding: 15px;
+							}
+							
+							.subscription-grid {
+								gap: 12px;
+							}
+							
+							.sub-item {
+								padding: 14px;
+							}
 						}
 					</style>
 					<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
+					<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 				</head>
 				<body>
-					################################################################<br>
-					Subscribe / sub 订阅地址, 点击链接自动 <strong>复制订阅链接</strong> 并 <strong>生成订阅二维码</strong> <br>
-					---------------------------------------------------------------<br>
-					自适应订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sub','qrcode_0')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}</a><br>
-					<div id="qrcode_0" style="margin: 10px 10px 10px 10px;"></div>
-					Base64订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?b64</a><br>
-					<div id="qrcode_1" style="margin: 10px 10px 10px 10px;"></div>
-					clash订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?clash</a><br>
-					<div id="qrcode_2" style="margin: 10px 10px 10px 10px;"></div>
-					singbox订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?sb</a><br>
-					<div id="qrcode_3" style="margin: 10px 10px 10px 10px;"></div>
-					surge订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?surge</a><br>
-					<div id="qrcode_4" style="margin: 10px 10px 10px 10px;"></div>
-					loon订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?loon</a><br>
-					<div id="qrcode_5" style="margin: 10px 10px 10px 10px;"></div>
-					&nbsp;&nbsp;<strong><a href="javascript:void(0);" id="noticeToggle" onclick="toggleNotice()">查看访客订阅∨</a></strong><br>
-					<div id="noticeContent" class="notice-content" style="display: none;">
-						---------------------------------------------------------------<br>
-						访客订阅只能使用订阅功能，无法查看配置页！<br>
-						GUEST（访客订阅TOKEN）: <strong>${guest}</strong><br>
-						---------------------------------------------------------------<br>
-						自适应订阅地址:<br>
-						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}</a><br>
-						<div id="guest_0" style="margin: 10px 10px 10px 10px;"></div>
-						Base64订阅地址:<br>
-						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&b64</a><br>
-						<div id="guest_1" style="margin: 10px 10px 10px 10px;"></div>
-						clash订阅地址:<br>
-						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&clash</a><br>
-						<div id="guest_2" style="margin: 10px 10px 10px 10px;"></div>
-						singbox订阅地址:<br>
-						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&sb</a><br>
-						<div id="guest_3" style="margin: 10px 10px 10px 10px;"></div>
-						surge订阅地址:<br>
-						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&surge</a><br>
-						<div id="guest_4" style="margin: 10px 10px 10px 10px;"></div>
-						loon订阅地址:<br>
-						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&loon</a><br>
-						<div id="guest_5" style="margin: 10px 10px 10px 10px;"></div>
-					</div>
-					---------------------------------------------------------------<br>
-					################################################################<br>
-					订阅转换配置<br>
-					---------------------------------------------------------------<br>
-					SUBAPI（订阅转换后端）: <strong>${subProtocol}://${subConverter}</strong><br>
-					SUBCONFIG（订阅转换配置文件）: <strong>${subConfig}</strong><br>
-					---------------------------------------------------------------<br>
-					################################################################<br>
-					${FileName} 汇聚订阅编辑: 
-					<div class="editor-container">
-						${hasKV ? `
+					<div class="container">
+						<div class="header">
+							<h1>🚀 ${FileName} 订阅管理中心</h1>
+							<p>现代化的订阅管理与转换工具</p>
+						</div>
+					
+						<!-- 订阅链接卡片 -->
+						<div class="card">
+							<h2 class="card-title">📡 订阅链接</h2>
+							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
+							
+							<div class="subscription-grid">
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
+									<h3>🔄 自适应订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}</div>
+									<div id="qrcode_0" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')">
+									<h3>📝 Base64订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?b64</div>
+									<div id="qrcode_1" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')">
+									<h3>⚔️ Clash订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?clash</div>
+									<div id="qrcode_2" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')">
+									<h3>📦 SingBox订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?sb</div>
+									<div id="qrcode_3" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')">
+									<h3>🌊 Surge订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?surge</div>
+									<div id="qrcode_4" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')">
+									<h3>🎈 Loon订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?loon</div>
+									<div id="qrcode_5" class="qr-container"></div>
+								</div>
+							</div>
+						</div>
+					
+						<!-- 访客订阅卡片 -->
+						<div class="card">
+							<h2 class="card-title">👥 访客订阅</h2>
+							<button class="toggle-btn" id="noticeToggle" onclick="toggleNotice()">查看访客订阅 ∨</button>
+							
+							<div id="noticeContent" class="guest-section" style="display: none;">
+								<p style="margin-bottom: 15px; color: #e67e22; font-weight: 600;">⚠️ 访客订阅只能使用订阅功能，无法查看配置页！</p>
+								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
+								
+								<div class="subscription-grid">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
+										<h3>🔄 自适应订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
+										<div id="guest_0" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')">
+										<h3>📝 Base64订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&b64</div>
+										<div id="guest_1" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')">
+										<h3>⚔️ Clash订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&clash</div>
+										<div id="guest_2" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')">
+										<h3>📦 SingBox订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&sb</div>
+										<div id="guest_3" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')">
+										<h3>🌊 Surge订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&surge</div>
+										<div id="guest_4" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')">
+										<h3>🎈 Loon订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&loon</div>
+										<div id="guest_5" class="qr-container"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					
+						<!-- 订阅转换配置信息 -->
+						<div class="info-section">
+							<h3>⚙️ 订阅转换配置</h3>
+							<div class="info-item">
+								<strong>SUBAPI（订阅转换后端）:</strong> ${subProtocol}://${subConverter}
+							</div>
+							<div class="info-item">
+								<strong>SUBCONFIG（订阅转换配置文件）:</strong> ${subConfig}
+							</div>
+						</div>
+					
+						<!-- 链接保存管理 -->
+						<div class="card">
+							<h2 class="card-title">🔗 链接保存管理</h2>
+							<div class="link-manager">
+								<p style="margin-bottom: 15px; color: #2c3e50; font-weight: 500;">💡 保存常用链接，支持导出导入，数据存储在本地浏览器中</p>
+								<div class="link-input-group">
+									<input type="text" class="link-input" id="linkName" placeholder="输入链接名称（如：GitHub、文档等）">
+									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
+									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
+								</div>
+								<div class="saved-links" id="savedLinks"></div>
+								<div class="link-management-controls">
+									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
+									<button class="export-import-btn" onclick="importLinks()">📥 导入链接</button>
+								</div>
+							</div>
+						</div>
+					
+						<!-- SOCKS转换工具 -->
+						<div class="card">
+							<h2 class="card-title">🔧 SOCKS转换工具</h2>
+							<div class="socks-converter">
+								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将机场节点和自建节点任意协议转换为本地SOCKS节点，支持从订阅链接自动生成Clash规则文件</p>
+								
+								<!-- 转换模式选择 -->
+								<div class="conversion-mode">
+									<label class="mode-label">
+										<input type="radio" name="conversionMode" value="subscription" checked>
+										<span>📡 订阅链接转换</span>
+									</label>
+									<label class="mode-label">
+										<input type="radio" name="conversionMode" value="yaml">
+										<span>📄 YAML文件转换</span>
+									</label>
+								</div>
+								
+								<!-- 订阅链接输入区域 -->
+								<div id="subscriptionInput" class="input-section">
+									<label>订阅链接：</label>
+									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
+									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
+								</div>
+								
+								<!-- YAML输入区域 -->
+								<div id="yamlInput" class="input-section" style="display: none;">
+									<label>YAML配置：</label>
+									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
+								</div>
+								
+								<div class="converter-controls">
+									<label>起始端口：</label>
+									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
+									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
+								</div>
+								
+								<div class="converter-output">
+									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
+									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
+									<div id="outputDiv" class="download-section"></div>
+								</div>
+							</div>
+						</div>
+					
+						<!-- 订阅编辑器 -->
+						<div class="card">
+							<h2 class="card-title">📝 ${FileName} 汇聚订阅编辑</h2>
+							<div class="editor-container">
+								${hasKV ? `
 						<textarea class="editor" 
 							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
 							id="content">${content}</textarea>
@@ -813,10 +1685,384 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							noticeToggle.textContent = '查看访客订阅∨';
 						}
 					}
-			
-					// 初始化 noticeContent 的 display 属性
+
+					// 链接保存功能
+					function addLink() {
+						const nameInput = document.getElementById('linkName');
+						const urlInput = document.getElementById('linkUrl');
+						const name = nameInput.value.trim();
+						const url = urlInput.value.trim();
+
+						if (!name || !url) {
+							alert('请输入链接名称和地址');
+							return;
+						}
+
+						// 验证URL格式
+						try {
+							new URL(url);
+						} catch {
+							alert('请输入有效的链接地址');
+							return;
+						}
+
+						// 获取已保存的链接
+						let savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+						
+						// 检查是否已存在相同名称
+						if (savedLinks.some(link => link.name === name)) {
+							if (!confirm('已存在相同名称的链接，是否覆盖？')) {
+								return;
+							}
+							savedLinks = savedLinks.filter(link => link.name !== name);
+						}
+
+						// 添加新链接
+						savedLinks.push({ name, url, timestamp: Date.now() });
+						localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+
+						// 清空输入框
+						nameInput.value = '';
+						urlInput.value = '';
+
+						// 刷新显示
+						displaySavedLinks();
+						alert('链接保存成功！');
+					}
+
+					function deleteLink(name) {
+						if (!confirm('确定要删除这个链接吗？')) {
+							return;
+						}
+
+						let savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+						savedLinks = savedLinks.filter(link => link.name !== name);
+						localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+						displaySavedLinks();
+					}
+
+					function displaySavedLinks() {
+						const container = document.getElementById('savedLinks');
+						const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+
+						if (savedLinks.length === 0) {
+							container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px 0;">暂无保存的链接</p>';
+							return;
+						}
+
+						// 按时间倒序排列
+						savedLinks.sort((a, b) => b.timestamp - a.timestamp);
+
+						container.innerHTML = savedLinks.map(link => \`
+							<div class="saved-link-item">
+								<a href="\${link.url}" target="_blank" title="\${link.url}">\${link.name}</a>
+								<div>
+									<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
+									<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
+								</div>
+							</div>
+						\`).join('');
+					}
+
+					function copyLinkToClipboard(url) {
+						navigator.clipboard.writeText(url).then(() => {
+							alert('链接已复制到剪贴板');
+						}).catch(err => {
+							console.error('复制失败:', err);
+							alert('复制失败，请手动复制');
+						});
+					}
+
+					// 导出和导入功能
+					function exportLinks() {
+						const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+						if (savedLinks.length === 0) {
+							alert('没有可导出的链接');
+							return;
+						}
+
+						const dataStr = JSON.stringify(savedLinks, null, 2);
+						const dataBlob = new Blob([dataStr], {type: 'application/json'});
+						const url = URL.createObjectURL(dataBlob);
+						const link = document.createElement('a');
+						link.href = url;
+						link.download = 'saved-links.json';
+						link.click();
+						URL.revokeObjectURL(url);
+					}
+
+					function importLinks() {
+						const input = document.createElement('input');
+						input.type = 'file';
+						input.accept = '.json';
+						input.onchange = function(e) {
+							const file = e.target.files[0];
+							if (!file) return;
+
+							const reader = new FileReader();
+							reader.onload = function(e) {
+								try {
+									const importedLinks = JSON.parse(e.target.result);
+									if (!Array.isArray(importedLinks)) {
+										throw new Error('文件格式不正确');
+									}
+
+									const currentLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+									const mergedLinks = [...currentLinks];
+									
+									importedLinks.forEach(importedLink => {
+										if (!mergedLinks.some(link => link.name === importedLink.name)) {
+											mergedLinks.push(importedLink);
+										}
+									});
+
+									localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
+									displaySavedLinks();
+									alert(\`成功导入 \${importedLinks.length} 个链接\`);
+								} catch (error) {
+									alert('导入失败：' + error.message);
+								}
+							};
+							reader.readAsText(file);
+						};
+						input.click();
+					}
+		
+					// SOCKS转换功能
+					// 转换模式切换
+					function switchConversionMode() {
+						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const subscriptionInput = document.getElementById('subscriptionInput');
+						const yamlInput = document.getElementById('yamlInput');
+						
+						if (subscriptionMode) {
+							subscriptionInput.style.display = 'block';
+							yamlInput.style.display = 'none';
+						} else {
+							subscriptionInput.style.display = 'none';
+							yamlInput.style.display = 'block';
+						}
+					}
+					
+					// 获取订阅内容
+					async function fetchSubscription() {
+						const url = document.getElementById('subscriptionUrl').value.trim();
+						const infoDiv = document.getElementById('infoDiv');
+						const inputYAML = document.getElementById('inputYAML');
+						
+						if (!url) {
+							infoDiv.textContent = '请输入订阅链接';
+							return;
+						}
+						
+						try {
+							infoDiv.textContent = '正在获取订阅内容...';
+							infoDiv.style.color = '#17a2b8';
+							
+							// 尝试获取Clash格式的订阅
+							let clashUrl = url;
+							if (!url.includes('clash') && !url.includes('yaml')) {
+								clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
+							}
+							
+							const response = await fetch(clashUrl);
+							if (!response.ok) {
+								throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+							}
+							
+							const content = await response.text();
+							
+							// 检查是否为有效的YAML内容
+							if (content.trim().startsWith('proxies:') || content.includes('proxies:')) {
+								inputYAML.value = content;
+								infoDiv.textContent = '订阅内容获取成功，已自动填入YAML配置区域';
+								infoDiv.style.color = '#28a745';
+								
+								// 自动切换到YAML模式
+								document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+								switchConversionMode();
+							} else {
+								throw new Error('获取的内容不是有效的Clash YAML格式');
+							}
+						} catch (error) {
+							console.error('获取订阅失败:', error);
+							infoDiv.textContent = \`获取订阅失败: \${error.message}\`;
+							infoDiv.style.color = '#dc3545';
+						}
+					}
+					
+					// 处理转换
+					function processConversion() {
+						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						
+						if (subscriptionMode) {
+							// 如果是订阅模式，先获取订阅内容
+							fetchSubscription().then(() => {
+								// 获取成功后处理YAML转换
+								setTimeout(() => {
+									processYAMLConversion();
+								}, 1000);
+							});
+						} else {
+							// 直接处理YAML转换
+							processYAMLConversion();
+						}
+					}
+					
+					// YAML转换处理（集成socks转换.html的核心功能）
+					function processYAMLConversion() {
+						const inputYAML = document.getElementById('inputYAML').value.trim();
+						const startPort = parseInt(document.getElementById('startPort').value);
+						const infoDiv = document.getElementById('infoDiv');
+						const outputYAML = document.getElementById('outputYAML');
+						const outputDiv = document.getElementById('outputDiv');
+						
+						if (!inputYAML) {
+							infoDiv.textContent = '请输入YAML配置内容';
+							infoDiv.style.color = '#dc3545';
+							return;
+						}
+						
+						try {
+							// 解析YAML
+							const yamlData = jsyaml.load(inputYAML);
+							
+							if (!yamlData || !yamlData.proxies || !Array.isArray(yamlData.proxies)) {
+								throw new Error('YAML格式错误：未找到有效的proxies数组');
+							}
+							
+							const numProxies = yamlData.proxies.length;
+							
+							// 生成SOCKS配置
+							const socksConfig = {
+								'allow-lan': true,
+								dns: {
+									enable: true,
+									'enhanced-mode': 'fake-ip',
+									'fake-ip-range': '198.18.0.1/16',
+									'default-nameserver': ['114.114.114.114'],
+									nameserver: ['https://doh.pub/dns-query']
+								},
+								listeners: [],
+								proxies: yamlData.proxies
+							};
+							
+							// 生成监听器配置
+							socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
+								name: \`mixed\${i}\`,
+								type: 'mixed',
+								port: startPort + i,
+								proxy: yamlData.proxies[i].name
+							}));
+							
+							// 转换为YAML字符串
+							const socksYAMLString = jsyaml.dump(socksConfig);
+							outputYAML.value = socksYAMLString;
+							
+							// 更新信息显示
+							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+							infoDiv.style.color = '#28a745';
+							
+							// 生成下载链接和复制按钮
+							const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
+							const downloadUrl = URL.createObjectURL(blob);
+							
+							outputDiv.innerHTML = \`
+								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+								<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
+								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+									<strong>使用说明：</strong><br>
+									1. 下载生成的YAML文件并导入到Clash客户端<br>
+									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+								</div>
+							\`;
+							
+						} catch (error) {
+							console.error('转换失败:', error);
+							infoDiv.textContent = \`转换失败: \${error.message}\`;
+							infoDiv.style.color = '#dc3545';
+							outputYAML.value = '';
+							outputDiv.innerHTML = '';
+						}
+					}
+					
+					// 复制SOCKS配置到剪贴板
+					function copySOCKSConfig() {
+						const outputYAML = document.getElementById('outputYAML');
+						if (outputYAML.value) {
+							navigator.clipboard.writeText(outputYAML.value).then(() => {
+								alert('SOCKS配置已复制到剪贴板');
+							}).catch(err => {
+								console.error('复制失败:', err);
+								alert('复制失败，请手动选择文本复制');
+							});
+						} else {
+							alert('没有可复制的配置内容');
+						}
+					}
+					
+					// 文件拖拽功能
+					function setupFileDrop() {
+						const inputYAML = document.getElementById('inputYAML');
+						if (inputYAML) {
+							inputYAML.addEventListener('dragover', (e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								inputYAML.style.borderColor = '#667eea';
+								inputYAML.style.backgroundColor = '#f8f9ff';
+							});
+							
+							inputYAML.addEventListener('dragleave', (e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								inputYAML.style.borderColor = '#e0e0e0';
+								inputYAML.style.backgroundColor = '';
+							});
+							
+							inputYAML.addEventListener('drop', (e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								inputYAML.style.borderColor = '#e0e0e0';
+								inputYAML.style.backgroundColor = '';
+								
+								const files = e.dataTransfer.files;
+								if (files.length > 0) {
+									const file = files[0];
+									if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+										const reader = new FileReader();
+										reader.onload = (event) => {
+											inputYAML.value = event.target.result;
+											// 自动切换到YAML模式
+											document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+											switchConversionMode();
+										};
+										reader.readAsText(file);
+									} else {
+										alert('请拖拽YAML文件（.yaml或.yml格式）');
+									}
+								}
+							});
+						}
+					}
+					
+					// 初始化
 					document.addEventListener('DOMContentLoaded', () => {
 						document.getElementById('noticeContent').style.display = 'none';
+						displaySavedLinks();
+						
+						// 设置转换模式切换事件
+						const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
+						modeRadios.forEach(radio => {
+							radio.addEventListener('change', switchConversionMode);
+						});
+						
+						// 初始化转换模式显示
+						switchConversionMode();
+						
+						// 设置文件拖拽功能
+						setupFileDrop();
 					});
 					</script>
 				</body>
