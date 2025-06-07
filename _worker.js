@@ -2047,17 +2047,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							infoDiv.style.color = '#28a745';
 							
 							// 生成下载和复制按钮
-							outputDiv.innerHTML = \`
-								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-								<button class="download-btn" onclick="downloadSOCKSConfig()">📄 下载YAML文件</button>
-								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
-								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-									<strong>使用说明：</strong><br>
-									1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
-									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-								</div>
-							\`;
+							showDownloadButtons();
 							
 						} catch (error) {
 							console.error('转换失败:', error);
@@ -2081,6 +2071,22 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						} else {
 							alert('没有可复制的配置内容');
 						}
+					}
+					
+					// 显示下载按钮
+					function showDownloadButtons() {
+						const outputDiv = document.getElementById('outputDiv');
+						outputDiv.innerHTML = \`
+							<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+							<button class="download-btn" onclick="downloadSOCKSConfig()">📄 下载YAML文件</button>
+							<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+							<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+								<strong>使用说明：</strong><br>
+								1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
+								2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+								3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+							</div>
+						\`;
 					}
 					
 					// 下载SOCKS配置文件
@@ -2161,6 +2167,9 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						// 设置文件拖拽功能
 						setupFileDrop();
+						
+						// 默认显示下载按钮
+						showDownloadButtons();
 					});
 					</script>
 				</body>
