@@ -1366,85 +1366,85 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
 							
 							<div class="subscription-grid">
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
-									<h3>🔄 自适应订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}</div>
-									<div id="qrcode_0" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')">
-									<h3>📝 Base64订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?b64</div>
-									<div id="qrcode_1" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')">
-									<h3>⚔️ Clash订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?clash</div>
-									<div id="qrcode_2" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')">
-									<h3>📦 SingBox订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?sb</div>
-									<div id="qrcode_3" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')">
-									<h3>🌊 Surge订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?surge</div>
-									<div id="qrcode_4" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')">
-									<h3>🎈 Loon订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?loon</div>
-									<div id="qrcode_5" class="qr-container"></div>
-								</div>
+								<div class="sub-item" data-url="https://${url.hostname}/${mytoken}" data-qr="qrcode_0">
+								<h3>🔄 自适应订阅</h3>
+								<div class="url">https://${url.hostname}/${mytoken}</div>
+								<div id="qrcode_0" class="qr-container"></div>
+							</div>
+							
+							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?b64" data-qr="qrcode_1">
+								<h3>📝 Base64订阅</h3>
+								<div class="url">https://${url.hostname}/${mytoken}?b64</div>
+								<div id="qrcode_1" class="qr-container"></div>
+							</div>
+							
+							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?clash" data-qr="qrcode_2">
+								<h3>⚔️ Clash订阅</h3>
+								<div class="url">https://${url.hostname}/${mytoken}?clash</div>
+								<div id="qrcode_2" class="qr-container"></div>
+							</div>
+							
+							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?sb" data-qr="qrcode_3">
+								<h3>📦 SingBox订阅</h3>
+								<div class="url">https://${url.hostname}/${mytoken}?sb</div>
+								<div id="qrcode_3" class="qr-container"></div>
+							</div>
+							
+							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?surge" data-qr="qrcode_4">
+								<h3>🌊 Surge订阅</h3>
+								<div class="url">https://${url.hostname}/${mytoken}?surge</div>
+								<div id="qrcode_4" class="qr-container"></div>
+							</div>
+							
+							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?loon" data-qr="qrcode_5">
+								<h3>🎈 Loon订阅</h3>
+								<div class="url">https://${url.hostname}/${mytoken}?loon</div>
+								<div id="qrcode_5" class="qr-container"></div>
+							</div>
 							</div>
 						</div>
 					
 						<!-- 访客订阅卡片 -->
 						<div class="card">
 							<h2 class="card-title">👥 访客订阅</h2>
-							<button class="toggle-btn" id="noticeToggle" onclick="toggleNotice()">查看访客订阅 ∨</button>
+							<button class="toggle-btn" id="noticeToggle">查看访客订阅 ∨</button>
 							
 							<div id="noticeContent" class="guest-section" style="display: none;">
 								<p style="margin-bottom: 15px; color: #e67e22; font-weight: 600;">⚠️ 访客订阅只能使用订阅功能，无法查看配置页！</p>
 								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
 								
 								<div class="subscription-grid">
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
+									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}" data-qr="guest_0">
 										<h3>🔄 自适应订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
 										<div id="guest_0" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')">
+									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&b64" data-qr="guest_1">
 										<h3>📝 Base64订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&b64</div>
 										<div id="guest_1" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')">
+									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&clash" data-qr="guest_2">
 										<h3>⚔️ Clash订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&clash</div>
 										<div id="guest_2" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')">
+									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&sb" data-qr="guest_3">
 										<h3>📦 SingBox订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&sb</div>
 										<div id="guest_3" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')">
+									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&surge" data-qr="guest_4">
 										<h3>🌊 Surge订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&surge</div>
 										<div id="guest_4" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')">
+									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&loon" data-qr="guest_5">
 										<h3>🎈 Loon订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&loon</div>
 										<div id="guest_5" class="qr-container"></div>
@@ -1472,12 +1472,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div class="link-input-group">
 									<input type="text" class="link-input" id="linkName" placeholder="输入链接名称（如：GitHub、文档等）">
 									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
-									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
+									<button class="add-link-btn" id="addLinkBtn">💾 添加链接</button>
 								</div>
 								<div class="saved-links" id="savedLinks"></div>
 								<div class="link-management-controls">
-									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
-									<button class="export-import-btn" onclick="importLinks()">📥 导入链接</button>
+									<button class="export-import-btn" id="exportLinksBtn">📤 导出链接</button>
+									<button class="export-import-btn" id="importLinksBtn">📥 导入链接</button>
 								</div>
 							</div>
 						</div>
@@ -1515,7 +1515,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div class="converter-controls">
 									<label>起始端口：</label>
 									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
+									<button class="convert-btn" id="processButton">🔄 生成SOCKS配置</button>
 								</div>
 								
 								<div class="converter-output">
@@ -1523,8 +1523,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
 									<div id="outputDiv" class="download-section">
 										<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-										<button class="download-btn" onclick="downloadSOCKSConfig()">📄 下载YAML文件</button>
-										<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+										<button class="download-btn" id="downloadSOCKSBtn">📄 下载YAML文件</button>
+										<button class="copy-text-btn" id="copySOCKSBtn">📋 复制配置文本</button>
 										<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
 											<strong>使用说明：</strong><br>
 											1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
@@ -1545,7 +1545,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
 							id="content">${content}</textarea>
 						<div class="save-container">
-							<button class="save-btn" onclick="saveContent(this)">保存</button>
+							<button class="save-btn" id="saveBtn">保存</button>
 							<span class="save-status" id="saveStatus"></span>
 						</div>
 						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
@@ -1596,7 +1596,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						function saveContent(button) {
 							try {
 								const updateButtonText = (step) => {
-									button.textContent = "保存中: " + step;  // 改为字符串拼接
+									button.textContent = \`保存中: \${step}\`;
 								};
 								// 检测是否为iOS设备
 								const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -1922,15 +1922,28 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						});
 					}
 
-						container.innerHTML = savedLinks.map(link => \`
-							<div class="saved-link-item">
-								<a href="\${link.url}" target="_blank" title="\${link.url}">\${link.name}</a>
-								<div>
-									<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
-									<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
-								</div>
+						container.innerHTML = savedLinks.map((link, index) => \`
+						<div class="saved-link-item">
+							<a href="\${link.url}" target="_blank" title="\${link.url}">\${link.name}</a>
+							<div>
+								<button class="copy-link-btn" data-url="\${link.url}" title="复制链接">📋</button>
+								<button class="delete-link-btn" data-name="\${link.name}">删除</button>
 							</div>
-						\`).join('');
+						</div>
+					\`).join('');
+					
+					// 为动态生成的按钮添加事件监听器
+					container.querySelectorAll('.copy-link-btn').forEach(btn => {
+						btn.addEventListener('click', function() {
+							copyLinkToClipboard(this.dataset.url);
+						});
+					});
+					
+					container.querySelectorAll('.delete-link-btn').forEach(btn => {
+						btn.addEventListener('click', function() {
+							deleteLink(this.dataset.name);
+						});
+					});
 					}
 
 					function copyLinkToClipboard(url) {
@@ -2198,8 +2211,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						const outputDiv = document.getElementById('outputDiv');
 						outputDiv.innerHTML = \`
 							<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-							<button class="download-btn" onclick="downloadSOCKSConfig()">📄 下载YAML文件</button>
-							<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+							<button class="download-btn" id="downloadSOCKSBtn2">📄 下载YAML文件</button>
+							<button class="copy-text-btn" id="copySOCKSBtn2">📋 复制配置文本</button>
 							<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
 								<strong>使用说明：</strong><br>
 								1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
@@ -2253,9 +2266,78 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								}
 							});
 						}
+				}
+				
+				// 设置事件监听器
+				function setupEventListeners() {
+					// 订阅链接点击事件
+					document.querySelectorAll('.sub-item').forEach(item => {
+						item.addEventListener('click', function() {
+							const url = this.dataset.url;
+							const qrId = this.dataset.qr;
+							if (url && qrId) {
+								copyToClipboard(url, qrId);
+							}
+						});
+					});
+					
+					// 切换访客订阅显示
+					const noticeToggle = document.getElementById('noticeToggle');
+					if (noticeToggle) {
+						noticeToggle.addEventListener('click', toggleNotice);
 					}
 					
-					// 初始化
+					// 链接管理按钮
+					const addLinkBtn = document.getElementById('addLinkBtn');
+					if (addLinkBtn) {
+						addLinkBtn.addEventListener('click', addLink);
+					}
+					
+					const exportLinksBtn = document.getElementById('exportLinksBtn');
+					if (exportLinksBtn) {
+						exportLinksBtn.addEventListener('click', exportLinks);
+					}
+					
+					const importLinksBtn = document.getElementById('importLinksBtn');
+					if (importLinksBtn) {
+						importLinksBtn.addEventListener('click', importLinks);
+					}
+					
+					// SOCKS转换按钮
+					const processButton = document.getElementById('processButton');
+					if (processButton) {
+						processButton.addEventListener('click', processConversion);
+					}
+					
+					const downloadSOCKSBtn = document.getElementById('downloadSOCKSBtn');
+					if (downloadSOCKSBtn) {
+						downloadSOCKSBtn.addEventListener('click', downloadSOCKSConfig);
+					}
+					
+					const copySOCKSBtn = document.getElementById('copySOCKSBtn');
+					if (copySOCKSBtn) {
+						copySOCKSBtn.addEventListener('click', copySOCKSConfig);
+					}
+					
+					// 动态生成的下载按钮（在showDownloadButtons中生成）
+					document.addEventListener('click', function(e) {
+						if (e.target.id === 'downloadSOCKSBtn2') {
+							downloadSOCKSConfig();
+						} else if (e.target.id === 'copySOCKSBtn2') {
+							copySOCKSConfig();
+						}
+					});
+					
+					// 保存按钮
+					const saveBtn = document.getElementById('saveBtn');
+					if (saveBtn) {
+						saveBtn.addEventListener('click', function() {
+							saveContent(this);
+						});
+					}
+				}
+				
+				// 初始化
 					document.addEventListener('DOMContentLoaded', () => {
 						document.getElementById('noticeContent').style.display = 'none';
 						displaySavedLinks();
@@ -2267,13 +2349,16 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						});
 						
 						// 初始化转换模式显示
-						switchConversionMode();
-						
-						// 设置文件拖拽功能
-						setupFileDrop();
-						
-						// 默认显示下载按钮
-						showDownloadButtons();
+					switchConversionMode();
+					
+					// 设置文件拖拽功能
+					setupFileDrop();
+					
+					// 默认显示下载按钮
+					showDownloadButtons();
+					
+					// 添加事件监听器替代onclick
+					setupEventListeners();
 					});
 					</script>
 				</body>
