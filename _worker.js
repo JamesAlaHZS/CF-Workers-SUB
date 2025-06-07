@@ -1099,53 +1099,52 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						.download-section {
 							margin-top: 15px;
-							padding: 0;
-							background: transparent;
-							border: none;
+							padding: 15px;
+							background: rgba(255, 255, 255, 0.9);
+							border-radius: 8px;
+							border: 1px solid rgba(255, 255, 255, 0.3);
 						}
 						
 						.download-btn {
 							display: inline-block;
-							padding: 12px 24px;
+							padding: 10px 20px;
 							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 							color: white;
 							text-decoration: none;
-							border: none;
-							border-radius: 8px;
-							font-size: 15px;
+							border-radius: 6px;
+							font-size: 14px;
 							font-weight: 600;
-							margin-right: 15px;
-							margin-bottom: 15px;
-							cursor: pointer;
-							box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+							margin-right: 10px;
+							margin-bottom: 10px;
 							transition: all 0.3s ease;
 						}
 						
 						.download-btn:hover {
-							background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+							background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
 							transform: translateY(-2px);
-							box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+							box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+							text-decoration: none;
+							color: white;
 						}
 						
 						.copy-text-btn {
-							padding: 12px 24px;
+							padding: 10px 20px;
 							background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
 							color: white;
 							border: none;
-							border-radius: 8px;
-							font-size: 15px;
+							border-radius: 6px;
+							font-size: 14px;
 							font-weight: 600;
 							cursor: pointer;
-							margin-right: 15px;
-							margin-bottom: 15px;
-							box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+							margin-right: 10px;
+							margin-bottom: 10px;
 							transition: all 0.3s ease;
 						}
 						
 						.copy-text-btn:hover {
-							background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+							background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
 							transform: translateY(-2px);
-							box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+							box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 						}
 						
 						.converter-result {
@@ -1366,85 +1365,85 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
 							
 							<div class="subscription-grid">
-								<div class="sub-item" data-url="https://${url.hostname}/${mytoken}" data-qr="qrcode_0">
-								<h3>🔄 自适应订阅</h3>
-								<div class="url">https://${url.hostname}/${mytoken}</div>
-								<div id="qrcode_0" class="qr-container"></div>
-							</div>
-							
-							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?b64" data-qr="qrcode_1">
-								<h3>📝 Base64订阅</h3>
-								<div class="url">https://${url.hostname}/${mytoken}?b64</div>
-								<div id="qrcode_1" class="qr-container"></div>
-							</div>
-							
-							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?clash" data-qr="qrcode_2">
-								<h3>⚔️ Clash订阅</h3>
-								<div class="url">https://${url.hostname}/${mytoken}?clash</div>
-								<div id="qrcode_2" class="qr-container"></div>
-							</div>
-							
-							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?sb" data-qr="qrcode_3">
-								<h3>📦 SingBox订阅</h3>
-								<div class="url">https://${url.hostname}/${mytoken}?sb</div>
-								<div id="qrcode_3" class="qr-container"></div>
-							</div>
-							
-							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?surge" data-qr="qrcode_4">
-								<h3>🌊 Surge订阅</h3>
-								<div class="url">https://${url.hostname}/${mytoken}?surge</div>
-								<div id="qrcode_4" class="qr-container"></div>
-							</div>
-							
-							<div class="sub-item" data-url="https://${url.hostname}/${mytoken}?loon" data-qr="qrcode_5">
-								<h3>🎈 Loon订阅</h3>
-								<div class="url">https://${url.hostname}/${mytoken}?loon</div>
-								<div id="qrcode_5" class="qr-container"></div>
-							</div>
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
+									<h3>🔄 自适应订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}</div>
+									<div id="qrcode_0" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')">
+									<h3>📝 Base64订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?b64</div>
+									<div id="qrcode_1" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')">
+									<h3>⚔️ Clash订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?clash</div>
+									<div id="qrcode_2" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')">
+									<h3>📦 SingBox订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?sb</div>
+									<div id="qrcode_3" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')">
+									<h3>🌊 Surge订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?surge</div>
+									<div id="qrcode_4" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')">
+									<h3>🎈 Loon订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?loon</div>
+									<div id="qrcode_5" class="qr-container"></div>
+								</div>
 							</div>
 						</div>
 					
 						<!-- 访客订阅卡片 -->
 						<div class="card">
 							<h2 class="card-title">👥 访客订阅</h2>
-							<button class="toggle-btn" id="noticeToggle">查看访客订阅 ∨</button>
+							<button class="toggle-btn" id="noticeToggle" onclick="toggleNotice()">查看访客订阅 ∨</button>
 							
 							<div id="noticeContent" class="guest-section" style="display: none;">
 								<p style="margin-bottom: 15px; color: #e67e22; font-weight: 600;">⚠️ 访客订阅只能使用订阅功能，无法查看配置页！</p>
 								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
 								
 								<div class="subscription-grid">
-									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}" data-qr="guest_0">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
 										<h3>🔄 自适应订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
 										<div id="guest_0" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&b64" data-qr="guest_1">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')">
 										<h3>📝 Base64订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&b64</div>
 										<div id="guest_1" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&clash" data-qr="guest_2">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')">
 										<h3>⚔️ Clash订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&clash</div>
 										<div id="guest_2" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&sb" data-qr="guest_3">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')">
 										<h3>📦 SingBox订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&sb</div>
 										<div id="guest_3" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&surge" data-qr="guest_4">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')">
 										<h3>🌊 Surge订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&surge</div>
 										<div id="guest_4" class="qr-container"></div>
 									</div>
 									
-									<div class="sub-item" data-url="https://${url.hostname}/sub?token=${guest}&loon" data-qr="guest_5">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')">
 										<h3>🎈 Loon订阅</h3>
 										<div class="url">https://${url.hostname}/sub?token=${guest}&loon</div>
 										<div id="guest_5" class="qr-container"></div>
@@ -1472,12 +1471,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div class="link-input-group">
 									<input type="text" class="link-input" id="linkName" placeholder="输入链接名称（如：GitHub、文档等）">
 									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
-									<button class="add-link-btn" id="addLinkBtn">💾 添加链接</button>
+									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
 								</div>
 								<div class="saved-links" id="savedLinks"></div>
 								<div class="link-management-controls">
-									<button class="export-import-btn" id="exportLinksBtn">📤 导出链接</button>
-									<button class="export-import-btn" id="importLinksBtn">📥 导入链接</button>
+									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
+									<button class="export-import-btn" onclick="importLinks()">📥 导入链接</button>
 								</div>
 							</div>
 						</div>
@@ -1491,8 +1490,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<!-- 转换模式选择 -->
 								<div class="conversion-mode">
 									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="base64" checked>
-										<span>🔓 Base64解码转换</span>
+										<input type="radio" name="conversionMode" value="subscription" checked>
+										<span>📡 订阅链接转换</span>
 									</label>
 									<label class="mode-label">
 										<input type="radio" name="conversionMode" value="yaml">
@@ -1500,10 +1499,11 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									</label>
 								</div>
 								
-								<!-- Base64解码输入区域 -->
-								<div id="base64Input" class="input-section">
-									<label>Base64编码内容：</label>
-									<textarea class="converter-input" id="base64Content" placeholder="粘贴Base64编码的订阅内容，点击生成SOCKS配置将自动解码并转换"></textarea>
+								<!-- 订阅链接输入区域 -->
+								<div id="subscriptionInput" class="input-section">
+									<label>订阅链接：</label>
+									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
+									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
 								</div>
 								
 								<!-- YAML输入区域 -->
@@ -1515,23 +1515,13 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div class="converter-controls">
 									<label>起始端口：</label>
 									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton">🔄 生成SOCKS配置</button>
+									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
 								</div>
 								
 								<div class="converter-output">
 									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
 									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
-									<div id="outputDiv" class="download-section">
-										<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-										<button class="download-btn" id="downloadSOCKSBtn">📄 下载YAML文件</button>
-										<button class="copy-text-btn" id="copySOCKSBtn">📋 复制配置文本</button>
-										<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-											<strong>使用说明：</strong><br>
-											1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
-											2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-											3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-										</div>
-									</div>
+									<div id="outputDiv" class="download-section"></div>
 								</div>
 							</div>
 						</div>
@@ -1545,7 +1535,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
 							id="content">${content}</textarea>
 						<div class="save-container">
-							<button class="save-btn" id="saveBtn">保存</button>
+							<button class="save-btn" onclick="saveContent(this)">保存</button>
 							<span class="save-status" id="saveStatus"></span>
 						</div>
 						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
@@ -1692,7 +1682,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						});
 					}
 
-					window.toggleNotice = function() {
+					function toggleNotice() {
 						const noticeContent = document.getElementById('noticeContent');
 						const noticeToggle = document.getElementById('noticeToggle');
 						if (noticeContent.style.display === 'none' || noticeContent.style.display === '') {
@@ -1705,7 +1695,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 
 					// 链接保存功能
-					window.addLink = function() {
+					function addLink() {
 						const nameInput = document.getElementById('linkName');
 						const urlInput = document.getElementById('linkUrl');
 						const name = nameInput.value.trim();
@@ -1748,7 +1738,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						alert('链接保存成功！');
 					}
 
-					window.deleteLink = function(name) {
+					function deleteLink(name) {
 						if (!confirm('确定要删除这个链接吗？')) {
 							return;
 						}
@@ -1769,181 +1759,17 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 
 						// 按时间倒序排列
-					savedLinks.sort((a, b) => b.timestamp - a.timestamp);
+						savedLinks.sort((a, b) => b.timestamp - a.timestamp);
 
-					// 处理转换函数 - 提前定义避免未定义错误
-					window.processConversion = function() {
-						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
-						const infoDiv = document.getElementById('infoDiv');
-						const inputYAML = document.getElementById('inputYAML');
-						
-						if (base64Mode) {
-							// 如果是Base64模式，先解码Base64内容
-							const base64Content = document.getElementById('base64Content').value.trim();
-							if (!base64Content) {
-								infoDiv.textContent = '请先输入Base64编码内容';
-								infoDiv.style.color = '#dc3545';
-								return;
-							}
-							
-							try {
-								infoDiv.textContent = '正在解码Base64内容并生成SOCKS配置...';
-								infoDiv.style.color = '#17a2b8';
-								
-								// 解码Base64
-								const decodedContent = atob(base64Content);
-								
-								// 将解码后的内容设置到YAML输入框
-								inputYAML.value = decodedContent;
-								
-								// 继续处理YAML转换
-								processYAMLConversion();
-							} catch (error) {
-								infoDiv.textContent = 'Base64解码失败，请检查输入内容格式';
-								infoDiv.style.color = '#dc3545';
-								console.error('Base64解码错误:', error);
-							}
-						} else {
-							// 直接处理YAML转换
-							processYAMLConversion();
-						}
-					}
-					
-					// YAML转换处理函数
-					function processYAMLConversion() {
-						const inputYAML = document.getElementById('inputYAML');
-						const outputYAML = document.getElementById('outputYAML');
-						const infoDiv = document.getElementById('infoDiv');
-						const startPort = parseInt(document.getElementById('startPort').value);
-						
-						try {
-							const inputContent = inputYAML.value.trim();
-							if (!inputContent) {
-								infoDiv.textContent = '请先输入YAML配置内容';
-								infoDiv.style.color = '#dc3545';
-								return;
-							}
-							
-							infoDiv.textContent = '正在生成SOCKS配置...';
-							infoDiv.style.color = '#17a2b8';
-							
-							// 检查输入是否为节点链接列表
-							if (inputContent.includes('://') && !inputContent.includes('proxies:')) {
-								// 处理节点链接列表
-								const yamlConfig = convertLinesToYAML(inputContent, startPort);
-								outputYAML.value = yamlConfig;
-								
-								// 计算节点数量
-								const lines = inputContent.split('\n').filter(line => line.trim() && line.includes('://'));
-								const numProxies = lines.length;
-								
-								infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
-								infoDiv.style.color = '#28a745';
-							} else {
-								// 处理YAML配置
-								const yamlData = jsyaml.load(inputContent);
-								
-								if (!yamlData.proxies || !Array.isArray(yamlData.proxies)) {
-									throw new Error('YAML配置中未找到有效的proxies数组');
-								}
-								
-								const numProxies = yamlData.proxies.length;
-								
-								// 创建新的YAML配置
-								const newYAML = {
-									'allow-lan': true,
-									dns: {
-										enable: true,
-										'enhanced-mode': 'fake-ip',
-										'fake-ip-range': '198.18.0.1/16',
-										'default-nameserver': ['114.114.114.114'],
-										nameserver: ['https://doh.pub/dns-query']
-									},
-									listeners: [],
-									proxies: yamlData.proxies
-								};
-								
-								// 生成监听器配置
-								newYAML.listeners = Array.from({length: numProxies}, (_, i) => ({
-									name: \`mixed\${i}\`,
-									type: 'mixed',
-									port: startPort + i,
-									proxy: yamlData.proxies[i].name
-								}));
-								
-								const newYAMLString = jsyaml.dump(newYAML);
-								outputYAML.value = newYAMLString;
-								
-								infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
-								infoDiv.style.color = '#28a745';
-							}
-							
-						} catch (error) {
-							infoDiv.textContent = '处理失败，请检查输入格式是否正确';
-							infoDiv.style.color = '#dc3545';
-							console.error('YAML处理错误:', error);
-						}
-					}
-					
-					// 下载SOCKS配置函数
-					window.downloadSOCKSConfig = function() {
-						const outputYAML = document.getElementById('outputYAML');
-						const content = outputYAML.value;
-						
-						if (!content.trim()) {
-							alert('请先生成SOCKS配置');
-							return;
-						}
-						
-						const blob = new Blob([content], { type: 'text/yaml' });
-						const url = URL.createObjectURL(blob);
-						const a = document.createElement('a');
-						a.href = url;
-						a.download = 'socks-config.yaml';
-						a.click();
-						URL.revokeObjectURL(url);
-					}
-					
-					// 复制SOCKS配置函数
-					window.copySOCKSConfig = function() {
-						const outputYAML = document.getElementById('outputYAML');
-						const content = outputYAML.value;
-						
-						if (!content.trim()) {
-							alert('请先生成SOCKS配置');
-							return;
-						}
-						
-						navigator.clipboard.writeText(content).then(() => {
-							alert('配置已复制到剪贴板');
-						}).catch(err => {
-							console.error('复制失败:', err);
-							alert('复制失败，请手动复制');
-						});
-					}
-
-						container.innerHTML = savedLinks.map((link, index) => \`
-						<div class="saved-link-item">
-							<a href="\${link.url}" target="_blank" title="\${link.url}">\${link.name}</a>
-							<div>
-								<button class="copy-link-btn" data-url="\${link.url}" title="复制链接">📋</button>
-								<button class="delete-link-btn" data-name="\${link.name}">删除</button>
+						container.innerHTML = savedLinks.map(link => \`
+							<div class="saved-link-item">
+								<a href="\${link.url}" target="_blank" title="\${link.url}">\${link.name}</a>
+								<div>
+									<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
+									<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
+								</div>
 							</div>
-						</div>
-					\`).join('');
-					
-					// 为动态生成的按钮添加事件监听器
-					container.querySelectorAll('.copy-link-btn').forEach(btn => {
-						btn.addEventListener('click', function() {
-							copyLinkToClipboard(this.dataset.url);
-						});
-					});
-					
-					container.querySelectorAll('.delete-link-btn').forEach(btn => {
-						btn.addEventListener('click', function() {
-							deleteLink(this.dataset.name);
-						});
-					});
+						\`).join('');
 					}
 
 					function copyLinkToClipboard(url) {
@@ -1956,7 +1782,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 
 					// 导出和导入功能
-					window.exportLinks = function() {
+					function exportLinks() {
 						const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
 						if (savedLinks.length === 0) {
 							alert('没有可导出的链接');
@@ -1973,7 +1799,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						URL.revokeObjectURL(url);
 					}
 
-					window.importLinks = function() {
+					function importLinks() {
 						const input = document.createElement('input');
 						input.type = 'file';
 						input.accept = '.json';
@@ -2013,125 +1839,92 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					// SOCKS转换功能
 					// 转换模式切换
 					function switchConversionMode() {
-						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
-						const base64Input = document.getElementById('base64Input');
+						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const subscriptionInput = document.getElementById('subscriptionInput');
 						const yamlInput = document.getElementById('yamlInput');
 						
-						if (base64Mode) {
-							base64Input.style.display = 'block';
+						if (subscriptionMode) {
+							subscriptionInput.style.display = 'block';
 							yamlInput.style.display = 'none';
 						} else {
-							base64Input.style.display = 'none';
+							subscriptionInput.style.display = 'none';
 							yamlInput.style.display = 'block';
 						}
 					}
 					
-
-					
-					// 将节点链接列表转换为YAML格式
-					function convertLinesToYAML(lines) {
-						const proxies = [];
+					// 获取订阅内容
+					async function fetchSubscription() {
+						const url = document.getElementById('subscriptionUrl').value.trim();
+						const infoDiv = document.getElementById('infoDiv');
+						const inputYAML = document.getElementById('inputYAML');
 						
-						lines.forEach((line, index) => {
-							const trimmedLine = line.trim();
-							if (trimmedLine && trimmedLine.includes('://')) {
-								try {
-									const proxy = parseProxyLine(trimmedLine, index);
-									if (proxy) {
-										proxies.push(proxy);
-									}
-								} catch (error) {
-									console.warn(\`解析第\${index + 1}行失败:\`, error.message);
-								}
-							}
-						});
-						
-						return \`proxies:\n\${proxies.map(proxy => \`  - \${JSON.stringify(proxy).replace(/\"/g, '').replace(/:/g, ': ').replace(/,/g, '\\n    ')}\`).join('\\n')}\`;
-					}
-					
-					// 解析单个代理行
-					function parseProxyLine(line, index) {
-						const url = new URL(line);
-						const protocol = url.protocol.replace(':', '');
-						const name = \`Node-\${index + 1}\`;
-						
-						const baseProxy = {
-							name: name,
-							type: protocol,
-							server: url.hostname,
-							port: parseInt(url.port) || getDefaultPort(protocol)
-						};
-						
-						// 根据协议类型添加特定配置
-						switch (protocol) {
-							case 'ss':
-								const ssInfo = url.username.split(':');
-								baseProxy.cipher = ssInfo[0] || 'aes-256-gcm';
-								baseProxy.password = ssInfo[1] || url.password;
-								break;
-							case 'vmess':
-								// VMess协议需要特殊处理
-								try {
-									const vmessData = JSON.parse(atob(url.pathname.substring(1)));
-									baseProxy.uuid = vmessData.id;
-									baseProxy.alterId = vmessData.aid || 0;
-									baseProxy.cipher = vmessData.scy || 'auto';
-									if (vmessData.net) baseProxy.network = vmessData.net;
-									if (vmessData.tls) baseProxy.tls = vmessData.tls === 'tls';
-								} catch (e) {
-									baseProxy.uuid = url.username;
-									baseProxy.alterId = 0;
-									baseProxy.cipher = 'auto';
-								}
-								break;
-							case 'trojan':
-								baseProxy.password = url.username;
-								baseProxy.sni = url.searchParams.get('sni') || url.hostname;
-								break;
-							case 'vless':
-								baseProxy.uuid = url.username;
-								baseProxy.encryption = url.searchParams.get('encryption') || 'none';
-								break;
+						if (!url) {
+							infoDiv.textContent = '请输入订阅链接';
+							return;
 						}
 						
-						return baseProxy;
-					}
-					
-					// 获取协议默认端口
-					function getDefaultPort(protocol) {
-						const defaultPorts = {
-							'ss': 8388,
-							'vmess': 443,
-							'vless': 443,
-							'trojan': 443,
-							'http': 80,
-							'https': 443
-						};
-						return defaultPorts[protocol] || 443;
-					}
-					
-
-					
-
-									// 如果是节点链接列表，转换为YAML格式
-									if (decodedContent.includes('://') && !decodedContent.includes('proxies:')) {
-										const lines = decodedContent.split('\n').filter(line => line.trim());
-										const yamlContent = convertLinesToYAML(lines);
-										inputYAML.value = yamlContent;
-									} else {
-										// 如果已经是YAML格式，直接使用
-										inputYAML.value = decodedContent;
-									}
-									
-									// 直接处理YAML转换
-									processYAMLConversion();
-								} else {
-									throw new Error('解码后的内容不包含有效的节点信息');
+						try {
+						infoDiv.textContent = '正在获取订阅内容...';
+						infoDiv.style.color = '#17a2b8';
+						
+						// 尝试获取Clash格式的订阅
+						let clashUrl = url;
+						if (!url.includes('clash') && !url.includes('yaml')) {
+							clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
+						}
+						
+						let content;
+						
+						// 首先尝试直接访问
+						try {
+							const directResponse = await fetch(clashUrl, {
+								mode: 'cors',
+								headers: {
+									'Accept': 'text/plain, application/x-yaml, text/yaml',
+									'User-Agent': 'ClashforWindows/0.18.1'
 								}
-							} catch (error) {
-								infoDiv.textContent = '错误：' + error.message;
-								infoDiv.style.color = '#dc3545';
+							});
+							if (directResponse.ok) {
+								content = await directResponse.text();
+							} else {
+								throw new Error('直接访问失败');
 							}
+						} catch (directError) {
+							// 如果直接访问失败，提示用户手动粘贴
+							throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
+						}
+							
+							// 检查是否为有效的YAML内容
+							if (content.trim().startsWith('proxies:') || content.includes('proxies:')) {
+								inputYAML.value = content;
+								infoDiv.textContent = '订阅内容获取成功，已自动填入YAML配置区域';
+								infoDiv.style.color = '#28a745';
+								
+								// 自动切换到YAML模式
+								document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+								switchConversionMode();
+							} else {
+								throw new Error('获取的内容不是有效的Clash YAML格式');
+							}
+						} catch (error) {
+							console.error('获取订阅失败:', error);
+							infoDiv.textContent = \`获取订阅失败: \${error.message}\`;
+							infoDiv.style.color = '#dc3545';
+						}
+					}
+					
+					// 处理转换
+					function processConversion() {
+						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						
+						if (subscriptionMode) {
+							// 如果是订阅模式，先获取订阅内容
+							fetchSubscription().then(() => {
+								// 获取成功后处理YAML转换
+								setTimeout(() => {
+									processYAMLConversion();
+								}, 1000);
+							});
 						} else {
 							// 直接处理YAML转换
 							processYAMLConversion();
@@ -2192,8 +1985,21 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
 							infoDiv.style.color = '#28a745';
 							
-							// 生成下载和复制按钮
-							showDownloadButtons();
+							// 生成下载链接和复制按钮
+							const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
+							const downloadUrl = URL.createObjectURL(blob);
+							
+							outputDiv.innerHTML = \`
+								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+								<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
+								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+									<strong>使用说明：</strong><br>
+									1. 下载生成的YAML文件并导入到Clash客户端<br>
+									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+								</div>
+							\`;
 							
 						} catch (error) {
 							console.error('转换失败:', error);
@@ -2204,25 +2010,20 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 					}
 					
-
-					
-					// 显示下载按钮
-					function showDownloadButtons() {
-						const outputDiv = document.getElementById('outputDiv');
-						outputDiv.innerHTML = \`
-							<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-							<button class="download-btn" id="downloadSOCKSBtn2">📄 下载YAML文件</button>
-							<button class="copy-text-btn" id="copySOCKSBtn2">📋 复制配置文本</button>
-							<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-								<strong>使用说明：</strong><br>
-								1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
-								2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-								3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-							</div>
-						\`;
+					// 复制SOCKS配置到剪贴板
+					function copySOCKSConfig() {
+						const outputYAML = document.getElementById('outputYAML');
+						if (outputYAML.value) {
+							navigator.clipboard.writeText(outputYAML.value).then(() => {
+								alert('SOCKS配置已复制到剪贴板');
+							}).catch(err => {
+								console.error('复制失败:', err);
+								alert('复制失败，请手动选择文本复制');
+							});
+						} else {
+							alert('没有可复制的配置内容');
+						}
 					}
-					
-
 					
 					// 文件拖拽功能
 					function setupFileDrop() {
@@ -2266,269 +2067,25 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								}
 							});
 						}
-				}
-				
-				// 切换访客订阅显示函数
-				function toggleNotice() {
-					const noticeContent = document.getElementById('noticeContent');
-					const noticeToggle = document.getElementById('noticeToggle');
-					if (noticeContent.style.display === 'none' || noticeContent.style.display === '') {
-						noticeContent.style.display = 'block';
-						noticeToggle.textContent = '隐藏访客订阅∧';
-					} else {
-						noticeContent.style.display = 'none';
-						noticeToggle.textContent = '查看访客订阅∨';
-					}
-				}
-				
-				// 添加链接函数
-				function addLink() {
-					const name = prompt('请输入链接名称:');
-					if (!name) return;
-					
-					const url = prompt('请输入链接地址:');
-					if (!url) return;
-					
-					const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-					const newLink = {
-						id: Date.now(),
-						name: name,
-						url: url,
-						date: new Date().toLocaleDateString()
-					};
-					
-					savedLinks.push(newLink);
-					localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
-					displaySavedLinks();
-					alert('链接已保存');
-				}
-				
-				// 导出链接函数
-				function exportLinks() {
-					const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-					if (savedLinks.length === 0) {
-						alert('没有可导出的链接');
-						return;
 					}
 					
-					const dataStr = JSON.stringify(savedLinks, null, 2);
-					const dataBlob = new Blob([dataStr], {type: 'application/json'});
-					const url = URL.createObjectURL(dataBlob);
-					const link = document.createElement('a');
-					link.href = url;
-					link.download = 'saved_links.json';
-					link.click();
-					URL.revokeObjectURL(url);
-				}
-				
-				// 导入链接函数
-				function importLinks() {
-					const input = document.createElement('input');
-					input.type = 'file';
-					input.accept = '.json';
-					input.onchange = function(event) {
-						const file = event.target.files[0];
-						if (!file) return;
+					// 初始化
+					document.addEventListener('DOMContentLoaded', () => {
+						document.getElementById('noticeContent').style.display = 'none';
+						displaySavedLinks();
 						
-						const reader = new FileReader();
-						reader.onload = function(e) {
-							try {
-								const importedLinks = JSON.parse(e.target.result);
-								if (!Array.isArray(importedLinks)) {
-									throw new Error('文件格式不正确');
-								}
-								
-								const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-								const mergedLinks = [...savedLinks, ...importedLinks];
-								localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
-								displaySavedLinks();
-								alert('成功导入 ' + importedLinks.length + ' 个链接');
-							} catch (error) {
-								alert('导入失败：' + error.message);
-							}
-						};
-						reader.readAsText(file);
-					};
-					input.click();
-				}
-				
-				// 下载SOCKS配置函数
-				function downloadSOCKSConfig() {
-					const outputYAML = document.getElementById('outputYAML');
-					if (!outputYAML || !outputYAML.value.trim()) {
-						alert('没有可下载的配置内容');
-						return;
-					}
-					
-					const blob = new Blob([outputYAML.value], {type: 'text/yaml'});
-					const url = URL.createObjectURL(blob);
-					const link = document.createElement('a');
-					link.href = url;
-					link.download = 'config.yaml';
-					link.click();
-					URL.revokeObjectURL(url);
-				}
-				
-				// 复制SOCKS配置函数
-				function copySOCKSConfig() {
-					const outputYAML = document.getElementById('outputYAML');
-					if (!outputYAML || !outputYAML.value.trim()) {
-						alert('没有可复制的配置内容');
-						return;
-					}
-					
-					navigator.clipboard.writeText(outputYAML.value).then(() => {
-						alert('配置已复制到剪贴板');
-					}).catch(err => {
-						console.error('复制失败:', err);
-						alert('复制失败，请手动复制');
+						// 设置转换模式切换事件
+						const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
+						modeRadios.forEach(radio => {
+							radio.addEventListener('change', switchConversionMode);
+						});
+						
+						// 初始化转换模式显示
+						switchConversionMode();
+						
+						// 设置文件拖拽功能
+						setupFileDrop();
 					});
-				}
-				
-				// 编辑器相关功能
-				if (document.querySelector('.editor')) {
-					let timer;
-					const textarea = document.getElementById('content');
-					const originalContent = textarea.value;
-
-					function goBack() {
-						const currentUrl = window.location.href;
-						const parentUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-						window.location.href = parentUrl;
-					}
-
-					function replaceFullwidthColon() {
-						const text = textarea.value;
-						textarea.value = text.replace(/：/g, ':');
-					}
-					
-					function saveContent(button) {
-						try {
-							const updateButtonText = (step) => {
-								button.textContent = '保存中: ' + step;
-							};
-							// 检测是否为iOS设备
-							const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-							
-							// 仅在非iOS设备上执行replaceFullwidthColon
-							if (!isIOS) {
-								replaceFullwidthColon();
-							}
-							updateButtonText('开始保存');
-							button.disabled = true;
-
-							// 获取textarea内容和原始内容
-							const textarea = document.getElementById('content');
-							if (!textarea) {
-								throw new Error('找不到文本编辑区域');
-							}
-
-							updateButtonText('获取内容');
-							let newContent;
-							let originalContent;
-							try {
-								newContent = textarea.value || '';
-								originalContent = textarea.defaultValue || '';
-							} catch (e) {
-								console.error('获取内容错误:', e);
-								throw new Error('无法获取编辑内容');
-							}
-
-							updateButtonText('准备状态更新函数');
-							const updateStatus = (message, isError = false) => {
-								const statusElem = document.getElementById('saveStatus');
-								if (statusElem) {
-									statusElem.textContent = message;
-									statusElem.style.color = isError ? 'red' : '#666';
-								}
-							};
-
-							updateButtonText('准备按钮重置函数');
-							const resetButton = () => {
-								button.textContent = '保存';
-								button.disabled = false;
-							};
-
-							if (newContent !== originalContent) {
-								updateButtonText('发送保存请求');
-								fetch(window.location.href, {
-									method: 'POST',
-									body: newContent,
-									headers: {
-										'Content-Type': 'text/plain;charset=UTF-8'
-									},
-									cache: 'no-cache'
-								})
-								.then(response => {
-									updateButtonText('检查响应状态');
-									if (!response.ok) {
-										throw new Error('HTTP error! status: ' + response.status);
-									}
-									updateButtonText('更新保存状态');
-									const now = new Date().toLocaleString();
-									document.title = '编辑已保存 ' + now;
-									updateStatus('已保存 ' + now);
-								})
-								.catch(error => {
-									updateButtonText('处理错误');
-									console.error('Save error:', error);
-									updateStatus('保存失败: ' + error.message, true);
-								})
-								.finally(() => {
-									resetButton();
-								});
-							} else {
-								updateButtonText('检查内容变化');
-								updateStatus('内容未变化');
-								resetButton();
-							}
-						} catch (error) {
-							console.error('保存过程出错:', error);
-							button.textContent = '保存';
-							button.disabled = false;
-							const statusElem = document.getElementById('saveStatus');
-							if (statusElem) {
-								statusElem.textContent = '错误: ' + error.message;
-								statusElem.style.color = 'red';
-							}
-						}
-					}
-
-					textarea.addEventListener('blur', saveContent);
-					textarea.addEventListener('input', () => {
-						clearTimeout(timer);
-						timer = setTimeout(saveContent, 5000);
-					});
-				}
-
-				// 初始化
-				document.addEventListener('DOMContentLoaded', () => {
-					document.getElementById('noticeContent').style.display = 'none';
-					displaySavedLinks();
-
-					// 绑定事件监听器
-					document.getElementById('noticeToggle').addEventListener('click', toggleNotice);
-					document.getElementById('addLinkBtn').addEventListener('click', addLink);
-					document.getElementById('exportLinksBtn').addEventListener('click', exportLinks);
-					document.getElementById('importLinksBtn').addEventListener('click', importLinks);
-					document.getElementById('downloadSOCKSConfigBtn').addEventListener('click', downloadSOCKSConfig);
-					document.getElementById('copySOCKSConfigBtn').addEventListener('click', copySOCKSConfig);
-
-					// 设置转换模式切换事件
-					const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
-					modeRadios.forEach(radio => {
-						radio.addEventListener('change', switchConversionMode);
-					});
-
-					// 初始化转换模式显示
-					switchConversionMode();
-
-					// 设置文件拖拽功能
-					setupFileDrop();
-
-					// 默认显示下载按钮
-					showDownloadButtons();
-				});
 					</script>
 				</body>
 			</html>
