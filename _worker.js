@@ -1890,8 +1890,13 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								throw new Error('直接访问失败');
 							}
 						} catch (directError) {
-							// 如果直接访问失败，提示用户手动粘贴
-							throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
+							// 如果直接访问失败，尝试使用JSONP方式
+							try {
+								content = await fetchWithJSONP(clashUrl);
+							} catch (jsonpError) {
+								// JSONP也失败，提示用户手动粘贴
+								throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
+							}
 						}
 							
 							// 检查是否为有效的YAML内容
@@ -1913,6 +1918,56 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 					}
 					
+					// JSONP方式获取订阅内容
+					function fetchWithJSONP(url) {
+						return new Promise((resolve, reject) => {
+							// 生成唯一的回调函数名
+							const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+							
+							// 创建全局回调函数
+							window[callbackName] = function(data) {
+								// 清理
+								document.head.removeChild(script);
+								delete window[callbackName];
+								
+								if (typeof data === 'string') {
+									resolve(data);
+								} else if (data && data.content) {
+									resolve(data.content);
+								} else {
+									reject(new Error('JSONP返回数据格式错误'));
+								}
+							};
+							
+							// 创建script标签
+							const script = document.createElement('script');
+							
+							// 处理URL，添加callback参数
+							const separator = url.includes('?') ? '&' : '?';
+							const jsonpUrl = url + separator + 'callback=' + callbackName + '&format=jsonp';
+							
+							script.src = jsonpUrl;
+							script.onerror = function() {
+								// 清理
+								document.head.removeChild(script);
+								delete window[callbackName];
+								reject(new Error('JSONP请求失败'));
+							};
+							
+							// 设置超时
+							setTimeout(() => {
+								if (window[callbackName]) {
+									document.head.removeChild(script);
+									delete window[callbackName];
+									reject(new Error('JSONP请求超时'));
+								}
+							}, 10000); // 10秒超时
+							
+							// 添加到页面
+							document.head.appendChild(script);
+						});
+					}
+					
 					// 处理转换
 					function processConversion() {
 						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
@@ -1924,6 +1979,11 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								setTimeout(() => {
 									processYAMLConversion();
 								}, 1000);
+							}).catch(error => {
+								console.error('获取订阅失败:', error);
+								const infoDiv = document.getElementById('infoDiv');
+								infoDiv.textContent = `获取订阅失败: ${error.message}`;
+								infoDiv.style.color = '#dc3545';
 							});
 						} else {
 							// 直接处理YAML转换
