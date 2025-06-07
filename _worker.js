@@ -1,4 +1,3 @@
-
 // 部署完成后在网址后面加上这个，获取自建节点和机场聚合节点，/?token=auto或/auto或
 
 let mytoken = 'auto';
@@ -549,7 +548,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						body {
 							font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-							background: #ffffff;
+							background: #f5f5f5;
 							min-height: 100vh;
 							color: #333;
 							line-height: 1.6;
@@ -565,7 +564,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							text-align: center;
 							margin-bottom: 30px;
 							color: #2c3e50;
-							background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+							background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
 							padding: 30px;
 							border-radius: 15px;
 							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -585,12 +584,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.card {
-							background: #ffffff;
+							background: #fafafa;
 							border-radius: 15px;
 							padding: 25px;
 							margin-bottom: 25px;
 							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-							border: 1px solid #e9ecef;
+							border: 1px solid #e0e0e0;
 							position: relative;
 							overflow: hidden;
 							transition: all 0.3s ease;
@@ -710,13 +709,13 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							width: 100%;
 							min-height: 300px;
 							padding: 20px;
-							border: 2px solid #e0e0e0;
+							border: 2px solid #d0d0d0;
 							border-radius: 12px;
 							font-size: 14px;
 							line-height: 1.6;
 							resize: vertical;
 							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-							background: #f8f9fa;
+							background: #f0f0f0;
 							transition: border-color 0.3s ease;
 						}
 						
@@ -1485,37 +1484,25 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						<div class="card">
 							<h2 class="card-title">🔧 SOCKS转换工具</h2>
 							<div class="socks-converter">
-								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将机场节点和自建节点任意协议转换为本地SOCKS节点，支持从订阅链接自动生成Clash规则文件</p>
-								
-								<!-- 转换模式选择 -->
-								<div class="conversion-mode">
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="subscription" checked>
-										<span>📡 订阅链接转换</span>
-									</label>
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="yaml">
-										<span>📄 YAML文件转换</span>
-									</label>
-								</div>
-								
-								<!-- 订阅链接输入区域 -->
-								<div id="subscriptionInput" class="input-section">
-									<label>订阅链接：</label>
-									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
-									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
-								</div>
-								
-								<!-- YAML输入区域 -->
-								<div id="yamlInput" class="input-section" style="display: none;">
-									<label>YAML配置：</label>
-									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
-								</div>
+								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将Base64编码的节点信息转换为本地SOCKS节点，支持自动生成Clash规则文件</p>
+							
+							<!-- Base64节点输入区域 -->
+							<div id="base64Input" class="input-section">
+								<label>Base64编码节点信息：</label>
+								<textarea class="converter-input" id="inputBase64" placeholder="请粘贴Base64编码的节点信息，支持多个节点（每行一个）"></textarea>
+								<button class="fetch-btn" onclick="parseBase64Nodes()">🔍 解析节点</button>
+							</div>
+							
+							<!-- 解析后的节点预览 -->
+							<div id="nodePreview" class="input-section" style="display: none;">
+								<label>解析的节点信息：</label>
+								<div id="nodeList" class="node-list"></div>
+							</div>
 								
 								<div class="converter-controls">
 									<label>起始端口：</label>
 									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
+									<button class="convert-btn" id="processButton" onclick="generateSOCKSConfig()" disabled>🔄 生成SOCKS配置</button>
 								</div>
 								
 								<div class="converter-output">
