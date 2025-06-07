@@ -1982,7 +1982,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							}).catch(error => {
 								console.error('获取订阅失败:', error);
 								const infoDiv = document.getElementById('infoDiv');
-								infoDiv.textContent = `获取订阅失败: ${error.message}`;
+								infoDiv.textContent = '获取订阅失败: ' + error.message;
 								infoDiv.style.color = '#dc3545';
 							});
 						} else {
