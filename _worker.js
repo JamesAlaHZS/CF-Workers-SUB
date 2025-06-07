@@ -1490,8 +1490,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<!-- 转换模式选择 -->
 								<div class="conversion-mode">
 									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="subscription" checked>
-										<span>📡 订阅链接转换</span>
+										<input type="radio" name="conversionMode" value="base64" checked>
+										<span>🔓 Base64解码转换</span>
 									</label>
 									<label class="mode-label">
 										<input type="radio" name="conversionMode" value="yaml">
@@ -1499,11 +1499,11 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									</label>
 								</div>
 								
-								<!-- 订阅链接输入区域 -->
-								<div id="subscriptionInput" class="input-section">
-									<label>订阅链接：</label>
-									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
-									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
+								<!-- Base64解码输入区域 -->
+								<div id="base64Input" class="input-section">
+									<label>Base64编码内容：</label>
+									<textarea class="converter-input" id="base64Content" placeholder="粘贴Base64编码的订阅内容，将自动解码并转换为YAML格式"></textarea>
+									<button class="fetch-btn" onclick="decodeBase64()">🔓 解码Base64</button>
 								</div>
 								
 								<!-- YAML输入区域 -->
@@ -1839,152 +1839,173 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					// SOCKS转换功能
 					// 转换模式切换
 					function switchConversionMode() {
-						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
-						const subscriptionInput = document.getElementById('subscriptionInput');
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
+						const base64Input = document.getElementById('base64Input');
 						const yamlInput = document.getElementById('yamlInput');
 						
-						if (subscriptionMode) {
-							subscriptionInput.style.display = 'block';
+						if (base64Mode) {
+							base64Input.style.display = 'block';
 							yamlInput.style.display = 'none';
 						} else {
-							subscriptionInput.style.display = 'none';
+							base64Input.style.display = 'none';
 							yamlInput.style.display = 'block';
 						}
 					}
 					
-					// 获取订阅内容
-					async function fetchSubscription() {
-						const url = document.getElementById('subscriptionUrl').value.trim();
+					// Base64解码功能
+					function decodeBase64() {
+						const base64Content = document.getElementById('base64Content').value.trim();
 						const infoDiv = document.getElementById('infoDiv');
 						const inputYAML = document.getElementById('inputYAML');
 						
-						if (!url) {
-							infoDiv.textContent = '请输入订阅链接';
+						if (!base64Content) {
+							infoDiv.textContent = '请输入Base64编码内容';
+							infoDiv.style.color = '#dc3545';
 							return;
 						}
 						
 						try {
-						infoDiv.textContent = '正在获取订阅内容...';
-						infoDiv.style.color = '#17a2b8';
-						
-						// 尝试获取Clash格式的订阅
-						let clashUrl = url;
-						if (!url.includes('clash') && !url.includes('yaml')) {
-							clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
-						}
-						
-						let content;
-						
-						// 首先尝试直接访问
-						try {
-							const directResponse = await fetch(clashUrl, {
-								mode: 'cors',
-								headers: {
-									'Accept': 'text/plain, application/x-yaml, text/yaml',
-									'User-Agent': 'ClashforWindows/0.18.1'
-								}
-							});
-							if (directResponse.ok) {
-								content = await directResponse.text();
-							} else {
-								throw new Error('直接访问失败');
-							}
-						} catch (directError) {
-							// 如果直接访问失败，尝试使用JSONP方式
-							try {
-								content = await fetchWithJSONP(clashUrl);
-							} catch (jsonpError) {
-								// JSONP也失败，提示用户手动粘贴
-								throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
-							}
-						}
+							infoDiv.textContent = '正在解码Base64内容...';
+							infoDiv.style.color = '#17a2b8';
 							
-							// 检查是否为有效的YAML内容
-							if (content.trim().startsWith('proxies:') || content.includes('proxies:')) {
-								inputYAML.value = content;
-								infoDiv.textContent = '订阅内容获取成功，已自动填入YAML配置区域';
+							// 解码Base64
+							let decodedContent;
+							try {
+								decodedContent = atob(base64Content);
+							} catch (decodeError) {
+								throw new Error('Base64解码失败，请检查输入内容是否为有效的Base64编码');
+							}
+							
+							// 检查解码后的内容是否包含节点信息
+							if (decodedContent.includes('://') || decodedContent.includes('proxies:')) {
+								// 如果是节点链接列表，转换为YAML格式
+								if (decodedContent.includes('://') && !decodedContent.includes('proxies:')) {
+									const lines = decodedContent.split('\n').filter(line => line.trim());
+									const yamlContent = convertLinesToYAML(lines);
+									inputYAML.value = yamlContent;
+								} else {
+									// 如果已经是YAML格式，直接使用
+									inputYAML.value = decodedContent;
+								}
+								
+								infoDiv.textContent = 'Base64解码成功，已自动填入YAML配置区域';
 								infoDiv.style.color = '#28a745';
 								
 								// 自动切换到YAML模式
 								document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
 								switchConversionMode();
 							} else {
-								throw new Error('获取的内容不是有效的Clash YAML格式');
+								throw new Error('解码后的内容不包含有效的节点信息');
 							}
 						} catch (error) {
-							console.error('获取订阅失败:', error);
-							infoDiv.textContent = \`获取订阅失败: \${error.message}\`;
+							console.error('Base64解码失败:', error);
+							infoDiv.textContent = \`解码失败: \${error.message}\`;
 							infoDiv.style.color = '#dc3545';
 						}
 					}
 					
-					// JSONP方式获取订阅内容
-					function fetchWithJSONP(url) {
-						return new Promise((resolve, reject) => {
-							// 生成唯一的回调函数名
-							const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-							
-							// 创建全局回调函数
-							window[callbackName] = function(data) {
-								// 清理
-								document.head.removeChild(script);
-								delete window[callbackName];
-								
-								if (typeof data === 'string') {
-									resolve(data);
-								} else if (data && data.content) {
-									resolve(data.content);
-								} else {
-									reject(new Error('JSONP返回数据格式错误'));
+					// 将节点链接列表转换为YAML格式
+					function convertLinesToYAML(lines) {
+						const proxies = [];
+						
+						lines.forEach((line, index) => {
+							const trimmedLine = line.trim();
+							if (trimmedLine && trimmedLine.includes('://')) {
+								try {
+									const proxy = parseProxyLine(trimmedLine, index);
+									if (proxy) {
+										proxies.push(proxy);
+									}
+								} catch (error) {
+									console.warn(\`解析第\${index + 1}行失败:\`, error.message);
 								}
-							};
-							
-							// 创建script标签
-							const script = document.createElement('script');
-							
-							// 处理URL，添加callback参数
-							const separator = url.includes('?') ? '&' : '?';
-							const jsonpUrl = url + separator + 'callback=' + callbackName + '&format=jsonp';
-							
-							script.src = jsonpUrl;
-							script.onerror = function() {
-								// 清理
-								document.head.removeChild(script);
-								delete window[callbackName];
-								reject(new Error('JSONP请求失败'));
-							};
-							
-							// 设置超时
-							setTimeout(() => {
-								if (window[callbackName]) {
-									document.head.removeChild(script);
-									delete window[callbackName];
-									reject(new Error('JSONP请求超时'));
-								}
-							}, 10000); // 10秒超时
-							
-							// 添加到页面
-							document.head.appendChild(script);
+							}
 						});
+						
+						return \`proxies:\n\${proxies.map(proxy => \`  - \${JSON.stringify(proxy).replace(/\"/g, '').replace(/:/g, ': ').replace(/,/g, '\\n    ')}\`).join('\\n')}\`;
 					}
+					
+					// 解析单个代理行
+					function parseProxyLine(line, index) {
+						const url = new URL(line);
+						const protocol = url.protocol.replace(':', '');
+						const name = \`Node-\${index + 1}\`;
+						
+						const baseProxy = {
+							name: name,
+							type: protocol,
+							server: url.hostname,
+							port: parseInt(url.port) || getDefaultPort(protocol)
+						};
+						
+						// 根据协议类型添加特定配置
+						switch (protocol) {
+							case 'ss':
+								const ssInfo = url.username.split(':');
+								baseProxy.cipher = ssInfo[0] || 'aes-256-gcm';
+								baseProxy.password = ssInfo[1] || url.password;
+								break;
+							case 'vmess':
+								// VMess协议需要特殊处理
+								try {
+									const vmessData = JSON.parse(atob(url.pathname.substring(1)));
+									baseProxy.uuid = vmessData.id;
+									baseProxy.alterId = vmessData.aid || 0;
+									baseProxy.cipher = vmessData.scy || 'auto';
+									if (vmessData.net) baseProxy.network = vmessData.net;
+									if (vmessData.tls) baseProxy.tls = vmessData.tls === 'tls';
+								} catch (e) {
+									baseProxy.uuid = url.username;
+									baseProxy.alterId = 0;
+									baseProxy.cipher = 'auto';
+								}
+								break;
+							case 'trojan':
+								baseProxy.password = url.username;
+								baseProxy.sni = url.searchParams.get('sni') || url.hostname;
+								break;
+							case 'vless':
+								baseProxy.uuid = url.username;
+								baseProxy.encryption = url.searchParams.get('encryption') || 'none';
+								break;
+						}
+						
+						return baseProxy;
+					}
+					
+					// 获取协议默认端口
+					function getDefaultPort(protocol) {
+						const defaultPorts = {
+							'ss': 8388,
+							'vmess': 443,
+							'vless': 443,
+							'trojan': 443,
+							'http': 80,
+							'https': 443
+						};
+						return defaultPorts[protocol] || 443;
+					}
+					
+
 					
 					// 处理转换
 					function processConversion() {
-						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
 						
-						if (subscriptionMode) {
-							// 如果是订阅模式，先获取订阅内容
-							fetchSubscription().then(() => {
-								// 获取成功后处理YAML转换
-								setTimeout(() => {
-									processYAMLConversion();
-								}, 1000);
-							}).catch(error => {
-								console.error('获取订阅失败:', error);
+						if (base64Mode) {
+							// 如果是Base64模式，先解码Base64内容
+							const base64Content = document.getElementById('base64Content').value.trim();
+							if (!base64Content) {
 								const infoDiv = document.getElementById('infoDiv');
-								infoDiv.textContent = '获取订阅失败: ' + error.message;
+								infoDiv.textContent = '请先输入Base64编码内容并点击解码';
 								infoDiv.style.color = '#dc3545';
-							});
+								return;
+							}
+							decodeBase64();
+							// 解码成功后处理YAML转换
+							setTimeout(() => {
+								processYAMLConversion();
+							}, 500);
 						} else {
 							// 直接处理YAML转换
 							processYAMLConversion();
