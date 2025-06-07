@@ -1596,7 +1596,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						function saveContent(button) {
 							try {
 								const updateButtonText = (step) => {
-									button.textContent = \`保存中: \${step}\`;
+									button.textContent = `保存中: ${step}`;
 								};
 								// 检测是否为iOS设备
 								const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -1653,17 +1653,17 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									.then(response => {
 										updateButtonText('检查响应状态');
 										if (!response.ok) {
-											throw new Error(\`HTTP error! status: \${response.status}\`);
+											throw new Error(`HTTP error! status: ${response.status}`);
 										}
 										updateButtonText('更新保存状态');
 										const now = new Date().toLocaleString();
-										document.title = \`编辑已保存 \${now}\`;
-										updateStatus(\`已保存 \${now}\`);
+										document.title = `编辑已保存 ${now}`;
+										updateStatus(`已保存 ${now}`);
 									})
 									.catch(error => {
 										updateButtonText('处理错误');
 										console.error('Save error:', error);
-										updateStatus(\`保存失败: \${error.message}\`, true);
+										updateStatus(`保存失败: ${error.message}`, true);
 									})
 									.finally(() => {
 										resetButton();
@@ -1679,7 +1679,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								button.disabled = false;
 								const statusElem = document.getElementById('saveStatus');
 								if (statusElem) {
-									statusElem.textContent = \`错误: \${error.message}\`;
+									statusElem.textContent = `错误: ${error.message}`;
 									statusElem.style.color = 'red';
 								}
 							}
@@ -1837,7 +1837,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								const lines = inputContent.split('\n').filter(line => line.trim() && line.includes('://'));
 								const numProxies = lines.length;
 								
-								infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+								infoDiv.innerHTML = `共 ${numProxies} 个节点，端口范围：${startPort} - ${startPort + numProxies - 1}`;
 								infoDiv.style.color = '#28a745';
 							} else {
 								// 处理YAML配置
@@ -1865,7 +1865,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								
 								// 生成监听器配置
 								newYAML.listeners = Array.from({length: numProxies}, (_, i) => ({
-									name: \`mixed\${i}\`,
+									name: `mixed${i}`,
 									type: 'mixed',
 									port: startPort + i,
 									proxy: yamlData.proxies[i].name
@@ -1874,7 +1874,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								const newYAMLString = jsyaml.dump(newYAML);
 								outputYAML.value = newYAMLString;
 								
-								infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+								infoDiv.innerHTML = `共 ${numProxies} 个节点，端口范围：${startPort} - ${startPort + numProxies - 1}`;
 								infoDiv.style.color = '#28a745';
 							}
 							
@@ -2000,7 +2000,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 
 									localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
 									displaySavedLinks();
-									alert(\`成功导入 \${importedLinks.length} 个链接\`);
+									alert(`成功导入 ${importedLinks.length} 个链接`);
 								} catch (error) {
 									alert('导入失败：' + error.message);
 								}
@@ -2041,19 +2041,19 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 										proxies.push(proxy);
 									}
 								} catch (error) {
-									console.warn(\`解析第\${index + 1}行失败:\`, error.message);
+									console.warn(`解析第${index + 1}行失败:`, error.message);
 								}
 							}
 						});
 						
-						return \`proxies:\n\${proxies.map(proxy => \`  - \${JSON.stringify(proxy).replace(/\"/g, '').replace(/:/g, ': ').replace(/,/g, '\\n    ')}\`).join('\\n')}\`;
+						return `proxies:\n${proxies.map(proxy => `  - ${JSON.stringify(proxy).replace(/"/g, '').replace(/:/g, ': ').replace(/,/g, '\n    ')}`).join('\n')}`;
 					}
 					
 					// 解析单个代理行
 					function parseProxyLine(line, index) {
 						const url = new URL(line);
 						const protocol = url.protocol.replace(':', '');
-						const name = \`Node-\${index + 1}\`;
+						const name = `Node-${index + 1}`;
 						
 						const baseProxy = {
 							name: name,
@@ -2178,7 +2178,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							
 							// 生成监听器配置
 							socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
-								name: \`mixed\${i}\`,
+								name: `mixed${i}`,
 								type: 'mixed',
 								port: startPort + i,
 								proxy: yamlData.proxies[i].name
@@ -2189,7 +2189,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							outputYAML.value = socksYAMLString;
 							
 							// 更新信息显示
-							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+							infoDiv.innerHTML = `共 ${numProxies} 个节点，端口范围：${startPort} - ${startPort + numProxies - 1}`;
 							infoDiv.style.color = '#28a745';
 							
 							// 生成下载和复制按钮
@@ -2197,7 +2197,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							
 						} catch (error) {
 							console.error('转换失败:', error);
-							infoDiv.textContent = \`转换失败: \${error.message}\`;
+							infoDiv.textContent = `转换失败: ${error.message}`;
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
 							outputDiv.innerHTML = '';
