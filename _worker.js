@@ -549,7 +549,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						body {
 							font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							background: #ffffff;
 							min-height: 100vh;
 							color: #333;
 							line-height: 1.6;
@@ -564,28 +564,33 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						.header {
 							text-align: center;
 							margin-bottom: 30px;
-							color: white;
+							color: #2c3e50;
+							background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+							padding: 30px;
+							border-radius: 15px;
+							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 						}
 						
 						.header h1 {
 							font-size: 2.5rem;
 							margin-bottom: 10px;
-							text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+							color: #2c3e50;
+							text-shadow: none;
 						}
 						
 						.header p {
 							font-size: 1.1rem;
-							opacity: 0.9;
+							color: #6c757d;
+							opacity: 1;
 						}
 						
 						.card {
-							background: rgba(255, 255, 255, 0.95);
+							background: #ffffff;
 							border-radius: 15px;
 							padding: 25px;
 							margin-bottom: 25px;
-							box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-							backdrop-filter: blur(10px);
-							border: 1px solid rgba(255,255,255,0.2);
+							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+							border: 1px solid #e9ecef;
 							position: relative;
 							overflow: hidden;
 							transition: all 0.3s ease;
@@ -603,7 +608,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							left: -100%;
 							width: 100%;
 							height: 2px;
-							background: linear-gradient(90deg, transparent, #667eea, transparent);
+							background: linear-gradient(90deg, transparent, #3498db, transparent);
 							transition: left 0.5s ease;
 						}
 						
@@ -629,7 +634,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.sub-item {
-							background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+							background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
 							border-radius: 12px;
 							padding: 20px;
 							text-align: center;
@@ -680,7 +685,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.toggle-btn {
-							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 							color: white;
 							border: none;
 							padding: 12px 24px;
@@ -730,7 +735,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.save-btn {
-							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
 							color: white;
 							border: none;
 							padding: 12px 24px;
@@ -830,7 +835,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.add-link-btn {
-							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
 							color: white;
 							border: none;
 							padding: 12px 20px;
@@ -1072,7 +1077,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.convert-btn {
-							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+							background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
 							color: white;
 							border: none;
 							padding: 10px 20px;
@@ -1083,9 +1088,9 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.convert-btn:hover {
-							background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+							background: linear-gradient(135deg, #5a32a3 0%, #6f42c1 100%);
 							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+							box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
 						}
 						
 						.converter-output {
@@ -1534,11 +1539,14 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							<span class="save-status" id="saveStatus"></span>
 						</div>
 						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
-					</div>
-					<br>
-					################################################################<br>
-					${decodeURIComponent(atob('dGVsZWdyYW0lMjAlRTQlQkElQTQlRTYlQjUlODElRTclQkUlQTQlMjAlRTYlOEElODAlRTYlOUMlQUYlRTUlQTQlQTclRTQlQkQlQUMlN0UlRTUlOUMlQTglRTclQkElQkYlRTUlOEYlOTElRTclODklOEMhJTNDYnIlM0UKJTNDYSUyMGhyZWYlM0QlMjdodHRwcyUzQSUyRiUyRnQubWUlMkZDTUxpdXNzc3MlMjclM0VodHRwcyUzQSUyRiUyRnQubWUlMkZDTUxpdXNzc3MlM0MlMkZhJTNFJTNDYnIlM0UKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tJTNDYnIlM0UKZ2l0aHViJTIwJUU5JUExJUI5JUU3JTlCJUFFJUU1JTlDJUIwJUU1JTlEJTgwJTIwU3RhciFTdGFyIVN0YXIhISElM0NiciUzRQolM0NhJTIwaHJlZiUzRCUyN2h0dHBzJTNBJTJGJTJGZ2l0aHViLmNvbSUyRmNtbGl1JTJGQ0YtV29ya2Vycy1TVUIlMjclM0VodHRwcyUzQSUyRiUyRmdpdGh1Yi5jb20lMkZjbWxpdSUyRkNGLVdvcmtlcnMtU1VCJTNDJTJGYSUzRSUzQ2JyJTNFCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSUzQ2JyJTNFCiUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMw=='))}
-					<br><br>UA: <strong>${request.headers.get('User-Agent')}</strong>
+				</div>
+				
+				<!-- 页面底部信息 -->
+				<div class="footer-info" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #6c757d; font-size: 0.9rem;">
+					<p style="margin-bottom: 10px;">📱 <strong>Telegram交流群:</strong> <a href="https://t.me/CMliussss" style="color: #007bff; text-decoration: none;">https://t.me/CMliussss</a></p>
+					<p style="margin-bottom: 10px;">⭐ <strong>GitHub项目:</strong> <a href="https://github.com/cmliu/CF-Workers-SUB" style="color: #007bff; text-decoration: none;">https://github.com/cmliu/CF-Workers-SUB</a></p>
+					<p style="margin: 0; font-size: 0.8rem;">User-Agent: ${request.headers.get('User-Agent')}</p>
+				</div>
 					<script>
 					function copyToClipboard(text, qrcode) {
 						navigator.clipboard.writeText(text).then(() => {
@@ -1856,21 +1864,35 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						try {
-							infoDiv.textContent = '正在获取订阅内容...';
-							infoDiv.style.color = '#17a2b8';
-							
-							// 尝试获取Clash格式的订阅
-							let clashUrl = url;
-							if (!url.includes('clash') && !url.includes('yaml')) {
-								clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
+						infoDiv.textContent = '正在获取订阅内容...';
+						infoDiv.style.color = '#17a2b8';
+						
+						// 尝试获取Clash格式的订阅
+						let clashUrl = url;
+						if (!url.includes('clash') && !url.includes('yaml')) {
+							clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
+						}
+						
+						let content;
+						
+						// 首先尝试直接访问
+						try {
+							const directResponse = await fetch(clashUrl, {
+								mode: 'cors',
+								headers: {
+									'Accept': 'text/plain, application/x-yaml, text/yaml',
+									'User-Agent': 'ClashforWindows/0.18.1'
+								}
+							});
+							if (directResponse.ok) {
+								content = await directResponse.text();
+							} else {
+								throw new Error('直接访问失败');
 							}
-							
-							const response = await fetch(clashUrl);
-							if (!response.ok) {
-								throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
-							}
-							
-							const content = await response.text();
+						} catch (directError) {
+							// 如果直接访问失败，提示用户手动粘贴
+							throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
+						}
 							
 							// 检查是否为有效的YAML内容
 							if (content.trim().startsWith('proxies:') || content.includes('proxies:')) {
