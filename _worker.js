@@ -1521,7 +1521,17 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div class="converter-output">
 									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
 									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
-									<div id="outputDiv" class="download-section"></div>
+									<div id="outputDiv" class="download-section">
+										<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+										<button class="download-btn" onclick="downloadSOCKSConfig()">📄 下载YAML文件</button>
+										<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+										<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+											<strong>使用说明：</strong><br>
+											1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
+											2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+											3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -1759,7 +1769,158 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 
 						// 按时间倒序排列
-						savedLinks.sort((a, b) => b.timestamp - a.timestamp);
+					savedLinks.sort((a, b) => b.timestamp - a.timestamp);
+
+					// 处理转换函数 - 提前定义避免未定义错误
+					function processConversion() {
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
+						const infoDiv = document.getElementById('infoDiv');
+						const inputYAML = document.getElementById('inputYAML');
+						
+						if (base64Mode) {
+							// 如果是Base64模式，先解码Base64内容
+							const base64Content = document.getElementById('base64Content').value.trim();
+							if (!base64Content) {
+								infoDiv.textContent = '请先输入Base64编码内容';
+								infoDiv.style.color = '#dc3545';
+								return;
+							}
+							
+							try {
+								infoDiv.textContent = '正在解码Base64内容并生成SOCKS配置...';
+								infoDiv.style.color = '#17a2b8';
+								
+								// 解码Base64
+								const decodedContent = atob(base64Content);
+								
+								// 将解码后的内容设置到YAML输入框
+								inputYAML.value = decodedContent;
+								
+								// 继续处理YAML转换
+								processYAMLConversion();
+							} catch (error) {
+								infoDiv.textContent = 'Base64解码失败，请检查输入内容格式';
+								infoDiv.style.color = '#dc3545';
+								console.error('Base64解码错误:', error);
+							}
+						} else {
+							// 直接处理YAML转换
+							processYAMLConversion();
+						}
+					}
+					
+					// YAML转换处理函数
+					function processYAMLConversion() {
+						const inputYAML = document.getElementById('inputYAML');
+						const outputYAML = document.getElementById('outputYAML');
+						const infoDiv = document.getElementById('infoDiv');
+						const startPort = parseInt(document.getElementById('startPort').value);
+						
+						try {
+							const inputContent = inputYAML.value.trim();
+							if (!inputContent) {
+								infoDiv.textContent = '请先输入YAML配置内容';
+								infoDiv.style.color = '#dc3545';
+								return;
+							}
+							
+							infoDiv.textContent = '正在生成SOCKS配置...';
+							infoDiv.style.color = '#17a2b8';
+							
+							// 检查输入是否为节点链接列表
+							if (inputContent.includes('://') && !inputContent.includes('proxies:')) {
+								// 处理节点链接列表
+								const yamlConfig = convertLinesToYAML(inputContent, startPort);
+								outputYAML.value = yamlConfig;
+								
+								// 计算节点数量
+								const lines = inputContent.split('\n').filter(line => line.trim() && line.includes('://'));
+								const numProxies = lines.length;
+								
+								infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+								infoDiv.style.color = '#28a745';
+							} else {
+								// 处理YAML配置
+								const yamlData = jsyaml.load(inputContent);
+								
+								if (!yamlData.proxies || !Array.isArray(yamlData.proxies)) {
+									throw new Error('YAML配置中未找到有效的proxies数组');
+								}
+								
+								const numProxies = yamlData.proxies.length;
+								
+								// 创建新的YAML配置
+								const newYAML = {
+									'allow-lan': true,
+									dns: {
+										enable: true,
+										'enhanced-mode': 'fake-ip',
+										'fake-ip-range': '198.18.0.1/16',
+										'default-nameserver': ['114.114.114.114'],
+										nameserver: ['https://doh.pub/dns-query']
+									},
+									listeners: [],
+									proxies: yamlData.proxies
+								};
+								
+								// 生成监听器配置
+								newYAML.listeners = Array.from({length: numProxies}, (_, i) => ({
+									name: \`mixed\${i}\`,
+									type: 'mixed',
+									port: startPort + i,
+									proxy: yamlData.proxies[i].name
+								}));
+								
+								const newYAMLString = jsyaml.dump(newYAML);
+								outputYAML.value = newYAMLString;
+								
+								infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+								infoDiv.style.color = '#28a745';
+							}
+							
+						} catch (error) {
+							infoDiv.textContent = '处理失败，请检查输入格式是否正确';
+							infoDiv.style.color = '#dc3545';
+							console.error('YAML处理错误:', error);
+						}
+					}
+					
+					// 下载SOCKS配置函数
+					function downloadSOCKSConfig() {
+						const outputYAML = document.getElementById('outputYAML');
+						const content = outputYAML.value;
+						
+						if (!content.trim()) {
+							alert('请先生成SOCKS配置');
+							return;
+						}
+						
+						const blob = new Blob([content], { type: 'text/yaml' });
+						const url = URL.createObjectURL(blob);
+						const a = document.createElement('a');
+						a.href = url;
+						a.download = 'socks-config.yaml';
+						a.click();
+						URL.revokeObjectURL(url);
+					}
+					
+					// 复制SOCKS配置函数
+					function copySOCKSConfig() {
+						const outputYAML = document.getElementById('outputYAML');
+						const content = outputYAML.value;
+						
+						if (!content.trim()) {
+							alert('请先生成SOCKS配置');
+							return;
+						}
+						
+						navigator.clipboard.writeText(content).then(() => {
+							alert('配置已复制到剪贴板');
+						}).catch(err => {
+							console.error('复制失败:', err);
+							alert('复制失败，请手动复制');
+						});
+					}
 
 						container.innerHTML = savedLinks.map(link => \`
 							<div class="saved-link-item">
@@ -1938,8 +2099,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					
 
 					
-					// 处理转换
-					function processConversion() {
+					// 处理转换函数 - 移到前面避免未定义错误
+				function processConversion() {
 						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
 						const infoDiv = document.getElementById('infoDiv');
 						const inputYAML = document.getElementById('inputYAML');
