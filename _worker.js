@@ -2342,7 +2342,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								const mergedLinks = [...savedLinks, ...importedLinks];
 								localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
 								displaySavedLinks();
-								alert(`成功导入 ${importedLinks.length} 个链接`);
+								alert('成功导入 ' + importedLinks.length + ' 个链接');
 							} catch (error) {
 								alert('导入失败：' + error.message);
 							}
@@ -2405,7 +2405,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					function saveContent(button) {
 						try {
 							const updateButtonText = (step) => {
-								button.textContent = `保存中: ${step}`;
+								button.textContent = '保存中: ' + step;
 							};
 							// 检测是否为iOS设备
 							const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -2462,17 +2462,17 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								.then(response => {
 									updateButtonText('检查响应状态');
 									if (!response.ok) {
-										throw new Error(`HTTP error! status: ${response.status}`);
+										throw new Error('HTTP error! status: ' + response.status);
 									}
 									updateButtonText('更新保存状态');
 									const now = new Date().toLocaleString();
-									document.title = `编辑已保存 ${now}`;
-									updateStatus(`已保存 ${now}`);
+									document.title = '编辑已保存 ' + now;
+									updateStatus('已保存 ' + now);
 								})
 								.catch(error => {
 									updateButtonText('处理错误');
 									console.error('Save error:', error);
-									updateStatus(`保存失败: ${error.message}`, true);
+									updateStatus('保存失败: ' + error.message, true);
 								})
 								.finally(() => {
 									resetButton();
@@ -2488,7 +2488,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							button.disabled = false;
 							const statusElem = document.getElementById('saveStatus');
 							if (statusElem) {
-								statusElem.textContent = `错误: ${error.message}`;
+								statusElem.textContent = '错误: ' + error.message;
 								statusElem.style.color = 'red';
 							}
 						}
