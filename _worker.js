@@ -1596,7 +1596,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						function saveContent(button) {
 							try {
 								const updateButtonText = (step) => {
-									button.textContent = \`保存中: \${step}\`;
+									button.textContent = `保存中: ${step}`;
 								};
 								// 检测是否为iOS设备
 								const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
