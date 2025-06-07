@@ -2505,19 +2505,27 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 				document.addEventListener('DOMContentLoaded', () => {
 					document.getElementById('noticeContent').style.display = 'none';
 					displaySavedLinks();
-					
+
+					// 绑定事件监听器
+					document.getElementById('noticeToggle').addEventListener('click', toggleNotice);
+					document.getElementById('addLinkBtn').addEventListener('click', addLink);
+					document.getElementById('exportLinksBtn').addEventListener('click', exportLinks);
+					document.getElementById('importLinksBtn').addEventListener('click', importLinks);
+					document.getElementById('downloadSOCKSConfigBtn').addEventListener('click', downloadSOCKSConfig);
+					document.getElementById('copySOCKSConfigBtn').addEventListener('click', copySOCKSConfig);
+
 					// 设置转换模式切换事件
 					const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
 					modeRadios.forEach(radio => {
 						radio.addEventListener('change', switchConversionMode);
 					});
-					
+
 					// 初始化转换模式显示
 					switchConversionMode();
-					
+
 					// 设置文件拖拽功能
 					setupFileDrop();
-					
+
 					// 默认显示下载按钮
 					showDownloadButtons();
 				});
