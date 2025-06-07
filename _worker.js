@@ -1502,8 +1502,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<!-- Base64解码输入区域 -->
 								<div id="base64Input" class="input-section">
 									<label>Base64编码内容：</label>
-									<textarea class="converter-input" id="base64Content" placeholder="粘贴Base64编码的订阅内容，将自动解码并转换为YAML格式"></textarea>
-									<button class="fetch-btn" onclick="decodeBase64()">🔓 解码Base64</button>
+									<textarea class="converter-input" id="base64Content" placeholder="粘贴Base64编码的订阅内容，点击生成SOCKS配置将自动解码并转换"></textarea>
 								</div>
 								
 								<!-- YAML输入区域 -->
@@ -1852,57 +1851,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 					}
 					
-					// Base64解码功能
-					function decodeBase64() {
-						const base64Content = document.getElementById('base64Content').value.trim();
-						const infoDiv = document.getElementById('infoDiv');
-						const inputYAML = document.getElementById('inputYAML');
-						
-						if (!base64Content) {
-							infoDiv.textContent = '请输入Base64编码内容';
-							infoDiv.style.color = '#dc3545';
-							return;
-						}
-						
-						try {
-							infoDiv.textContent = '正在解码Base64内容...';
-							infoDiv.style.color = '#17a2b8';
-							
-							// 解码Base64
-							let decodedContent;
-							try {
-								decodedContent = atob(base64Content);
-							} catch (decodeError) {
-								throw new Error('Base64解码失败，请检查输入内容是否为有效的Base64编码');
-							}
-							
-							// 检查解码后的内容是否包含节点信息
-							if (decodedContent.includes('://') || decodedContent.includes('proxies:')) {
-								// 如果是节点链接列表，转换为YAML格式
-								if (decodedContent.includes('://') && !decodedContent.includes('proxies:')) {
-									const lines = decodedContent.split('\n').filter(line => line.trim());
-									const yamlContent = convertLinesToYAML(lines);
-									inputYAML.value = yamlContent;
-								} else {
-									// 如果已经是YAML格式，直接使用
-									inputYAML.value = decodedContent;
-								}
-								
-								infoDiv.textContent = 'Base64解码成功，已自动填入YAML配置区域';
-								infoDiv.style.color = '#28a745';
-								
-								// 自动切换到YAML模式
-								document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-								switchConversionMode();
-							} else {
-								throw new Error('解码后的内容不包含有效的节点信息');
-							}
-						} catch (error) {
-							console.error('Base64解码失败:', error);
-							infoDiv.textContent = \`解码失败: \${error.message}\`;
-							infoDiv.style.color = '#dc3545';
-						}
-					}
+
 					
 					// 将节点链接列表转换为YAML格式
 					function convertLinesToYAML(lines) {
@@ -1991,21 +1940,51 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					// 处理转换
 					function processConversion() {
 						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
+						const infoDiv = document.getElementById('infoDiv');
+						const inputYAML = document.getElementById('inputYAML');
 						
 						if (base64Mode) {
 							// 如果是Base64模式，先解码Base64内容
 							const base64Content = document.getElementById('base64Content').value.trim();
 							if (!base64Content) {
-								const infoDiv = document.getElementById('infoDiv');
-								infoDiv.textContent = '请先输入Base64编码内容并点击解码';
+								infoDiv.textContent = '请先输入Base64编码内容';
 								infoDiv.style.color = '#dc3545';
 								return;
 							}
-							decodeBase64();
-							// 解码成功后处理YAML转换
-							setTimeout(() => {
-								processYAMLConversion();
-							}, 500);
+							
+							try {
+								infoDiv.textContent = '正在解码Base64内容并生成SOCKS配置...';
+								infoDiv.style.color = '#17a2b8';
+								
+								// 解码Base64
+								let decodedContent;
+								try {
+									decodedContent = atob(base64Content);
+								} catch (decodeError) {
+									throw new Error('Base64解码失败，请检查输入内容是否为有效的Base64编码');
+								}
+								
+								// 检查解码后的内容是否包含节点信息
+								if (decodedContent.includes('://') || decodedContent.includes('proxies:')) {
+									// 如果是节点链接列表，转换为YAML格式
+									if (decodedContent.includes('://') && !decodedContent.includes('proxies:')) {
+										const lines = decodedContent.split('\n').filter(line => line.trim());
+										const yamlContent = convertLinesToYAML(lines);
+										inputYAML.value = yamlContent;
+									} else {
+										// 如果已经是YAML格式，直接使用
+										inputYAML.value = decodedContent;
+									}
+									
+									// 直接处理YAML转换
+									processYAMLConversion();
+								} else {
+									throw new Error('解码后的内容不包含有效的节点信息');
+								}
+							} catch (error) {
+								infoDiv.textContent = '错误：' + error.message;
+								infoDiv.style.color = '#dc3545';
+							}
 						} else {
 							// 直接处理YAML转换
 							processYAMLConversion();
@@ -2066,17 +2045,14 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
 							infoDiv.style.color = '#28a745';
 							
-							// 生成下载链接和复制按钮
-							const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
-							const downloadUrl = URL.createObjectURL(blob);
-							
+							// 生成下载和复制按钮
 							outputDiv.innerHTML = \`
 								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-								<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
+								<button class="download-btn" onclick="downloadSOCKSConfig()">📄 下载YAML文件</button>
 								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
 								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
 									<strong>使用说明：</strong><br>
-									1. 下载生成的YAML文件并导入到Clash客户端<br>
+									1. 点击下载按钮获取YAML文件并导入到Clash客户端<br>
 									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
 									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
 								</div>
@@ -2103,6 +2079,24 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							});
 						} else {
 							alert('没有可复制的配置内容');
+						}
+					}
+					
+					// 下载SOCKS配置文件
+					function downloadSOCKSConfig() {
+						const outputYAML = document.getElementById('outputYAML');
+						if (outputYAML.value) {
+							const blob = new Blob([outputYAML.value], {type: 'text/yaml'});
+							const downloadUrl = URL.createObjectURL(blob);
+							const a = document.createElement('a');
+							a.href = downloadUrl;
+							a.download = 'socks-config.yaml';
+							document.body.appendChild(a);
+							a.click();
+							document.body.removeChild(a);
+							URL.revokeObjectURL(downloadUrl);
+						} else {
+							alert('没有可下载的配置内容');
 						}
 					}
 					
