@@ -1938,7 +1938,7 @@ function displaySavedLinks() {
 		'<div class="link-time">保存时间: ' + new Date(link.timestamp).toLocaleString() + '</div>' +
 		'</div>' +
 		'<div class="link-actions">' +
-		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\"' + link.url + '\"')" title="复制链接">📋</button>' +
+		'<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>' +
 		'<button class="delete-link-btn" onclick="deleteLink(\"' + link.name + '\"')" >删除</button>' +
 		'</div>' +
 		'</div>').join('');
