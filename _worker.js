@@ -2012,29 +2012,29 @@ function parseProxyUrl(url) {
 // 转换代理为SOCKS配置
 function convertProxyToSocks(proxyInfo, port) {
 	if (proxyInfo.type === 'vmess') {
-		return 'listener socks-' + port + ' {\n' +
-			'  type socks\n' +
-			'  port ' + port + '\n' +
-			'  proxy vmess {\n' +
-			'    server ' + proxyInfo.server + '\n' +
-			'    port ' + proxyInfo.port + '\n' +
-			'    uuid ' + proxyInfo.uuid + '\n' +
-			'    alter_id ' + proxyInfo.alterId + '\n' +
-			'    cipher ' + proxyInfo.cipher + '\n' +
-			'    network ' + proxyInfo.network + '\n' +
-			'  }\n' +
-			'}';
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy vmess {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    uuid \${proxyInfo.uuid}
+    alter_id \${proxyInfo.alterId}
+    cipher \${proxyInfo.cipher}
+    network \${proxyInfo.network}
+  }
+}\`;
 	} else if (proxyInfo.type === 'shadowsocks') {
-		return 'listener socks-' + port + ' {\n' +
-			'  type socks\n' +
-			'  port ' + port + '\n' +
-			'  proxy shadowsocks {\n' +
-			'    server ' + proxyInfo.server + '\n' +
-			'    port ' + proxyInfo.port + '\n' +
-			'    method ' + proxyInfo.method + '\n' +
-			'    password ' + proxyInfo.password + '\n' +
-			'  }\n' +
-			'}';
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy shadowsocks {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    method \${proxyInfo.method}
+    password \${proxyInfo.password}
+  }
+}\`;
 	}
 	return null;
 }
