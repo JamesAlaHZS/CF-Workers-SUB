@@ -1803,7 +1803,13 @@ function fetchSubscription() {
 									try {
 										// 移除开头的"- "并解析为对象
 										const configStr = match.replace(/^- /, '');
-										const config = eval('(' + configStr + ')');
+										// 将JavaScript对象字符串转换为JSON格式
+										const jsonStr = configStr
+											.replace(/([{,]\\s*)([a-zA-Z_$][a-zA-Z0-9_$-]*)(\\s*):/g, '$1"$2":')
+											.replace(/:\\s*([a-zA-Z_$][a-zA-Z0-9_$.-]*)(\\s*[,}])/g, ': "$1"$2')
+											.replace(/:\\s*(\\d+)(\\s*[,}])/g, ': $1$2')
+											.replace(/:\\s*(true|false)(\\s*[,}])/g, ': $1$2');
+										const config = JSON.parse(jsonStr);
 										return config;
 									} catch (e) {
 										console.warn('解析代理配置失败:', match, e);
