@@ -2090,8 +2090,8 @@ function processBase64Conversion() {
 		].join('\n');
 		
 		outputYAML.value = socksConfigContent;
-		
-		infoDiv.innerHTML = `共解析 ${validProxyCount} 个有效节点，端口范围：${startPort} - ${startPort + validProxyCount - 1}`;
+		var numrange = startPort + (startPort + validProxyCount - 1);
+		infoDiv.innerHTML = '共解析' + validProxyCount + '个有效节点,' + '端口范围：' + numrange;
 		infoDiv.style.color = '#28a745';
 		
 		const blob = new Blob([socksConfigContent], {type: 'text/plain'});
