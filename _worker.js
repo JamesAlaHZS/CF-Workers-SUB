@@ -1753,7 +1753,7 @@ function deleteLink(name) {
 // 获取订阅功能
 function fetchSubscription() {
 	const urlInput = document.getElementById('subscriptionUrl');
-	const infoDiv = document.getElementById('subscriptionInfo');
+	const infoDiv = document.getElementById('infoDiv');
 	const url = urlInput.value.trim();
 	
 	if (!url) {
@@ -1877,10 +1877,10 @@ function processBase64Conversion() {
 	}
 	
 	const base64Input = base64InputElement.value?.trim();
-	const infoDiv = document.getElementById('conversionInfo');
-	const outputDiv = document.getElementById('socksOutput');
+	const infoDiv = document.getElementById('infoDiv');
+	const outputYAML = document.getElementById('outputYAML');
 	const copyBtn = document.querySelector('.copy-text-btn');
-	const usageDiv = document.getElementById('usageInstructions');
+	const downloadLink = document.getElementById('downloadLink');
 	
 	if (!base64Input) {
 		return;
@@ -1906,10 +1906,22 @@ function processBase64Conversion() {
 			throw new Error('未找到有效的代理配置');
 		}
 		
-		const downloadLink = \`data:text/plain;charset=utf-8,\${encodeURIComponent(socksConfigs.join('\\n\\n'))}\`;
-		if (outputDiv) outputDiv.innerHTML = \`<a href="\${downloadLink}" download="socks-config.txt" style="color: #007bff; text-decoration: underline;">点击下载SOCKS配置文件</a>\`;
+		// 生成YAML格式的配置
+		const yamlConfig = \`# SOCKS代理配置\n# 生成时间: \${new Date().toLocaleString()}\n# 节点数量: \${socksConfigs.length}\n\n\${socksConfigs.join('\\n\\n')}\`;
 		
-		if (usageDiv) usageDiv.innerHTML = \`<h4>使用说明：</h4><p>1. 下载配置文件</p><p>2. 在支持SOCKS的应用中导入配置</p><p>3. 端口范围：10000-\${10000 + socksConfigs.length - 1}</p>\`;
+		// 显示在输出区域
+		if (outputYAML) {
+			outputYAML.value = yamlConfig;
+		}
+		
+		// 设置下载链接
+		const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
+		if (downloadLink) {
+			downloadLink.href = downloadData;
+			downloadLink.download = 'socks-config.yaml';
+			downloadLink.style.pointerEvents = 'auto';
+			downloadLink.style.opacity = '1';
+		}
 		
 		if (infoDiv) infoDiv.textContent = \`成功转换 \${socksConfigs.length} 个代理配置\`;
 		if (copyBtn) {
@@ -1918,21 +1930,25 @@ function processBase64Conversion() {
 		}
 		
 		// 存储配置文本用于复制
-		window.socksConfigText = socksConfigs.join('\\n\\n');
+		window.socksConfigText = yamlConfig;
 	} catch (error) {
 		if (infoDiv) infoDiv.textContent = \`转换失败: \${error.message}\`;
-		if (outputDiv) outputDiv.textContent = '';
+		if (outputYAML) outputYAML.value = '';
 		if (copyBtn) {
-			copyBtn.disabled = false;
-			copyBtn.style.opacity = '1';
+			copyBtn.disabled = true;
+			copyBtn.style.opacity = '0.5';
+		}
+		if (downloadLink) {
+			downloadLink.style.pointerEvents = 'none';
+			downloadLink.style.opacity = '0.5';
 		}
 	}
 }
 
 // 复制SOCKS配置
 function copySOCKSConfig() {
-	const outputDiv = document.getElementById('socksOutput');
-	let textToCopy = outputDiv.textContent;
+	const outputYAML = document.getElementById('outputYAML');
+	let textToCopy = outputYAML ? outputYAML.value : '';
 	
 	// 如果是Base64模式，使用存储的配置文本
 	if (window.socksConfigText) {
@@ -2028,6 +2044,18 @@ function parseProxyUrl(url) {
 				method: method,
 				password: password.split('@')[0]
 			};
+		} else if (url.startsWith('trojan://')) {
+			// 解析trojan://password@server:port?params#name格式
+			const urlObj = new URL(url);
+			return {
+				type: 'trojan',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || 443,
+				password: urlObj.username,
+				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
+				allowInsecure: urlObj.searchParams.get('allowInsecure') === '1',
+				type_param: urlObj.searchParams.get('type') || 'tcp'
+			};
 		}
 		return null;
 	} catch (error) {
@@ -2060,6 +2088,19 @@ function convertProxyToSocks(proxyInfo, port) {
     port \${proxyInfo.port}
     method \${proxyInfo.method}
     password \${proxyInfo.password}
+  }
+}\`;
+	} else if (proxyInfo.type === 'trojan') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy trojan {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    password \${proxyInfo.password}
+    sni \${proxyInfo.sni}
+    allow_insecure \${proxyInfo.allowInsecure}
+    type \${proxyInfo.type_param}
   }
 }\`;
 	}
