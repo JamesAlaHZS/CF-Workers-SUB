@@ -1596,7 +1596,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						function saveContent(button) {
 							try {
 								const updateButtonText = (step) => {
-									button.textContent = \`保存中: \${step}\`;
+									button.textContent = `保存中: ${step}`;
 								};
 								// 检测是否为iOS设备
 								const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -1653,17 +1653,17 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									.then(response => {
 										updateButtonText('检查响应状态');
 										if (!response.ok) {
-											throw new Error(\`HTTP error! status: \${response.status}\`);
+											throw new Error(`HTTP error! status: ${response.status}`);
 										}
 										updateButtonText('更新保存状态');
 										const now = new Date().toLocaleString();
-										document.title = \`编辑已保存 \${now}\`;
-										updateStatus(\`已保存 \${now}\`);
+										document.title = `编辑已保存 ${now}`;
+										updateStatus(`已保存 ${now}`);
 									})
 									.catch(error => {
 										updateButtonText('处理错误');
 										console.error('Save error:', error);
-										updateStatus(\`保存失败: \${error.message}\`, true);
+										updateStatus(`保存失败: ${error.message}`, true);
 									})
 									.finally(() => {
 										resetButton();
@@ -1679,7 +1679,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								button.disabled = false;
 								const statusElem = document.getElementById('saveStatus');
 								if (statusElem) {
-									statusElem.textContent = \`错误: \${error.message}\`;
+									statusElem.textContent = `错误: ${error.message}`;
 									statusElem.style.color = 'red';
 								}
 							}
@@ -1836,7 +1836,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 
 									localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
 									displaySavedLinks();
-									alert(\`成功导入 \${importedLinks.length} 个链接\`);
+									alert(`成功导入 ${importedLinks.length} 个链接`);
 								} catch (error) {
 									alert('导入失败：' + error.message);
 								}
@@ -1928,7 +1928,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							}
 						} catch (error) {
 							console.error('获取订阅失败:', error);
-							infoDiv.textContent = \`获取订阅失败: \${error.message}\`;
+							infoDiv.textContent = `获取订阅失败: ${error.message}`;
 							infoDiv.style.color = '#dc3545';
 						}
 					}
@@ -2007,16 +2007,16 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							outputYAML.value = socksYAMLString;
 							
 							// 更新信息显示
-							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+							infoDiv.innerHTML = `共 ${numProxies} 个节点，端口范围：${startPort} - ${startPort + numProxies - 1}`;
 							infoDiv.style.color = '#28a745';
 							
 							// 生成下载链接和复制按钮
 							const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
 							const downloadUrl = URL.createObjectURL(blob);
 							
-							outputDiv.innerHTML = \`
+							outputDiv.innerHTML = `
 								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-								<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
+								<a href="${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
 								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
 								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
 									<strong>使用说明：</strong><br>
@@ -2024,11 +2024,11 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
 									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
 								</div>
-							\`;
+							`;
 							
 						} catch (error) {
 							console.error('转换失败:', error);
-							infoDiv.textContent = \`转换失败: \${error.message}\`;
+							infoDiv.textContent = `转换失败: ${error.message}`;
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
 							outputDiv.innerHTML = '';
@@ -2097,7 +2097,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							outputYAML.value = socksConfigContent;
 							
 							// 更新信息显示
-							infoDiv.innerHTML = \`共解析 \${validProxyCount} 个有效节点，端口范围：\${startPort} - \${startPort + validProxyCount - 1}\`;
+							infoDiv.innerHTML = `共解析 ${validProxyCount} 个有效节点，端口范围：${startPort} - ${startPort + validProxyCount - 1}`;
 							infoDiv.style.color = '#28a745';
 							
 							// 生成下载链接和复制按钮
@@ -2119,7 +2119,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							
 						} catch (error) {
 							console.error('Base64转换失败:', error);
-							infoDiv.textContent = \`转换失败: \${error.message}\`;
+							infoDiv.textContent = `转换失败: ${error.message}`;
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
 							outputDiv.innerHTML = '';
@@ -2138,20 +2138,20 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							// 解析不同协议
 							if (proxyUrl.startsWith('socks5://') || proxyUrl.startsWith('socks4://')) {
 								const url = new URL(proxyUrl);
-								return \`\${nodeName} | \${url.protocol}//\${url.hostname}:\${url.port || (url.protocol === 'socks5:' ? '1080' : '1080')} | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | ${url.protocol}//${url.hostname}:${url.port || (url.protocol === 'socks5:' ? '1080' : '1080')} | SOCKS端口: ${socksPort}`;
 							} else if (proxyUrl.startsWith('http://') || proxyUrl.startsWith('https://')) {
 								const url = new URL(proxyUrl);
-								return \`\${nodeName} | \${url.protocol}//\${url.hostname}:\${url.port || (url.protocol === 'https:' ? '443' : '80')} | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | ${url.protocol}//${url.hostname}:${url.port || (url.protocol === 'https:' ? '443' : '80')} | SOCKS端口: ${socksPort}`;
 							} else if (proxyUrl.startsWith('ss://')) {
-								return \`\${nodeName} | SS代理 | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | SS代理 | SOCKS端口: ${socksPort}`;
 							} else if (proxyUrl.startsWith('vmess://')) {
-								return \`\${nodeName} | VMess代理 | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | VMess代理 | SOCKS端口: ${socksPort}`;
 							} else if (proxyUrl.startsWith('vless://')) {
-								return \`\${nodeName} | VLess代理 | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | VLess代理 | SOCKS端口: ${socksPort}`;
 							} else if (proxyUrl.startsWith('trojan://')) {
-								return \`\${nodeName} | Trojan代理 | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | Trojan代理 | SOCKS端口: ${socksPort}`;
 							} else {
-								return \`\${nodeName} | 未知协议 | SOCKS端口: \${socksPort}\`;
+								return `${nodeName} | 未知协议 | SOCKS端口: ${socksPort}`;
 							}
 						} catch (error) {
 							console.error('解析代理URL失败:', error);
