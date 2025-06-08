@@ -1093,6 +1093,24 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
 						}
 						
+						.upload-file-btn {
+							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+							color: white;
+							border: none;
+							padding: 8px 16px;
+							border-radius: 6px;
+							cursor: pointer;
+							font-size: 14px;
+							font-weight: 600;
+							transition: all 0.3s ease;
+						}
+						
+						.upload-file-btn:hover {
+							background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
+							transform: translateY(-2px);
+							box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+						}
+						
 						.converter-output {
 							margin-top: 15px;
 						}
@@ -1513,6 +1531,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<!-- YAML输入区域 -->
 								<div id="yamlInput" class="input-section" style="display: none;">
 									<label>YAML配置：</label>
+									<div class="file-upload-container" style="margin-bottom: 10px;">
+										<input type="file" id="yamlFileInput" accept=".yaml,.yml" style="display: none;">
+										<button type="button" class="upload-file-btn" onclick="document.getElementById('yamlFileInput').click()">
+											📁 选择YAML文件
+										</button>
+									</div>
 									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
 								</div>
 								
@@ -1846,9 +1870,9 @@ function processYAMLConversion() {
 
 // 处理Base64转换
 function processBase64Conversion() {
-	const base64InputElement = document.getElementById('base64Input');
+	const base64InputElement = document.getElementById('inputBase64');
 	if (!base64InputElement) {
-		console.error('base64Input element not found');
+		console.error('inputBase64 element not found');
 		return;
 	}
 	
@@ -1899,8 +1923,8 @@ function processBase64Conversion() {
 		if (infoDiv) infoDiv.textContent = \`转换失败: \${error.message}\`;
 		if (outputDiv) outputDiv.textContent = '';
 		if (copyBtn) {
-			copyBtn.disabled = true;
-			copyBtn.style.opacity = '0.5';
+			copyBtn.disabled = false;
+			copyBtn.style.opacity = '1';
 		}
 	}
 }
@@ -1976,17 +2000,6 @@ function switchConversionMode() {
 		base64Input.style.display = 'block';
 	}
 	
-	// 清空之前的结果
-	const conversionInfo = document.getElementById('conversionInfo');
-	const socksOutput = document.getElementById('socksOutput');
-	const copyBtn = document.querySelector('.copy-text-btn');
-	
-	if (conversionInfo) conversionInfo.textContent = '';
-	if (socksOutput) socksOutput.textContent = '';
-	if (copyBtn) {
-		copyBtn.disabled = true;
-		copyBtn.style.opacity = '0.5';
-	}
 }
 
 // 解析代理URL
@@ -2263,6 +2276,32 @@ function setupFileDrop() {
 				} else {
 					alert('请拖拽YAML文件（.yaml或.yml格式）');
 				}
+			}
+		});
+	}
+	
+	// 设置文件上传按钮事件
+	const yamlFileInput = document.getElementById('yamlFileInput');
+	if (yamlFileInput) {
+		yamlFileInput.addEventListener('change', (e) => {
+			const file = e.target.files[0];
+			if (file) {
+				if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+					const reader = new FileReader();
+					reader.onload = (event) => {
+						const inputYAML = document.getElementById('inputYAML');
+						if (inputYAML) {
+							inputYAML.value = event.target.result;
+							document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+							switchConversionMode();
+						}
+					};
+					reader.readAsText(file);
+				} else {
+					alert('请选择YAML文件（.yaml或.yml格式）');
+				}
+				// 清空文件输入，允许重复选择同一文件
+				e.target.value = '';
 			}
 		});
 	}
