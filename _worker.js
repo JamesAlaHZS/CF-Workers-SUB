@@ -1841,7 +1841,7 @@ function importLinks() {
 
 				localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
 				displaySavedLinks();
-				alert(`成功导入 ${importedLinks.length} 个链接`);
+				alert(`成功导入 \${importedLinks.length} 个链接`);
 			} catch (error) {
 				alert('导入失败：' + error.message);
 			}
