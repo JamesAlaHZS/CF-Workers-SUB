@@ -1351,223 +1351,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					</style>
 					<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
 					<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-				</head>
-				<body>
-					<div class="container">
-						<div class="header">
-							<h1>🚀 ${FileName} 订阅管理中心</h1>
-							<p>现代化的订阅管理与转换工具</p>
-						</div>
-					
-						<!-- 订阅链接卡片 -->
-						<div class="card">
-							<h2 class="card-title">📡 订阅链接</h2>
-							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
-							
-							<div class="subscription-grid">
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
-									<h3>🔄 自适应订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}</div>
-									<div id="qrcode_0" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')">
-									<h3>📝 Base64订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?b64</div>
-									<div id="qrcode_1" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')">
-									<h3>⚔️ Clash订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?clash</div>
-									<div id="qrcode_2" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')">
-									<h3>📦 SingBox订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?sb</div>
-									<div id="qrcode_3" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')">
-									<h3>🌊 Surge订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?surge</div>
-									<div id="qrcode_4" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')">
-									<h3>🎈 Loon订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?loon</div>
-									<div id="qrcode_5" class="qr-container"></div>
-								</div>
-							</div>
-						</div>
-					
-						<!-- 访客订阅卡片 -->
-						<div class="card">
-							<h2 class="card-title">👥 访客订阅</h2>
-							<button class="toggle-btn" id="noticeToggle" onclick="toggleNotice()">查看访客订阅 ∨</button>
-							
-							<div id="noticeContent" class="guest-section" style="display: none;">
-								<p style="margin-bottom: 15px; color: #e67e22; font-weight: 600;">⚠️ 访客订阅只能使用订阅功能，无法查看配置页！</p>
-								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
-								
-								<div class="subscription-grid">
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
-										<h3>🔄 自适应订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
-										<div id="guest_0" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')">
-										<h3>📝 Base64订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&b64</div>
-										<div id="guest_1" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')">
-										<h3>⚔️ Clash订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&clash</div>
-										<div id="guest_2" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')">
-										<h3>📦 SingBox订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&sb</div>
-										<div id="guest_3" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')">
-										<h3>🌊 Surge订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&surge</div>
-										<div id="guest_4" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')">
-										<h3>🎈 Loon订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&loon</div>
-										<div id="guest_5" class="qr-container"></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					
-						<!-- 订阅转换配置信息 -->
-						<div class="info-section">
-							<h3>⚙️ 订阅转换配置</h3>
-							<div class="info-item">
-								<strong>SUBAPI（订阅转换后端）:</strong> ${subProtocol}://${subConverter}
-							</div>
-							<div class="info-item">
-								<strong>SUBCONFIG（订阅转换配置文件）:</strong> ${subConfig}
-							</div>
-						</div>
-					
-						<!-- 链接保存管理 -->
-						<div class="card">
-							<h2 class="card-title">🔗 链接保存管理</h2>
-							<div class="link-manager">
-								<p style="margin-bottom: 15px; color: #2c3e50; font-weight: 500;">💡 保存常用链接，支持导出导入，数据存储在本地浏览器中</p>
-								<div class="link-input-group">
-									<input type="text" class="link-input" id="linkName" placeholder="输入链接名称（如：GitHub、文档等）">
-									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
-									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
-								</div>
-								<div class="saved-links" id="savedLinks"></div>
-								<div class="link-management-controls">
-									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
-									<button class="export-import-btn" onclick="importLinks()">📥 导入链接</button>
-								</div>
-							</div>
-						</div>
-					
-						<!-- SOCKS转换工具 -->
-						<div class="card">
-							<h2 class="card-title">🔧 SOCKS转换工具</h2>
-							<div class="socks-converter">
-								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将机场节点和自建节点任意协议转换为本地SOCKS节点，支持从订阅链接自动生成Clash规则文件</p>
-								
-								<!-- 转换模式选择 -->
-								<div class="conversion-mode">
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="subscription" checked>
-										<span>📡 订阅链接转换</span>
-									</label>
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="yaml">
-										<span>📄 YAML文件转换</span>
-									</label>
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="base64decode">
-										<span>🔓 Base64解码转换</span>
-									</label>
-								</div>
-								
-								<!-- 订阅链接输入区域 -->
-								<div id="subscriptionInput" class="input-section">
-									<label>订阅链接：</label>
-									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
-									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
-								</div>
-								
-								<!-- YAML输入区域 -->
-								<div id="yamlInput" class="input-section" style="display: none;">
-									<label>YAML配置：</label>
-									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
-								</div>
-								
-								<!-- Base64解码输入区域 -->
-								<div id="base64Input" class="input-section" style="display: none;">
-									<label>Base64编码内容：</label>
-									<textarea class="converter-input" id="inputBase64" placeholder="在此处粘贴Base64编码的节点配置内容"></textarea>
-								</div>
-								
-								<div class="converter-controls">
-									<label>起始端口：</label>
-									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
-								</div>
-								
-								<div class="converter-output">
-									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
-									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
-									<div id="outputDiv" class="download-section">
-										<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-										<a href="#" download="socks-config.yaml" class="download-btn" id="downloadLink" style="pointer-events: none; opacity: 0.5;">📄 下载YAML文件</a>
-										<button class="copy-text-btn" onclick="copySOCKSConfig()" disabled style="opacity: 0.5;">📋 复制配置文本</button>
-										<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-											<strong>使用说明：</strong><br>
-											1. 下载生成的YAML文件并导入到Clash客户端<br>
-											2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-											3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					
-						<!-- 订阅编辑器 -->
-						<div class="card">
-							<h2 class="card-title">📝 ${FileName} 汇聚订阅编辑</h2>
-							<div class="editor-container">
-								${hasKV ? `
-						<textarea class="editor" 
-							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
-							id="content">${content}</textarea>
-						<div class="save-container">
-							<button class="save-btn" onclick="saveContent(this)">保存</button>
-							<span class="save-status" id="saveStatus"></span>
-						</div>
-						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
-				</div>
-				
-				<!-- 页面底部信息 -->
-				<div class="footer-info" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #6c757d; font-size: 0.9rem;">
-					<p style="margin-bottom: 10px;">📱 <strong>Telegram交流群:</strong> <a href="https://t.me/CMliussss" style="color: #007bff; text-decoration: none;">https://t.me/CMliussss</a></p>
-					<p style="margin-bottom: 10px;">⭐ <strong>GitHub项目:</strong> <a href="https://github.com/cmliu/CF-Workers-SUB" style="color: #007bff; text-decoration: none;">https://github.com/cmliu/CF-Workers-SUB</a></p>
-					<p style="margin: 0; font-size: 0.8rem;">User-Agent: ${request.headers.get('User-Agent')}</p>
-				</div>
-					<script>
+							<script>
 // 二维码和复制功能
 function copyToClipboard(text, qrcode) {
 	navigator.clipboard.writeText(text).then(() => {
@@ -2242,6 +2026,223 @@ document.addEventListener('DOMContentLoaded', () => {
 	setupFileDrop();
 });
 					</script>
+				</head>
+				<body>
+					<div class="container">
+						<div class="header">
+							<h1>🚀 ${FileName} 订阅管理中心</h1>
+							<p>现代化的订阅管理与转换工具</p>
+						</div>
+					
+						<!-- 订阅链接卡片 -->
+						<div class="card">
+							<h2 class="card-title">📡 订阅链接</h2>
+							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
+							
+							<div class="subscription-grid">
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
+									<h3>🔄 自适应订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}</div>
+									<div id="qrcode_0" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')">
+									<h3>📝 Base64订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?b64</div>
+									<div id="qrcode_1" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')">
+									<h3>⚔️ Clash订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?clash</div>
+									<div id="qrcode_2" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')">
+									<h3>📦 SingBox订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?sb</div>
+									<div id="qrcode_3" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')">
+									<h3>🌊 Surge订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?surge</div>
+									<div id="qrcode_4" class="qr-container"></div>
+								</div>
+								
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')">
+									<h3>🎈 Loon订阅</h3>
+									<div class="url">https://${url.hostname}/${mytoken}?loon</div>
+									<div id="qrcode_5" class="qr-container"></div>
+								</div>
+							</div>
+						</div>
+					
+						<!-- 访客订阅卡片 -->
+						<div class="card">
+							<h2 class="card-title">👥 访客订阅</h2>
+							<button class="toggle-btn" id="noticeToggle" onclick="toggleNotice()">查看访客订阅 ∨</button>
+							
+							<div id="noticeContent" class="guest-section" style="display: none;">
+								<p style="margin-bottom: 15px; color: #e67e22; font-weight: 600;">⚠️ 访客订阅只能使用订阅功能，无法查看配置页！</p>
+								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
+								
+								<div class="subscription-grid">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
+										<h3>🔄 自适应订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
+										<div id="guest_0" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')">
+										<h3>📝 Base64订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&b64</div>
+										<div id="guest_1" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')">
+										<h3>⚔️ Clash订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&clash</div>
+										<div id="guest_2" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')">
+										<h3>📦 SingBox订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&sb</div>
+										<div id="guest_3" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')">
+										<h3>🌊 Surge订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&surge</div>
+										<div id="guest_4" class="qr-container"></div>
+									</div>
+									
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')">
+										<h3>🎈 Loon订阅</h3>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&loon</div>
+										<div id="guest_5" class="qr-container"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					
+						<!-- 订阅转换配置信息 -->
+						<div class="info-section">
+							<h3>⚙️ 订阅转换配置</h3>
+							<div class="info-item">
+								<strong>SUBAPI（订阅转换后端）:</strong> ${subProtocol}://${subConverter}
+							</div>
+							<div class="info-item">
+								<strong>SUBCONFIG（订阅转换配置文件）:</strong> ${subConfig}
+							</div>
+						</div>
+					
+						<!-- 链接保存管理 -->
+						<div class="card">
+							<h2 class="card-title">🔗 链接保存管理</h2>
+							<div class="link-manager">
+								<p style="margin-bottom: 15px; color: #2c3e50; font-weight: 500;">💡 保存常用链接，支持导出导入，数据存储在本地浏览器中</p>
+								<div class="link-input-group">
+									<input type="text" class="link-input" id="linkName" placeholder="输入链接名称（如：GitHub、文档等）">
+									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
+									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
+								</div>
+								<div class="saved-links" id="savedLinks"></div>
+								<div class="link-management-controls">
+									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
+									<button class="export-import-btn" onclick="importLinks()">📥 导入链接</button>
+								</div>
+							</div>
+						</div>
+					
+						<!-- SOCKS转换工具 -->
+						<div class="card">
+							<h2 class="card-title">🔧 SOCKS转换工具</h2>
+							<div class="socks-converter">
+								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将机场节点和自建节点任意协议转换为本地SOCKS节点，支持从订阅链接自动生成Clash规则文件</p>
+								
+								<!-- 转换模式选择 -->
+								<div class="conversion-mode">
+									<label class="mode-label">
+										<input type="radio" name="conversionMode" value="subscription" checked>
+										<span>📡 订阅链接转换</span>
+									</label>
+									<label class="mode-label">
+										<input type="radio" name="conversionMode" value="yaml">
+										<span>📄 YAML文件转换</span>
+									</label>
+									<label class="mode-label">
+										<input type="radio" name="conversionMode" value="base64decode">
+										<span>🔓 Base64解码转换</span>
+									</label>
+								</div>
+								
+								<!-- 订阅链接输入区域 -->
+								<div id="subscriptionInput" class="input-section">
+									<label>订阅链接：</label>
+									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
+									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
+								</div>
+								
+								<!-- YAML输入区域 -->
+								<div id="yamlInput" class="input-section" style="display: none;">
+									<label>YAML配置：</label>
+									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
+								</div>
+								
+								<!-- Base64解码输入区域 -->
+								<div id="base64Input" class="input-section" style="display: none;">
+									<label>Base64编码内容：</label>
+									<textarea class="converter-input" id="inputBase64" placeholder="在此处粘贴Base64编码的节点配置内容"></textarea>
+								</div>
+								
+								<div class="converter-controls">
+									<label>起始端口：</label>
+									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
+									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
+								</div>
+								
+								<div class="converter-output">
+									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
+									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
+									<div id="outputDiv" class="download-section">
+										<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+										<a href="#" download="socks-config.yaml" class="download-btn" id="downloadLink" style="pointer-events: none; opacity: 0.5;">📄 下载YAML文件</a>
+										<button class="copy-text-btn" onclick="copySOCKSConfig()" disabled style="opacity: 0.5;">📋 复制配置文本</button>
+										<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+											<strong>使用说明：</strong><br>
+											1. 下载生成的YAML文件并导入到Clash客户端<br>
+											2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+											3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					
+						<!-- 订阅编辑器 -->
+						<div class="card">
+							<h2 class="card-title">📝 ${FileName} 汇聚订阅编辑</h2>
+							<div class="editor-container">
+								${hasKV ? `
+						<textarea class="editor" 
+							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
+							id="content">${content}</textarea>
+						<div class="save-container">
+							<button class="save-btn" onclick="saveContent(this)">保存</button>
+							<span class="save-status" id="saveStatus"></span>
+						</div>
+						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
+				</div>
+				
+				<!-- 页面底部信息 -->
+				<div class="footer-info" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #6c757d; font-size: 0.9rem;">
+					<p style="margin-bottom: 10px;">📱 <strong>Telegram交流群:</strong> <a href="https://t.me/CMliussss" style="color: #007bff; text-decoration: none;">https://t.me/CMliussss</a></p>
+					<p style="margin-bottom: 10px;">⭐ <strong>GitHub项目:</strong> <a href="https://github.com/cmliu/CF-Workers-SUB" style="color: #007bff; text-decoration: none;">https://github.com/cmliu/CF-Workers-SUB</a></p>
+					<p style="margin: 0; font-size: 0.8rem;">User-Agent: ${request.headers.get('User-Agent')}</p>
+				</div>
+			
 				</body>
 			</html>
 		`;
