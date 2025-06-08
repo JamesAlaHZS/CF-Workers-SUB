@@ -1785,15 +1785,75 @@ function fetchSubscription() {
 					decoded = data;
 				}
 				
-				const lines = decoded.split('\\n').filter(line => line.trim());
+				let proxies = [];
+				const startPort = parseInt(startPortInput.value) || 42000;
 				
-				if (lines.length === 0) {
-					throw new Error('订阅内容为空或格式不正确');
+				// 检查是否为Clash YAML格式
+				if (decoded.includes('proxies:') || decoded.includes('- {name:')) {
+					// 解析Clash YAML格式
+					try {
+						// 提取proxies部分
+						const proxiesMatch = decoded.match(/proxies:\\s*([\\s\\S]*?)(?=\\n\\w|$)/i);
+						if (proxiesMatch) {
+							const proxiesSection = proxiesMatch[1];
+							// 匹配每个代理配置
+							const proxyMatches = proxiesSection.match(/- \\{[^}]+\\}/g);
+							if (proxyMatches) {
+								proxies = proxyMatches.map(match => {
+									try {
+										// 移除开头的"- "并解析为对象
+										const configStr = match.replace(/^- /, '');
+										const config = eval('(' + configStr + ')');
+										return config;
+									} catch (e) {
+										console.warn('解析代理配置失败:', match, e);
+										return null;
+									}
+								}).filter(p => p !== null);
+							}
+						}
+					} catch (yamlError) {
+						console.warn('YAML解析失败，尝试其他格式:', yamlError);
+					}
 				}
 				
-				const startPort = parseInt(startPortInput.value) || 42000;
-				const socksConfigs = lines.map((line, index) => {
-					const proxyInfo = parseProxyUrl(line);
+				// 如果没有解析到Clash格式，尝试解析单行代理URL格式
+				if (proxies.length === 0) {
+					const lines = decoded.split('\\n').filter(line => line.trim());
+					proxies = lines.map(line => {
+						const proxyInfo = parseProxyUrl(line);
+						return proxyInfo;
+					}).filter(p => p !== null);
+				}
+				
+				if (proxies.length === 0) {
+					throw new Error('未找到有效的代理配置');
+				}
+				
+				// 转换为SOCKS配置
+				const socksConfigs = proxies.map((proxy, index) => {
+					// 如果是Clash格式，转换为标准格式
+					let proxyInfo;
+					if (proxy.type && proxy.server) {
+						// Clash格式
+						proxyInfo = {
+							type: proxy.type,
+							server: proxy.server,
+							port: proxy.port,
+							uuid: proxy.uuid,
+							alterId: proxy.alterId || 0,
+							cipher: proxy.cipher || 'auto',
+							network: proxy.network || 'tcp',
+							password: proxy.password,
+							method: proxy.method,
+							sni: proxy.sni || proxy.server,
+							allowInsecure: proxy['skip-cert-verify'] || false
+						};
+					} else {
+						// 已经是标准格式
+						proxyInfo = proxy;
+					}
+					
 					if (proxyInfo) {
 						return convertProxyToSocks(proxyInfo, startPort + index);
 					}
@@ -1801,7 +1861,7 @@ function fetchSubscription() {
 				}).filter(config => config !== null);
 				
 				if (socksConfigs.length === 0) {
-					throw new Error('未找到有效的代理配置');
+					throw new Error('转换SOCKS配置失败');
 				}
 				
 				// 生成YAML格式的配置
