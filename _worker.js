@@ -1846,7 +1846,13 @@ function processYAMLConversion() {
 
 // 处理Base64转换
 function processBase64Conversion() {
-	const base64Input = document.getElementById('yamlInput').value.trim();
+	const base64InputElement = document.getElementById('base64Input');
+	if (!base64InputElement) {
+		console.error('base64Input element not found');
+		return;
+	}
+	
+	const base64Input = base64InputElement.value?.trim();
 	const infoDiv = document.getElementById('conversionInfo');
 	const outputDiv = document.getElementById('socksOutput');
 	const copyBtn = document.querySelector('.copy-text-btn');
@@ -1876,22 +1882,26 @@ function processBase64Conversion() {
 			throw new Error('未找到有效的代理配置');
 		}
 		
-		const downloadLink = 'data:text/plain;charset=utf-8,' + encodeURIComponent(socksConfigs.join('\\n\\n'));
-		outputDiv.innerHTML = '<a href="' + downloadLink + '" download="socks-config.txt" style="color: #007bff; text-decoration: underline;">点击下载SOCKS配置文件</a>';
+		const downloadLink = \`data:text/plain;charset=utf-8,\${encodeURIComponent(socksConfigs.join('\\n\\n'))}\`;
+		if (outputDiv) outputDiv.innerHTML = \`<a href="\${downloadLink}" download="socks-config.txt" style="color: #007bff; text-decoration: underline;">点击下载SOCKS配置文件</a>\`;
 		
-		usageDiv.innerHTML = '<h4>使用说明：</h4><p>1. 下载配置文件</p><p>2. 在支持SOCKS的应用中导入配置</p><p>3. 端口范围：10000-' + (10000 + socksConfigs.length - 1) + '</p>';
+		if (usageDiv) usageDiv.innerHTML = \`<h4>使用说明：</h4><p>1. 下载配置文件</p><p>2. 在支持SOCKS的应用中导入配置</p><p>3. 端口范围：10000-\${10000 + socksConfigs.length - 1}</p>\`;
 		
-		infoDiv.textContent = '成功转换 ' + socksConfigs.length + ' 个代理配置';
-		copyBtn.disabled = false;
-		copyBtn.style.opacity = '1';
+		if (infoDiv) infoDiv.textContent = \`成功转换 \${socksConfigs.length} 个代理配置\`;
+		if (copyBtn) {
+			copyBtn.disabled = false;
+			copyBtn.style.opacity = '1';
+		}
 		
 		// 存储配置文本用于复制
 		window.socksConfigText = socksConfigs.join('\\n\\n');
 	} catch (error) {
-		infoDiv.textContent = '转换失败: ' + error.message;
-		outputDiv.textContent = '';
-		copyBtn.disabled = true;
-		copyBtn.style.opacity = '0.5';
+		if (infoDiv) infoDiv.textContent = \`转换失败: \${error.message}\`;
+		if (outputDiv) outputDiv.textContent = '';
+		if (copyBtn) {
+			copyBtn.disabled = true;
+			copyBtn.style.opacity = '0.5';
+		}
 	}
 }
 
@@ -1941,8 +1951,7 @@ function displaySavedLinks() {
 		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\"' + link.url + '\")" title="复制链接">📋</button>' +
 		'<button class="delete-link-btn" onclick="deleteLink(\"' + link.name + '\")" >删除</button>' +
 		'</div>' +
-		'</div>
-		\').join('');
+		'</div>\').join('');
 }
 
 // 切换转换模式
@@ -1968,11 +1977,16 @@ function switchConversionMode() {
 	}
 	
 	// 清空之前的结果
-	document.getElementById('conversionInfo').textContent = '';
-	document.getElementById('socksOutput').textContent = '';
+	const conversionInfo = document.getElementById('conversionInfo');
+	const socksOutput = document.getElementById('socksOutput');
 	const copyBtn = document.querySelector('.copy-text-btn');
-	copyBtn.disabled = true;
-	copyBtn.style.opacity = '0.5';
+	
+	if (conversionInfo) conversionInfo.textContent = '';
+	if (socksOutput) socksOutput.textContent = '';
+	if (copyBtn) {
+		copyBtn.disabled = true;
+		copyBtn.style.opacity = '0.5';
+	}
 }
 
 // 解析代理URL
