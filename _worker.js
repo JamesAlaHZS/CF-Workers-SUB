@@ -1759,52 +1759,88 @@ function fetchSubscription() {
 function processConversion() {
 	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
 	if (mode === 'yaml') {
-		processYamlConversion();
+		processYAMLConversion();
 	} else {
 		processBase64Conversion();
 	}
 }
 
 // 处理YAML转换
-function processYamlConversion() {
-	const yamlInput = document.getElementById('yamlInput').value.trim();
-	const infoDiv = document.getElementById('conversionInfo');
-	const outputDiv = document.getElementById('socksOutput');
-	const copyBtn = document.querySelector('.copy-text-btn');
+function processYAMLConversion() {
+	const inputYAML = document.getElementById('inputYAML').value.trim();
+	const startPort = parseInt(document.getElementById('startPort').value);
+	const infoDiv = document.getElementById('infoDiv');
+	const outputYAML = document.getElementById('outputYAML');
+	const outputDiv = document.getElementById('outputDiv');
 	
-	if (!yamlInput) {
-		alert('请输入YAML内容');
+	if (!inputYAML) {
+		infoDiv.textContent = '请输入YAML配置内容';
+		infoDiv.style.color = '#dc3545';
 		return;
 	}
 	
 	try {
-		const yamlData = jsyaml.load(yamlInput);
-		const proxies = yamlData.proxies || [];
+		// 解析YAML
+		const yamlData = jsyaml.load(inputYAML);
 		
-		if (proxies.length === 0) {
-			throw new Error('未找到代理节点');
+		if (!yamlData || !yamlData.proxies || !Array.isArray(yamlData.proxies)) {
+			throw new Error('YAML格式错误：未找到有效的proxies数组');
 		}
 		
-		const startPort = 10000;
+		const numProxies = yamlData.proxies.length;
+		
+		// 生成SOCKS配置
 		const socksConfig = {
-			listeners: proxies.map((proxy, index) => ({
-				name: 'socks-' + (index + 1),
-				type: 'socks',
-				port: startPort + index,
-				proxy: proxy.name
-			}))
+			'allow-lan': true,
+			dns: {
+				enable: true,
+				'enhanced-mode': 'fake-ip',
+				'fake-ip-range': '198.18.0.1/16',
+				'default-nameserver': ['114.114.114.114'],
+				nameserver: ['https://doh.pub/dns-query']
+			},
+			listeners: [],
+			proxies: yamlData.proxies
 		};
 		
-		const numProxies = proxies.length;
-		outputDiv.textContent = JSON.stringify(socksConfig, null, 2);
-		infoDiv.innerHTML = '共 ' + numProxies + ' 个节点，端口范围：' + startPort + ' - ' + (startPort + numProxies - 1);
-		copyBtn.disabled = false;
-		copyBtn.style.opacity = '1';
+		// 生成监听器配置
+		socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
+			name: \`mixed\${i}\`,
+			type: 'mixed',
+			port: startPort + i,
+			proxy: yamlData.proxies[i].name
+		}));
+		
+		// 转换为YAML字符串
+		const socksYAMLString = jsyaml.dump(socksConfig);
+		outputYAML.value = socksYAMLString;
+		
+		// 更新信息显示
+		infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+		infoDiv.style.color = '#28a745';
+		
+		// 生成下载链接和复制按钮
+		const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
+		const downloadUrl = URL.createObjectURL(blob);
+		
+		outputDiv.innerHTML = \`
+			<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+			<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
+			<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+			<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+				<strong>使用说明：</strong><br>
+				1. 下载生成的YAML文件并导入到Clash客户端<br>
+				2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+				3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+			</div>
+		\`;
+		
 	} catch (error) {
-		infoDiv.textContent = '转换失败: ' + error.message;
-		outputDiv.textContent = '';
-		copyBtn.disabled = true;
-		copyBtn.style.opacity = '0.5';
+		console.error('转换失败:', error);
+		infoDiv.textContent = \`转换失败: \${error.message}\`;
+		infoDiv.style.color = '#dc3545';
+		outputYAML.value = '';
+		outputDiv.innerHTML = '';
 	}
 }
 
@@ -1817,7 +1853,6 @@ function processBase64Conversion() {
 	const usageDiv = document.getElementById('usageInstructions');
 	
 	if (!base64Input) {
-		alert('请输入Base64内容');
 		return;
 	}
 	
@@ -1841,7 +1876,7 @@ function processBase64Conversion() {
 			throw new Error('未找到有效的代理配置');
 		}
 		
-		const downloadLink = 'data:text/plain;charset=utf-8,' + encodeURIComponent(socksConfigs.join('\n\n'));
+		const downloadLink = 'data:text/plain;charset=utf-8,' + encodeURIComponent(socksConfigs.join('\\n\\n'));
 		outputDiv.innerHTML = '<a href="' + downloadLink + '" download="socks-config.txt" style="color: #007bff; text-decoration: underline;">点击下载SOCKS配置文件</a>';
 		
 		usageDiv.innerHTML = '<h4>使用说明：</h4><p>1. 下载配置文件</p><p>2. 在支持SOCKS的应用中导入配置</p><p>3. 端口范围：10000-' + (10000 + socksConfigs.length - 1) + '</p>';
@@ -1913,15 +1948,23 @@ function displaySavedLinks() {
 // 切换转换模式
 function switchConversionMode() {
 	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
-	const yamlLabel = document.querySelector('label[for="yamlInput"]');
+	const subscriptionInput = document.getElementById('subscriptionInput');
+	const yamlInput = document.getElementById('yamlInput');
+	const base64Input = document.getElementById('base64Input');
 	const processBtn = document.getElementById('processButton');
 	
-	if (mode === 'yaml') {
-		yamlLabel.textContent = 'YAML内容:';
-		processBtn.textContent = '🔄 生成SOCKS配置';
+	if (mode === 'subscription') {
+		subscriptionInput.style.display = 'block';
+		yamlInput.style.display = 'none';
+		base64Input.style.display = 'none';
+	} else if (mode == 'yaml') {
+		subscriptionInput.style.display = 'none';
+		yamlInput.style.display = 'block';
+		base64Input.style.display = 'none';
 	} else {
-		yamlLabel.textContent = 'Base64内容:';
-		processBtn.textContent = '🔄 转换为SOCKS';
+		subscriptionInput.style.display = 'none';
+		yamlInput.style.display = 'none';
+		base64Input.style.display = 'block';
 	}
 	
 	// 清空之前的结果
