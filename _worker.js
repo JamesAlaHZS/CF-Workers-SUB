@@ -1876,7 +1876,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 										nodeListHTML.push(\`<div class="node-item">\${node.name} (\${node.type})</div>\`);
 									}
 								} catch (error) {
-									console.warn(\`解析节点 \${index + 1} 失败:`, error);
+									console.warn("解析节点 " + (index + 1) + " 失败:", error);
 								}
 							});
 							
