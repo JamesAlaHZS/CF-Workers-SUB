@@ -1931,7 +1931,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 										const [method, password] = parts[0].split(':');
 										const [server, port] = parts[1].split(':');
 										return {
-											name: decodeURIComponent(newMatch[2] || `SS-${server}`),
+											name: decodeURIComponent(newMatch[2] || 'SS-' + server),
 											type: 'ss',
 											server: server,
 											port: parseInt(port),
@@ -1948,7 +1948,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							const [cipher, password] = decoded.split(':');
 							
 							return {
-								name: name ? decodeURIComponent(name) : `SS-${server}`,
+								name: name ? decodeURIComponent(name) : 'SS-' + server,
 								type: 'ss',
 								server: server,
 								port: parseInt(port),
@@ -1994,7 +1994,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							}
 							
 							return {
-								name: params.remarks || `SSR-${server}`,
+								name: params.remarks || 'SSR-' + server,
 								type: 'ssr',
 								server: server,
 								port: port,
@@ -2019,7 +2019,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							const config = JSON.parse(decoded);
 							
 							const proxy = {
-								name: config.ps || `VMess-${config.add}`,
+								name: config.ps || 'VMess-' + config.add,
 								type: 'vmess',
 								server: config.add,
 								port: parseInt(config.port),
@@ -2063,7 +2063,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							const params = new URLSearchParams(urlObj.search);
 							
 							const proxy = {
-								name: decodeURIComponent(urlObj.hash.substring(1)) || `VLESS-${server}`,
+								name: decodeURIComponent(urlObj.hash.substring(1)) || 'VLESS-' + server,
 								type: 'vless',
 								server: server,
 								port: port,
@@ -2102,7 +2102,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							const params = new URLSearchParams(urlObj.search);
 							
 							const proxy = {
-								name: decodeURIComponent(urlObj.hash.substring(1)) || `Trojan-${server}`,
+								name: decodeURIComponent(urlObj.hash.substring(1)) || 'Trojan-' + server,
 								type: 'trojan',
 								server: server,
 								port: port,
@@ -2172,7 +2172,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							
 							// 生成监听器配置
 							socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
-								name: `mixed${i}`,
+								name: 'mixed' + i,
 								type: 'mixed',
 								port: startPort + i,
 								proxy: proxies[i].name
@@ -2204,7 +2204,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							
 						} catch (error) {
 							console.error('Base64转换失败:', error);
-							infoDiv.textContent = `Base64转换失败: ${error.message}`;
+							infoDiv.textContent = 'Base64转换失败: ' + error.message;
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
 							outputDiv.innerHTML = '';
