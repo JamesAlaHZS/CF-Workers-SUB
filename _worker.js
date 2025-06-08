@@ -1931,17 +1931,18 @@ function displaySavedLinks() {
 	}
 	
 	container.innerHTML = savedLinks.map(link => 
-		'<div class="saved-link-item">' +
+		\'<div class="saved-link-item">' +
 		'<div class="link-info">' +
 		'<div class="link-name">' + link.name + '</div>' +
 		'<div class="link-url">' + link.url + '</div>' +
 		'<div class="link-time">保存时间: ' + new Date(link.timestamp).toLocaleString() + '</div>' +
 		'</div>' +
 		'<div class="link-actions">' +
-		'<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>' +
-		'<button class="delete-link-btn" onclick="deleteLink(\"' + link.name + '\"')" >删除</button>' +
+		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\"' + link.url + '\")" title="复制链接">📋</button>' +
+		'<button class="delete-link-btn" onclick="deleteLink(\"' + link.name + '\")" >删除</button>' +
 		'</div>' +
-		'</div>').join('');
+		'</div>
+		\').join('');
 }
 
 // 切换转换模式
