@@ -1886,7 +1886,7 @@ function processBase64Conversion() {
 		copyBtn.style.opacity = '1';
 		
 		// 存储配置文本用于复制
-		window.socksConfigText = socksConfigs.join('\n\n');
+		window.socksConfigText = socksConfigs.join('\\n\\n');
 	} catch (error) {
 		infoDiv.textContent = '转换失败: ' + error.message;
 		outputDiv.textContent = '';
@@ -1938,11 +1938,10 @@ function displaySavedLinks() {
 		'<div class="link-time">保存时间: ' + new Date(link.timestamp).toLocaleString() + '</div>' +
 		'</div>' +
 		'<div class="link-actions">' +
-		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\'' + link.url + '\')" title="复制链接">📋</button>' +
-		'<button class="delete-link-btn" onclick="deleteLink(\'' + link.name + '\')" >删除</button>' +
+		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\"' + link.url + '\"')" title="复制链接">📋</button>' +
+		'<button class="delete-link-btn" onclick="deleteLink(\"' + link.name + '\"')" >删除</button>' +
 		'</div>' +
-		'</div>'
-	).join('');
+		'</div>').join('');
 }
 
 // 切换转换模式
