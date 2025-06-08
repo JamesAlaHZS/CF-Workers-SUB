@@ -1802,14 +1802,27 @@ function fetchSubscription() {
 								proxies = proxyMatches.map(match => {
 									try {
 										// 移除开头的"- "并解析为对象
-										const configStr = match.replace(/^- /, '');
-										// 将JavaScript对象字符串转换为JSON格式
-										const jsonStr = configStr
-											.replace(/([{,]\\s*)([a-zA-Z_$][a-zA-Z0-9_$-]*)(\\s*):/g, '$1"$2":')
-											.replace(/:\\s*([a-zA-Z_$][a-zA-Z0-9_$.-]*)(\\s*[,}])/g, ': "$1"$2')
-											.replace(/:\\s*(\\d+)(\\s*[,}])/g, ': $1$2')
-											.replace(/:\\s*(true|false)(\\s*[,}])/g, ': $1$2');
-										const config = JSON.parse(jsonStr);
+										const configStr = match.replace(/^- /, '').replace(/[{}]/g, '');
+										// 手动解析键值对
+										const config = {};
+										const pairs = configStr.split(',');
+										for (const pair of pairs) {
+											const colonIndex = pair.indexOf(':');
+											if (colonIndex > 0) {
+												const key = pair.substring(0, colonIndex).trim();
+												let value = pair.substring(colonIndex + 1).trim();
+												// 处理不同类型的值
+												if (value === 'true') {
+													config[key] = true;
+												} else if (value === 'false') {
+													config[key] = false;
+												} else if (/^\\d+$/.test(value)) {
+													config[key] = parseInt(value);
+												} else {
+													config[key] = value;
+												}
+											}
+										}
 										return config;
 									} catch (e) {
 										console.warn('解析代理配置失败:', match, e);
