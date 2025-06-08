@@ -1823,7 +1823,7 @@ function processBase64Conversion() {
 	
 	try {
 		const decoded = atob(base64Input);
-		const lines = decoded.split('\n').filter(line => line.trim());
+		const lines = decoded.split('\\n').filter(line => line.trim());
 		
 		if (lines.length === 0) {
 			throw new Error('解码后未找到有效内容');
