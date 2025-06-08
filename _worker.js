@@ -1,3 +1,4 @@
+
 // 部署完成后在网址后面加上这个，获取自建节点和机场聚合节点，/?token=auto或/auto或
 
 let mytoken = 'auto';
@@ -548,7 +549,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						body {
 							font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-							background: #f5f5f5;
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							min-height: 100vh;
 							color: #333;
 							line-height: 1.6;
@@ -563,33 +564,28 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						.header {
 							text-align: center;
 							margin-bottom: 30px;
-							color: #2c3e50;
-							background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
-							padding: 30px;
-							border-radius: 15px;
-							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+							color: white;
 						}
 						
 						.header h1 {
 							font-size: 2.5rem;
 							margin-bottom: 10px;
-							color: #2c3e50;
-							text-shadow: none;
+							text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 						}
 						
 						.header p {
 							font-size: 1.1rem;
-							color: #6c757d;
-							opacity: 1;
+							opacity: 0.9;
 						}
 						
 						.card {
-							background: #fafafa;
+							background: rgba(255, 255, 255, 0.95);
 							border-radius: 15px;
 							padding: 25px;
 							margin-bottom: 25px;
-							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-							border: 1px solid #e0e0e0;
+							box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+							backdrop-filter: blur(10px);
+							border: 1px solid rgba(255,255,255,0.2);
 							position: relative;
 							overflow: hidden;
 							transition: all 0.3s ease;
@@ -607,7 +603,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							left: -100%;
 							width: 100%;
 							height: 2px;
-							background: linear-gradient(90deg, transparent, #3498db, transparent);
+							background: linear-gradient(90deg, transparent, #667eea, transparent);
 							transition: left 0.5s ease;
 						}
 						
@@ -633,7 +629,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.sub-item {
-							background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+							background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
 							border-radius: 12px;
 							padding: 20px;
 							text-align: center;
@@ -684,7 +680,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.toggle-btn {
-							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							color: white;
 							border: none;
 							padding: 12px 24px;
@@ -709,13 +705,13 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							width: 100%;
 							min-height: 300px;
 							padding: 20px;
-							border: 2px solid #d0d0d0;
+							border: 2px solid #e0e0e0;
 							border-radius: 12px;
 							font-size: 14px;
 							line-height: 1.6;
 							resize: vertical;
 							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-							background: #f0f0f0;
+							background: #f8f9fa;
 							transition: border-color 0.3s ease;
 						}
 						
@@ -734,7 +730,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.save-btn {
-							background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							color: white;
 							border: none;
 							padding: 12px 24px;
@@ -834,7 +830,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.add-link-btn {
-							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							color: white;
 							border: none;
 							padding: 12px 20px;
@@ -1076,7 +1072,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.convert-btn {
-							background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+							background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 							color: white;
 							border: none;
 							padding: 10px 20px;
@@ -1087,9 +1083,9 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 						
 						.convert-btn:hover {
-							background: linear-gradient(135deg, #5a32a3 0%, #6f42c1 100%);
+							background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+							box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 						}
 						
 						.converter-output {
@@ -1481,59 +1477,85 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						</div>
 					
 						<!-- SOCKS转换工具 -->
-						<div class="card">
-							<h2 class="card-title">🔧 SOCKS转换工具</h2>
-							<div class="socks-converter">
-								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将Base64编码的节点信息转换为本地SOCKS节点，支持自动生成Clash规则文件</p>
-							
-							<!-- Base64节点输入区域 -->
-							<div id="base64Input" class="input-section">
-								<label>Base64编码节点信息：</label>
-								<textarea class="converter-input" id="inputBase64" placeholder="请粘贴Base64编码的节点信息，支持多个节点（每行一个）"></textarea>
-								<button class="fetch-btn" onclick="parseBase64Nodes()">🔍 解析节点</button>
-							</div>
-							
-							<!-- 解析后的节点预览 -->
-							<div id="nodePreview" class="input-section" style="display: none;">
-								<label>解析的节点信息：</label>
-								<div id="nodeList" class="node-list"></div>
-							</div>
-								
-								<div class="converter-controls">
-									<label>起始端口：</label>
-									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton" onclick="generateSOCKSConfig()" disabled>🔄 生成SOCKS配置</button>
-								</div>
-								
-								<div class="converter-output">
-									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
-									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
-									<div id="outputDiv" class="download-section"></div>
-								</div>
-							</div>
-						</div>
+<div class="card">
+	<h2 class="card-title">🔧 SOCKS转换工具</h2>
+	<div class="socks-converter">
+		<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将机场节点和自建节点任意协议转换为本地SOCKS节点，支持从订阅链接自动生成Clash规则文件</p>
+		
+		<!-- 转换模式选择 -->
+		<div class="conversion-mode">
+			<label class="mode-label">
+				<input type="radio" name="conversionMode" value="subscription" checked>
+				<span>📡 订阅链接转换</span>
+			</label>
+			<label class="mode-label">
+				<input type="radio" name="conversionMode" value="yaml">
+				<span>📄 YAML文件转换</span>
+			</label>
+			<label class="mode-label">
+				<input type="radio" name="conversionMode" value="base64">
+				<span>🔐 Base64解码转换</span>
+			</label>
+		</div>
+		
+		<!-- 订阅链接输入区域 -->
+		<div id="subscriptionInput" class="input-section">
+			<label>订阅链接：</label>
+			<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
+			<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
+		</div>
+		
+		<!-- YAML输入区域 -->
+		<div id="yamlInput" class="input-section" style="display: none;">
+			<label>YAML配置：</label>
+			<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
+		</div>
+		
+		<!-- Base64输入区域 -->
+		<div id="base64Input" class="input-section" style="display: none;">
+			<label>Base64编码配置：</label>
+			<textarea class="converter-input" id="inputBase64" placeholder="在此处粘贴Base64编码的代理配置字符串&#10;支持格式：Shadowsocks、ShadowsocksR、VMess、VLESS、Trojan&#10;可以拖拽.txt文件到此处"></textarea>
+			<div class="base64-tips" style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 12px; color: #6c757d;">
+				<strong>💡 使用提示：</strong>
+				<br>• 支持多行Base64编码的代理链接
+				<br>• 支持 ss://、ssr://、vmess://、vless://、trojan:// 等协议
+				<br>• 可直接粘贴机场提供的Base64订阅内容
+			</div>
+		</div>
+		
+		<div class="converter-controls">
+			<label>起始端口：</label>
+			<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
+			<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
+		</div>
+		
+		<div class="converter-output">
+			<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
+			<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
+			<div id="outputDiv" class="download-section"></div>
+		</div>
+	</div>
+</div>
+
 					
 						<!-- 订阅编辑器 -->
 						<div class="card">
 							<h2 class="card-title">📝 ${FileName} 汇聚订阅编辑</h2>
 							<div class="editor-container">
 								${hasKV ? `
-						<textarea class="editor" 
-							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
-							id="content">${content}</textarea>
-						<div class="save-container">
-							<button class="save-btn" onclick="saveContent(this)">保存</button>
-							<span class="save-status" id="saveStatus"></span>
-						</div>
-						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
+					<textarea class="editor" 
+						placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
+						id="content">${content}</textarea>
+				<div class="save-container">
+					<button class="save-btn" onclick="saveContent(this)">保存</button>
+					<span class="save-status" id="saveStatus"></span>
 				</div>
-				
-				<!-- 页面底部信息 -->
-				<div class="footer-info" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #6c757d; font-size: 0.9rem;">
-					<p style="margin-bottom: 10px;">📱 <strong>Telegram交流群:</strong> <a href="https://t.me/CMliussss" style="color: #007bff; text-decoration: none;">https://t.me/CMliussss</a></p>
-					<p style="margin-bottom: 10px;">⭐ <strong>GitHub项目:</strong> <a href="https://github.com/cmliu/CF-Workers-SUB" style="color: #007bff; text-decoration: none;">https://github.com/cmliu/CF-Workers-SUB</a></p>
-					<p style="margin: 0; font-size: 0.8rem;">User-Agent: ${request.headers.get('User-Agent')}</p>
-				</div>
+					` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
+					</div>
+					<br>
+					################################################################<br>
+					${decodeURIComponent(atob('dGVsZWdyYW0lMjAlRTQlQkElQTQlRTYlQjUlODElRTclQkUlQTQlMjAlRTYlOEElODAlRTYlOUMlQUYlRTUlQTQlQTclRTQlQkQlQUMlN0UlRTUlOUMlQTglRTclQkElQkYlRTUlOEYlOTElRTclODklOEMhJTNDYnIlM0UKJTNDYSUyMGhyZWYlM0QlMjdodHRwcyUzQSUyRiUyRnQubWUlMkZDTUxpdXNzc3MlMjclM0VodHRwcyUzQSUyRiUyRnQubWUlMkZDTUxpdXNzc3MlM0MlMkZhJTNFJTNDYnIlM0UKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tJTNDYnIlM0UKZ2l0aHViJTIwJUU5JUExJUI5JUU3JTlCJUFFJUU1JTlDJUIwJUU1JTlEJTgwJTIwU3RhciFTdGFyIVN0YXIhISElM0NiciUzRQolM0NhJTIwaHJlZiUzRCUyN2h0dHBzJTNBJTJGJTJGZ2l0aHViLmNvbSUyRmNtbGl1JTJGQ0YtV29ya2Vycy1TVUIlMjclM0VodHRwcyUzQSUyRiUyRmdpdGh1Yi5jb20lMkZjbWxpdSUyRkNGLVdvcmtlcnMtU1VCJTNDJTJGYSUzRSUzQ2JyJTNFCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSUzQ2JyJTNFCiUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMw=='))}
+					<br><br>UA: <strong>${request.headers.get('User-Agent')}</strong>
 					<script>
 					function copyToClipboard(text, qrcode) {
 						navigator.clipboard.writeText(text).then(() => {
@@ -1824,220 +1846,315 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 		
 					// SOCKS转换功能
-					// 转换模式切换
 					function switchConversionMode() {
+						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const yamlMode = document.querySelector('input[name="conversionMode"][value="yaml"]').checked;
 						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
-						const base64Input = document.getElementById('base64Input');
-						const yamlInput = document.getElementById('yamlInput');
-						const nodePreview = document.getElementById('nodePreview');
 						
-						if (base64Mode) {
-							base64Input.style.display = 'block';
+						const subscriptionInput = document.getElementById('subscriptionInput');
+						const yamlInput = document.getElementById('yamlInput');
+						const base64Input = document.getElementById('base64Input');
+						
+						if (subscriptionMode) {
+							subscriptionInput.style.display = 'block';
 							yamlInput.style.display = 'none';
-							// 如果有解析的节点，显示预览
-							if (parsedNodes.length > 0) {
-								nodePreview.style.display = 'block';
-							}
-						} else {
 							base64Input.style.display = 'none';
+						} else if (yamlMode) {
+							subscriptionInput.style.display = 'none';
 							yamlInput.style.display = 'block';
-							nodePreview.style.display = 'none';
+							base64Input.style.display = 'none';
+						} else if (base64Mode) {
+							subscriptionInput.style.display = 'none';
+							yamlInput.style.display = 'none';
+							base64Input.style.display = 'block';
 						}
 					}
-					
-					// Base64节点解析
-					function parseBase64Nodes() {
-						const inputBase64 = document.getElementById('inputBase64');
-						const nodePreview = document.getElementById('nodePreview');
-						const nodeList = document.getElementById('nodeList');
-						const processButton = document.getElementById('processButton');
-						const infoDiv = document.getElementById('infoDiv');
-						
-						const base64Content = inputBase64.value.trim();
-						if (!base64Content) {
-							infoDiv.textContent = '请输入Base64编码的节点信息';
-							infoDiv.style.color = '#dc3545';
-							return;
-						}
-						
+
+					// 解析Base64编码的代理配置
+					function parseBase64Proxies(base64String) {
 						try {
 							// 解码Base64
-							const decodedContent = atob(base64Content);
-							const nodeLinks = decodedContent.split('\n').filter(link => link.trim());
+							const decodedString = atob(base64String.trim());
+							const lines = decodedString.split('\n').filter(line => line.trim());
 							
-							parsedNodes = [];
-							const nodeListHTML = [];
+							const proxies = [];
 							
-							nodeLinks.forEach((link, index) => {
+							for (const line of lines) {
+								const trimmedLine = line.trim();
+								if (!trimmedLine) continue;
+								
 								try {
-									const node = parseNodeLink(link.trim());
-									if (node) {
-										parsedNodes.push(node);
-										nodeListHTML.push(\`<div class="node-item">\${node.name} (\${node.type})</div>\`);
+									// 解析不同类型的代理链接
+									if (trimmedLine.startsWith('ss://')) {
+										// Shadowsocks
+										const proxy = parseShadowsocks(trimmedLine);
+										if (proxy) proxies.push(proxy);
+									} else if (trimmedLine.startsWith('ssr://')) {
+										// ShadowsocksR
+										const proxy = parseShadowsocksR(trimmedLine);
+										if (proxy) proxies.push(proxy);
+									} else if (trimmedLine.startsWith('vmess://')) {
+										// V2Ray VMess
+										const proxy = parseVmess(trimmedLine);
+										if (proxy) proxies.push(proxy);
+									} else if (trimmedLine.startsWith('vless://')) {
+										// V2Ray VLESS
+										const proxy = parseVless(trimmedLine);
+										if (proxy) proxies.push(proxy);
+									} else if (trimmedLine.startsWith('trojan://')) {
+										// Trojan
+										const proxy = parseTrojan(trimmedLine);
+										if (proxy) proxies.push(proxy);
 									}
 								} catch (error) {
-									console.warn("解析节点 " + (index + 1) + " 失败:", error);
+									console.warn('解析代理链接失败:', trimmedLine, error);
 								}
-							});
-							
-							if (parsedNodes.length > 0) {
-								nodeList.innerHTML = nodeListHTML.join('');
-								nodePreview.style.display = 'block';
-								processButton.disabled = false;
-								infoDiv.textContent = \`成功解析 \${parsedNodes.length} 个节点\`;
-								infoDiv.style.color = '#28a745';
-							} else {
-								infoDiv.textContent = '未找到有效的节点信息';
-								infoDiv.style.color = '#dc3545';
-								nodePreview.style.display = 'none';
-								processButton.disabled = true;
 							}
+							
+							return proxies;
 						} catch (error) {
-							console.error('Base64解码失败:', error);
-							infoDiv.textContent = 'Base64解码失败，请检查输入内容';
-							infoDiv.style.color = '#dc3545';
-							nodePreview.style.display = 'none';
-							processButton.disabled = true;
+							throw new Error('Base64解码失败: ' + error.message);
 						}
 					}
-					
-					// 解析单个节点链接
-					function parseNodeLink(link) {
-						if (link.startsWith('vmess://')) {
-							return parseVmessLink(link);
-						} else if (link.startsWith('vless://')) {
-							return parseVlessLink(link);
-						} else if (link.startsWith('trojan://')) {
-							return parseTrojanLink(link);
-						} else if (link.startsWith('ss://')) {
-							return parseShadowsocksLink(link);
-						}
-						return null;
-					}
-					
-					// 解析VMess链接
-					function parseVmessLink(link) {
-						try {
-							const base64Data = link.replace('vmess://', '');
-							const jsonData = JSON.parse(atob(base64Data));
-							return {
-								name: jsonData.ps || \`VMess_\${jsonData.add}_\${jsonData.port}\`,
-								type: 'vmess',
-								server: jsonData.add,
-								port: parseInt(jsonData.port),
-								uuid: jsonData.id,
-								alterId: parseInt(jsonData.aid) || 0,
-								cipher: 'auto',
-								network: jsonData.net || 'tcp',
-								tls: jsonData.tls === 'tls',
-								'skip-cert-verify': true
-							};
-						} catch (error) {
-							throw new Error('VMess链接解析失败');
-						}
-					}
-					
-					// 解析VLess链接
-					function parseVlessLink(link) {
-						try {
-							const url = new URL(link);
-							const params = new URLSearchParams(url.search);
-							return {
-								name: decodeURIComponent(url.hash.slice(1)) || \`VLess_\${url.hostname}_\${url.port}\`,
-								type: 'vless',
-								server: url.hostname,
-								port: parseInt(url.port),
-								uuid: url.username,
-								flow: params.get('flow') || '',
-								network: params.get('type') || 'tcp',
-								tls: params.get('security') === 'tls',
-								'skip-cert-verify': true
-							};
-						} catch (error) {
-							throw new Error('VLess链接解析失败');
-						}
-					}
-					
-					// 解析Trojan链接
-					function parseTrojanLink(link) {
-						try {
-							const url = new URL(link);
-							const params = new URLSearchParams(url.search);
-							return {
-								name: decodeURIComponent(url.hash.slice(1)) || \`Trojan_\${url.hostname}_\${url.port}\`,
-								type: 'trojan',
-								server: url.hostname,
-								port: parseInt(url.port),
-								password: url.username,
-								network: params.get('type') || 'tcp',
-								tls: true,
-								'skip-cert-verify': true
-							};
-						} catch (error) {
-							throw new Error('Trojan链接解析失败');
-						}
-					}
-					
+
 					// 解析Shadowsocks链接
-					function parseShadowsocksLink(link) {
+					function parseShadowsocks(url) {
 						try {
-							const url = new URL(link);
-							const auth = atob(url.username);
-							const [method, password] = auth.split(':');
+							const match = url.match(/^ss:\/\/(.+?)@(.+?):(\d+)(?:#(.+))?$/);
+							if (!match) {
+								// 尝试新格式 ss://base64@server:port#name
+								const newMatch = url.match(/^ss:\/\/(.+?)#(.+)?$/);
+								if (newMatch) {
+									const decoded = atob(newMatch[1]);
+									const parts = decoded.split('@');
+									if (parts.length === 2) {
+										const [method, password] = parts[0].split(':');
+										const [server, port] = parts[1].split(':');
+										return {
+											name: decodeURIComponent(newMatch[2] || `SS-${server}`),
+											type: 'ss',
+											server: server,
+											port: parseInt(port),
+											cipher: method,
+											password: password
+										};
+									}
+								}
+								return null;
+							}
+							
+							const [, auth, server, port, name] = match;
+							const decoded = atob(auth);
+							const [cipher, password] = decoded.split(':');
+							
 							return {
-								name: decodeURIComponent(url.hash.slice(1)) || \`SS_\${url.hostname}_\${url.port}\`,
+								name: name ? decodeURIComponent(name) : `SS-${server}`,
 								type: 'ss',
-								server: url.hostname,
-								port: parseInt(url.port),
-								cipher: method,
+								server: server,
+								port: parseInt(port),
+								cipher: cipher,
 								password: password
 							};
 						} catch (error) {
-							throw new Error('Shadowsocks链接解析失败');
+							console.warn('解析Shadowsocks失败:', error);
+							return null;
 						}
 					}
-					
-					// 生成SOCKS配置（兼容旧的按钮调用）
-					function generateSOCKSConfig() {
-						processConversion();
-					}
-					
-					// 处理转换
-					function processConversion() {
-						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
-						
-						if (base64Mode) {
-							// Base64模式：使用解析的节点生成配置
-							generateSOCKSFromNodes();
-						} else {
-							// YAML模式：从YAML输入生成配置
-							processYAMLConversion();
+
+					// 解析ShadowsocksR链接
+					function parseShadowsocksR(url) {
+						try {
+							const base64Part = url.replace('ssr://', '');
+							const decoded = atob(base64Part);
+							const parts = decoded.split(':');
+							
+							if (parts.length < 6) return null;
+							
+							const server = parts[0];
+							const port = parseInt(parts[1]);
+							const protocol = parts[2];
+							const cipher = parts[3];
+							const obfs = parts[4];
+							const passwordAndParams = parts[5];
+							
+							const paramMatch = passwordAndParams.match(/^(.+?)\?(.+)$/);
+							let password, params = {};
+							
+							if (paramMatch) {
+								password = atob(paramMatch[1]);
+								const paramPairs = paramMatch[2].split('&');
+								for (const pair of paramPairs) {
+									const [key, value] = pair.split('=');
+									if (value) {
+										params[key] = atob(value);
+									}
+								}
+							} else {
+								password = atob(passwordAndParams);
+							}
+							
+							return {
+								name: params.remarks || `SSR-${server}`,
+								type: 'ssr',
+								server: server,
+								port: port,
+								cipher: cipher,
+								password: password,
+								protocol: protocol,
+								'protocol-param': params.protoparam || '',
+								obfs: obfs,
+								'obfs-param': params.obfsparam || ''
+							};
+						} catch (error) {
+							console.warn('解析ShadowsocksR失败:', error);
+							return null;
 						}
 					}
-					
-					// YAML转换处理（集成socks转换.html的核心功能）
-					function processYAMLConversion() {
-						const inputYAML = document.getElementById('inputYAML').value.trim();
+
+					// 解析VMess链接
+					function parseVmess(url) {
+						try {
+							const base64Part = url.replace('vmess://', '');
+							const decoded = atob(base64Part);
+							const config = JSON.parse(decoded);
+							
+							const proxy = {
+								name: config.ps || `VMess-${config.add}`,
+								type: 'vmess',
+								server: config.add,
+								port: parseInt(config.port),
+								uuid: config.id,
+								alterId: parseInt(config.aid) || 0,
+								cipher: config.scy || 'auto'
+							};
+							
+							if (config.net) {
+								proxy.network = config.net;
+							}
+							
+							if (config.tls === 'tls') {
+								proxy.tls = true;
+								if (config.sni) {
+									proxy.servername = config.sni;
+								}
+							}
+							
+							if (config.net === 'ws') {
+								proxy['ws-opts'] = {
+									path: config.path || '/',
+									headers: config.host ? { Host: config.host } : {}
+								};
+							}
+							
+							return proxy;
+						} catch (error) {
+							console.warn('解析VMess失败:', error);
+							return null;
+						}
+					}
+
+					// 解析VLESS链接
+					function parseVless(url) {
+						try {
+							const urlObj = new URL(url);
+							const uuid = urlObj.username;
+							const server = urlObj.hostname;
+							const port = parseInt(urlObj.port);
+							const params = new URLSearchParams(urlObj.search);
+							
+							const proxy = {
+								name: decodeURIComponent(urlObj.hash.substring(1)) || `VLESS-${server}`,
+								type: 'vless',
+								server: server,
+								port: port,
+								uuid: uuid
+							};
+							
+							if (params.get('security') === 'tls') {
+								proxy.tls = true;
+								if (params.get('sni')) {
+									proxy.servername = params.get('sni');
+								}
+							}
+							
+							if (params.get('type') === 'ws') {
+								proxy.network = 'ws';
+								proxy['ws-opts'] = {
+									path: params.get('path') || '/',
+									headers: params.get('host') ? { Host: params.get('host') } : {}
+								};
+							}
+							
+							return proxy;
+						} catch (error) {
+							console.warn('解析VLESS失败:', error);
+							return null;
+						}
+					}
+
+					// 解析Trojan链接
+					function parseTrojan(url) {
+						try {
+							const urlObj = new URL(url);
+							const password = urlObj.username;
+							const server = urlObj.hostname;
+							const port = parseInt(urlObj.port) || 443;
+							const params = new URLSearchParams(urlObj.search);
+							
+							const proxy = {
+								name: decodeURIComponent(urlObj.hash.substring(1)) || `Trojan-${server}`,
+								type: 'trojan',
+								server: server,
+								port: port,
+								password: password,
+								tls: true
+							};
+							
+							if (params.get('sni')) {
+								proxy.servername = params.get('sni');
+							}
+							
+							if (params.get('type') === 'ws') {
+								proxy.network = 'ws';
+								proxy['ws-opts'] = {
+									path: params.get('path') || '/',
+									headers: params.get('host') ? { Host: params.get('host') } : {}
+								};
+							}
+							
+							return proxy;
+						} catch (error) {
+							console.warn('解析Trojan失败:', error);
+							return null;
+						}
+					}
+
+					// 处理Base64转换
+					function processBase64Conversion() {
+						const inputBase64 = document.getElementById('inputBase64').value.trim();
 						const startPort = parseInt(document.getElementById('startPort').value);
 						const infoDiv = document.getElementById('infoDiv');
 						const outputYAML = document.getElementById('outputYAML');
 						const outputDiv = document.getElementById('outputDiv');
 						
-						if (!inputYAML) {
-							infoDiv.textContent = '请输入YAML配置内容';
+						if (!inputBase64) {
+							infoDiv.textContent = '请输入Base64编码的代理配置';
 							infoDiv.style.color = '#dc3545';
 							return;
 						}
 						
 						try {
-							// 解析YAML
-							const yamlData = jsyaml.load(inputYAML);
+							infoDiv.textContent = '正在解析Base64配置...';
+							infoDiv.style.color = '#17a2b8';
 							
-							if (!yamlData || !yamlData.proxies || !Array.isArray(yamlData.proxies)) {
-								throw new Error('YAML格式错误：未找到有效的proxies数组');
+							// 解析Base64编码的代理配置
+							const proxies = parseBase64Proxies(inputBase64);
+							
+							if (proxies.length === 0) {
+								throw new Error('未找到有效的代理配置');
 							}
 							
-							const numProxies = yamlData.proxies.length;
+							const numProxies = proxies.length;
 							
 							// 生成SOCKS配置
 							const socksConfig = {
@@ -2050,15 +2167,15 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									nameserver: ['https://doh.pub/dns-query']
 								},
 								listeners: [],
-								proxies: yamlData.proxies
+								proxies: proxies
 							};
 							
 							// 生成监听器配置
 							socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
-								name: \`mixed\${i}\`,
+								name: `mixed${i}`,
 								type: 'mixed',
 								port: startPort + i,
-								proxy: yamlData.proxies[i].name
+								proxy: proxies[i].name
 							}));
 							
 							// 转换为YAML字符串
@@ -2066,94 +2183,102 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							outputYAML.value = socksYAMLString;
 							
 							// 更新信息显示
-							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
+							infoDiv.innerHTML = 'Base64解码成功！共 ' + numProxies + ' 个节点，端口范围：' + startPort + ' - ' + (startPort + numProxies - 1);
 							infoDiv.style.color = '#28a745';
 							
 							// 生成下载链接和复制按钮
 							const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
 							const downloadUrl = URL.createObjectURL(blob);
 							
-							outputDiv.innerHTML = \`
-								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-								<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
-								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
-								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-									<strong>使用说明：</strong><br>
-									1. 下载生成的YAML文件并导入到Clash客户端<br>
-									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-								</div>
-							\`;
+							outputDiv.innerHTML =
+									'<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>' +
+									'<a href="' + downloadUrl + '" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>' +
+									'<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>' +
+									'<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">' +
+									'<strong>使用说明：</strong><br>' +
+									'1. 下载生成的YAML文件并导入到Clash客户端<br>' +
+									'2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>' +
+									'3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号<br>' +
+									'<strong>支持的代理类型：</strong>Shadowsocks, ShadowsocksR, VMess, VLESS, Trojan' +
+									'</div>';
 							
 						} catch (error) {
-							console.error('转换失败:', error);
-							infoDiv.textContent = \`转换失败: \${error.message}\`;
+							console.error('Base64转换失败:', error);
+							infoDiv.textContent = `Base64转换失败: ${error.message}`;
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
 							outputDiv.innerHTML = '';
 						}
 					}
-					
-					// 复制SOCKS配置到剪贴板
-					function copySOCKSConfig() {
-						const outputYAML = document.getElementById('outputYAML');
-						if (outputYAML.value) {
-							navigator.clipboard.writeText(outputYAML.value).then(() => {
-								alert('SOCKS配置已复制到剪贴板');
-							}).catch(err => {
-								console.error('复制失败:', err);
-								alert('复制失败，请手动选择文本复制');
+
+					// 更新主处理函数
+					function processConversion() {
+						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const yamlMode = document.querySelector('input[name="conversionMode"][value="yaml"]').checked;
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
+						
+						if (subscriptionMode) {
+							// 如果是订阅模式，先获取订阅内容
+							fetchSubscription().then(() => {
+								// 获取成功后处理YAML转换
+								setTimeout(() => {
+									processYAMLConversion();
+								}, 1000);
 							});
-						} else {
-							alert('没有可复制的配置内容');
+						} else if (yamlMode) {
+							// 直接处理YAML转换
+							processYAMLConversion();
+						} else if (base64Mode) {
+							// 处理Base64转换
+							processBase64Conversion();
 						}
 					}
-					
-					// 文件拖拽功能
-					function setupFileDrop() {
-						const inputYAML = document.getElementById('inputYAML');
-						if (inputYAML) {
-							inputYAML.addEventListener('dragover', (e) => {
+
+					// Base64输入区域的文件拖拽功能
+					function setupBase64FileDrop() {
+						const inputBase64 = document.getElementById('inputBase64');
+						if (inputBase64) {
+							inputBase64.addEventListener('dragover', (e) => {
 								e.preventDefault();
 								e.stopPropagation();
-								inputYAML.style.borderColor = '#667eea';
-								inputYAML.style.backgroundColor = '#f8f9ff';
+								inputBase64.style.borderColor = '#667eea';
+								inputBase64.style.backgroundColor = '#f8f9ff';
 							});
 							
-							inputYAML.addEventListener('dragleave', (e) => {
+							inputBase64.addEventListener('dragleave', (e) => {
 								e.preventDefault();
 								e.stopPropagation();
-								inputYAML.style.borderColor = '#e0e0e0';
-								inputYAML.style.backgroundColor = '';
+								inputBase64.style.borderColor = '#e0e0e0';
+								inputBase64.style.backgroundColor = '';
 							});
 							
-							inputYAML.addEventListener('drop', (e) => {
+							inputBase64.addEventListener('drop', (e) => {
 								e.preventDefault();
 								e.stopPropagation();
-								inputYAML.style.borderColor = '#e0e0e0';
-								inputYAML.style.backgroundColor = '';
+								inputBase64.style.borderColor = '#e0e0e0';
+								inputBase64.style.backgroundColor = '';
 								
 								const files = e.dataTransfer.files;
 								if (files.length > 0) {
 									const file = files[0];
-									if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+									if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
 										const reader = new FileReader();
 										reader.onload = (event) => {
-											inputYAML.value = event.target.result;
-											// 自动切换到YAML模式
-											document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+											inputBase64.value = event.target.result;
+											// 自动切换到Base64模式
+											document.querySelector('input[name="conversionMode"][value="base64"]').checked = true;
 											switchConversionMode();
 										};
 										reader.readAsText(file);
 									} else {
-										alert('请拖拽YAML文件（.yaml或.yml格式）');
+										alert('请拖拽文本文件（.txt格式）');
 									}
 								}
 							});
 						}
 					}
-					
-					// 初始化
+
+					// 更新初始化函数
 					document.addEventListener('DOMContentLoaded', () => {
 						document.getElementById('noticeContent').style.display = 'none';
 						displaySavedLinks();
@@ -2169,11 +2294,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						// 设置文件拖拽功能
 						setupFileDrop();
+						setupBase64FileDrop();
 					});
-					</script>
-				</body>
-			</html>
-		`;
+										</script>
+									</body>
+								</html>
+							`;
 
 		return new Response(html, {
 			headers: { "Content-Type": "text/html;charset=utf-8" }
@@ -2186,3 +2312,4 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 		});
 	}
 }
+
