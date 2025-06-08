@@ -1484,13 +1484,31 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						<div class="card">
 							<h2 class="card-title">🔧 SOCKS转换工具</h2>
 							<div class="socks-converter">
-								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将Base64编码的节点信息转换为本地SOCKS节点，支持自动生成Clash规则文件</p>
+								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将节点信息转换为本地SOCKS节点，支持自动生成Clash规则文件</p>
+							
+							<!-- 转换模式选择 -->
+							<div class="conversion-mode">
+								<label class="mode-label">
+									<input type="radio" name="conversionMode" value="base64" checked>
+									<span>🔍 Base64节点解析</span>
+								</label>
+								<label class="mode-label">
+									<input type="radio" name="conversionMode" value="yaml">
+									<span>📄 YAML文件转换</span>
+								</label>
+							</div>
 							
 							<!-- Base64节点输入区域 -->
 							<div id="base64Input" class="input-section">
 								<label>Base64编码节点信息：</label>
 								<textarea class="converter-input" id="inputBase64" placeholder="请粘贴Base64编码的节点信息，支持多个节点（每行一个）"></textarea>
 								<button class="fetch-btn" onclick="parseBase64Nodes()">🔍 解析节点</button>
+							</div>
+							
+							<!-- YAML输入区域 -->
+							<div id="yamlInput" class="input-section" style="display: none;">
+								<label>YAML配置：</label>
+								<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
 							</div>
 							
 							<!-- 解析后的节点预览 -->
@@ -1502,13 +1520,23 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div class="converter-controls">
 									<label>起始端口：</label>
 									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton" onclick="generateSOCKSConfig()" disabled>🔄 生成SOCKS配置</button>
+									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
 								</div>
 								
 								<div class="converter-output">
 									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
 									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
-									<div id="outputDiv" class="download-section"></div>
+									<div id="outputDiv" class="download-section">
+									<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+									<a href="#" id="downloadLink" class="download-btn" style="display: none;">📄 下载YAML文件</a>
+									<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+									<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+										<strong>使用说明：</strong><br>
+										1. 下载生成的YAML文件并导入到Clash客户端<br>
+										2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+										3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+									</div>
+								</div>
 								</div>
 							</div>
 						</div>
@@ -1824,107 +1852,278 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					}
 		
 					// SOCKS转换功能
+					let parsedNodes = [];
+					
 					// 转换模式切换
 					function switchConversionMode() {
-						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
-						const subscriptionInput = document.getElementById('subscriptionInput');
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
+						const base64Input = document.getElementById('base64Input');
 						const yamlInput = document.getElementById('yamlInput');
+						const nodePreview = document.getElementById('nodePreview');
 						
-						if (subscriptionMode) {
-							subscriptionInput.style.display = 'block';
+						if (base64Mode) {
+							base64Input.style.display = 'block';
 							yamlInput.style.display = 'none';
+							nodePreview.style.display = parsedNodes.length > 0 ? 'block' : 'none';
 						} else {
-							subscriptionInput.style.display = 'none';
+							base64Input.style.display = 'none';
 							yamlInput.style.display = 'block';
+							nodePreview.style.display = 'none';
 						}
 					}
 					
-					// 获取订阅内容
-					async function fetchSubscription() {
-						const url = document.getElementById('subscriptionUrl').value.trim();
+					// 解析Base64编码的节点信息
+					function parseBase64Nodes() {
+						const base64Input = document.getElementById('inputBase64').value.trim();
 						const infoDiv = document.getElementById('infoDiv');
-						const inputYAML = document.getElementById('inputYAML');
+						const nodePreview = document.getElementById('nodePreview');
+						const nodeList = document.getElementById('nodeList');
 						
-						if (!url) {
-							infoDiv.textContent = '请输入订阅链接';
+						if (!base64Input) {
+							infoDiv.textContent = '请输入Base64编码的节点信息';
+							infoDiv.style.color = '#dc3545';
 							return;
 						}
 						
 						try {
-						infoDiv.textContent = '正在获取订阅内容...';
-						infoDiv.style.color = '#17a2b8';
-						
-						// 尝试获取Clash格式的订阅
-						let clashUrl = url;
-						if (!url.includes('clash') && !url.includes('yaml')) {
-							clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
-						}
-						
-						let content;
-						
-						// 首先尝试直接访问
-						try {
-							const directResponse = await fetch(clashUrl, {
-								mode: 'cors',
-								headers: {
-									'Accept': 'text/plain, application/x-yaml, text/yaml',
-									'User-Agent': 'ClashforWindows/0.18.1'
+							infoDiv.textContent = '正在解析节点信息...';
+							infoDiv.style.color = '#17a2b8';
+							
+							// 解码Base64
+							let decodedContent;
+							try {
+								decodedContent = atob(base64Input);
+							} catch (e) {
+								// 如果不是Base64，尝试直接解析
+								decodedContent = base64Input;
+							}
+							
+							// 分割节点链接
+							const nodeLinks = decodedContent.split('\n')
+								.map(line => line.trim())
+								.filter(line => line && (line.startsWith('vmess://') || line.startsWith('vless://') || line.startsWith('trojan://') || line.startsWith('ss://')));
+							
+							if (nodeLinks.length === 0) {
+								throw new Error('未找到有效的节点链接，请确保输入的是正确的Base64编码节点信息');
+							}
+							
+							// 解析节点信息
+							parsedNodes = [];
+							let nodeListHTML = '';
+							
+							nodeLinks.forEach((link, index) => {
+								try {
+									const nodeInfo = parseNodeLink(link);
+									if (nodeInfo) {
+										parsedNodes.push(nodeInfo);
+										nodeListHTML += \`<div class="node-item"><strong>\${nodeInfo.name}</strong> - \${nodeInfo.type}://\${nodeInfo.server}:\${nodeInfo.port}</div>\`;
+									}
+								} catch (e) {
+									console.warn(\`解析节点 \${index + 1} 失败:\`, e);
 								}
 							});
-							if (directResponse.ok) {
-								content = await directResponse.text();
-							} else {
-								throw new Error('直接访问失败');
-							}
-						} catch (directError) {
-							// 如果直接访问失败，提示用户手动粘贴
-							throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
-						}
 							
-							// 检查是否为有效的YAML内容
-							if (content.trim().startsWith('proxies:') || content.includes('proxies:')) {
-								inputYAML.value = content;
-								infoDiv.textContent = '订阅内容获取成功，已自动填入YAML配置区域';
-								infoDiv.style.color = '#28a745';
-								
-								// 自动切换到YAML模式
-								document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-								switchConversionMode();
-							} else {
-								throw new Error('获取的内容不是有效的Clash YAML格式');
+							if (parsedNodes.length === 0) {
+								throw new Error('无法解析任何有效节点，请检查节点格式');
 							}
+							
+							// 显示解析结果
+							nodeList.innerHTML = nodeListHTML;
+							nodePreview.style.display = 'block';
+							
+							infoDiv.textContent = \`成功解析 \${parsedNodes.length} 个节点\`;
+							infoDiv.style.color = '#28a745';
+							
 						} catch (error) {
-							console.error('获取订阅失败:', error);
-							infoDiv.textContent = \`获取订阅失败: \${error.message}\`;
+							console.error('解析节点失败:', error);
+							infoDiv.textContent = \`解析失败: \${error.message}\`;
 							infoDiv.style.color = '#dc3545';
+							nodePreview.style.display = 'none';
+						}
+					}
+					
+					// 解析单个节点链接
+					function parseNodeLink(link) {
+						if (link.startsWith('vmess://')) {
+							return parseVmessLink(link);
+						} else if (link.startsWith('vless://')) {
+							return parseVlessLink(link);
+						} else if (link.startsWith('trojan://')) {
+							return parseTrojanLink(link);
+						} else if (link.startsWith('ss://')) {
+							return parseShadowsocksLink(link);
+						}
+						return null;
+					}
+					
+					// 解析VMess链接
+					function parseVmessLink(link) {
+						try {
+							const base64Data = link.substring(8);
+							const jsonData = JSON.parse(atob(base64Data));
+							return {
+								name: jsonData.ps || \`VMess-\${jsonData.add}\`,
+								type: 'vmess',
+								server: jsonData.add,
+								port: parseInt(jsonData.port),
+								uuid: jsonData.id,
+								alterId: parseInt(jsonData.aid) || 0,
+								cipher: 'auto',
+								tls: jsonData.tls === 'tls',
+								network: jsonData.net || 'tcp',
+								'ws-opts': jsonData.net === 'ws' ? {
+									path: jsonData.path || '/',
+									headers: { Host: jsonData.host || jsonData.add }
+								} : undefined
+							};
+						} catch (e) {
+							throw new Error('VMess链接格式错误');
+						}
+					}
+					
+					// 解析VLess链接
+					function parseVlessLink(link) {
+						try {
+							const url = new URL(link);
+							const params = new URLSearchParams(url.search);
+							return {
+								name: decodeURIComponent(url.hash.substring(1)) || \`VLess-\${url.hostname}\`,
+								type: 'vless',
+								server: url.hostname,
+								port: parseInt(url.port),
+								uuid: url.username,
+								flow: params.get('flow') || '',
+								encryption: params.get('encryption') || 'none',
+								network: params.get('type') || 'tcp',
+								tls: params.get('security') === 'tls'
+							};
+						} catch (e) {
+							throw new Error('VLess链接格式错误');
+						}
+					}
+					
+					// 解析Trojan链接
+					function parseTrojanLink(link) {
+						try {
+							const url = new URL(link);
+							const params = new URLSearchParams(url.search);
+							return {
+								name: decodeURIComponent(url.hash.substring(1)) || \`Trojan-\${url.hostname}\`,
+								type: 'trojan',
+								server: url.hostname,
+								port: parseInt(url.port),
+								password: url.username,
+								sni: params.get('sni') || url.hostname,
+								'skip-cert-verify': params.get('allowInsecure') === '1'
+							};
+						} catch (e) {
+							throw new Error('Trojan链接格式错误');
+						}
+					}
+					
+					// 解析Shadowsocks链接
+					function parseShadowsocksLink(link) {
+						try {
+							const url = new URL(link);
+							let method, password;
+							
+							if (url.username && url.password) {
+								method = url.username;
+								password = url.password;
+							} else {
+								const decoded = atob(url.username);
+								const parts = decoded.split(':');
+								method = parts[0];
+								password = parts[1];
+							}
+							
+							return {
+								name: decodeURIComponent(url.hash.substring(1)) || \`SS-\${url.hostname}\`,
+								type: 'ss',
+								server: url.hostname,
+								port: parseInt(url.port),
+								cipher: method,
+								password: password
+							};
+						} catch (e) {
+							throw new Error('Shadowsocks链接格式错误');
 						}
 					}
 					
 					// 处理转换
 					function processConversion() {
-						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64"]').checked;
 						
-						if (subscriptionMode) {
-							// 如果是订阅模式，先获取订阅内容
-							fetchSubscription().then(() => {
-								// 获取成功后处理YAML转换
-								setTimeout(() => {
-									processYAMLConversion();
-								}, 1000);
-							});
+						if (base64Mode) {
+							// Base64模式：使用解析的节点生成配置
+							generateSOCKSFromNodes();
 						} else {
-							// 直接处理YAML转换
+							// YAML模式：从YAML输入生成配置
 							processYAMLConversion();
 						}
 					}
 					
-					// YAML转换处理（集成socks转换.html的核心功能）
+					// 从解析的节点生成SOCKS配置
+					function generateSOCKSFromNodes() {
+						const startPort = parseInt(document.getElementById('startPort').value);
+						const infoDiv = document.getElementById('infoDiv');
+						const outputYAML = document.getElementById('outputYAML');
+						const downloadLink = document.getElementById('downloadLink');
+						
+						if (parsedNodes.length === 0) {
+							infoDiv.textContent = '请先解析Base64节点信息';
+							infoDiv.style.color = '#dc3545';
+							return;
+						}
+						
+						try {
+							// 生成SOCKS配置
+							const socksConfig = {
+								'allow-lan': true,
+								dns: {
+									enable: true,
+									'enhanced-mode': 'fake-ip',
+									'fake-ip-range': '198.18.0.1/16',
+									'default-nameserver': ['114.114.114.114'],
+									nameserver: ['https://doh.pub/dns-query']
+								},
+								listeners: [],
+								proxies: parsedNodes
+							};
+							
+							// 生成监听器配置
+							socksConfig.listeners = parsedNodes.map((node, i) => ({
+								name: \`mixed\${i}\`,
+								type: 'mixed',
+								port: startPort + i,
+								proxy: node.name
+							}));
+							
+							// 转换为YAML字符串
+							const socksYAMLString = jsyaml.dump(socksConfig);
+							outputYAML.value = socksYAMLString;
+							
+							// 更新信息显示
+							infoDiv.innerHTML = \`共 \${parsedNodes.length} 个节点，端口范围：\${startPort} - \${startPort + parsedNodes.length - 1}\`;
+							infoDiv.style.color = '#28a745';
+							
+							// 生成下载链接
+							updateDownloadLink(socksYAMLString);
+							
+						} catch (error) {
+							console.error('生成配置失败:', error);
+							infoDiv.textContent = \`生成配置失败: \${error.message}\`;
+							infoDiv.style.color = '#dc3545';
+							outputYAML.value = '';
+						}
+					}
+					
+					// YAML转换处理
 					function processYAMLConversion() {
 						const inputYAML = document.getElementById('inputYAML').value.trim();
 						const startPort = parseInt(document.getElementById('startPort').value);
 						const infoDiv = document.getElementById('infoDiv');
 						const outputYAML = document.getElementById('outputYAML');
-						const outputDiv = document.getElementById('outputDiv');
 						
 						if (!inputYAML) {
 							infoDiv.textContent = '请输入YAML配置内容';
@@ -1972,28 +2171,28 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
 							infoDiv.style.color = '#28a745';
 							
-							// 生成下载链接和复制按钮
-							const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
-							const downloadUrl = URL.createObjectURL(blob);
-							
-							outputDiv.innerHTML = \`
-								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-								<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
-								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
-								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-									<strong>使用说明：</strong><br>
-									1. 下载生成的YAML文件并导入到Clash客户端<br>
-									2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-									3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-								</div>
-							\`;
+							// 生成下载链接
+							updateDownloadLink(socksYAMLString);
 							
 						} catch (error) {
 							console.error('转换失败:', error);
 							infoDiv.textContent = \`转换失败: \${error.message}\`;
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
-							outputDiv.innerHTML = '';
+						}
+					}
+					
+					// 更新下载链接
+					function updateDownloadLink(yamlContent) {
+						const downloadLink = document.getElementById('downloadLink');
+						if (yamlContent && yamlContent.trim()) {
+							const blob = new Blob([yamlContent], {type: 'text/yaml'});
+							const downloadUrl = URL.createObjectURL(blob);
+							downloadLink.href = downloadUrl;
+							downloadLink.download = 'socks-config.yaml';
+							downloadLink.style.display = 'inline-block';
+						} else {
+							downloadLink.style.display = 'none';
 						}
 					}
 					
@@ -2056,6 +2255,9 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						}
 					}
 					
+					// 全局变量存储解析的节点
+					let parsedNodes = [];
+					
 					// 初始化
 					document.addEventListener('DOMContentLoaded', () => {
 						document.getElementById('noticeContent').style.display = 'none';
@@ -2072,6 +2274,19 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 						
 						// 设置文件拖拽功能
 						setupFileDrop();
+						
+						// 初始化下载链接显示
+						const downloadLink = document.getElementById('downloadLink');
+						if (downloadLink) {
+							downloadLink.style.display = 'inline-block';
+							downloadLink.href = '#';
+							downloadLink.onclick = (e) => {
+								if (downloadLink.href === '#' || downloadLink.href.endsWith('#')) {
+									e.preventDefault();
+									alert('请先生成SOCKS配置');
+								}
+							};
+						}
 					});
 					</script>
 				</body>
