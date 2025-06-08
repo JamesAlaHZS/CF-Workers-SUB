@@ -1351,681 +1351,6 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					</style>
 					<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
 					<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-							<script>
-// 二维码和复制功能
-function copyToClipboard(text, qrcode) {
-	navigator.clipboard.writeText(text).then(() => {
-		alert('已复制到剪贴板');
-	}).catch(err => {
-		console.error('复制失败:', err);
-	});
-	const qrcodeDiv = document.getElementById(qrcode);
-	qrcodeDiv.innerHTML = '';
-	new QRCode(qrcodeDiv, {
-		text: text,
-		width: 220,
-		height: 220,
-		colorDark: "#000000",
-		colorLight: "#ffffff",
-		correctLevel: QRCode.CorrectLevel.Q,
-		scale: 1
-	});
-}
-
-// 编辑器相关功能
-if (document.querySelector('.editor')) {
-	let timer;
-	const textarea = document.getElementById('content');
-	const originalContent = textarea.value;
-
-	function goBack() {
-		const currentUrl = window.location.href;
-		const parentUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-		window.location.href = parentUrl;
-	}
-
-	function replaceFullwidthColon() {
-		const text = textarea.value;
-		textarea.value = text.replace(/：/g, ':');
-	}
-	
-	function saveContent(button) {
-		try {
-			const updateButtonText = (step) => {
-				button.textContent = '保存中: ' + step;
-			};
-			
-			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-			
-			if (!isIOS) {
-				replaceFullwidthColon();
-			}
-			updateButtonText('开始保存');
-			button.disabled = true;
-
-			const textarea = document.getElementById('content');
-			if (!textarea) {
-				throw new Error('找不到文本编辑区域');
-			}
-
-			updateButtonText('获取内容');
-			let newContent;
-			let originalContent;
-			try {
-				newContent = textarea.value || '';
-				originalContent = textarea.defaultValue || '';
-			} catch (e) {
-				console.error('获取内容错误:', e);
-				throw new Error('无法获取编辑内容');
-			}
-
-			updateButtonText('准备状态更新函数');
-			const updateStatus = (message, isError = false) => {
-				const statusElem = document.getElementById('saveStatus');
-				if (statusElem) {
-					statusElem.textContent = message;
-					statusElem.style.color = isError ? 'red' : '#666';
-				}
-			};
-
-			updateButtonText('准备按钮重置函数');
-			const resetButton = () => {
-				button.textContent = '保存';
-				button.disabled = false;
-			};
-
-			if (newContent !== originalContent) {
-				updateButtonText('发送保存请求');
-				fetch(window.location.href, {
-					method: 'POST',
-					body: newContent,
-					headers: {
-						'Content-Type': 'text/plain;charset=UTF-8'
-					},
-					cache: 'no-cache'
-				})
-				.then(response => {
-					updateButtonText('检查响应状态');
-					if (!response.ok) {
-						throw new Error('HTTP error! status: ' + response.status);
-					}
-					updateButtonText('更新保存状态');
-					const now = new Date().toLocaleString();
-					document.title = '编辑已保存 ' + now;
-					updateStatus('已保存 ' + now);
-				})
-				.catch(error => {
-					updateButtonText('处理错误');
-					console.error('Save error:', error);
-					updateStatus('保存失败: ' + error.message, true);
-				})
-				.finally(() => {
-					resetButton();
-				});
-			} else {
-				updateButtonText('检查内容变化');
-				updateStatus('内容未变化');
-				resetButton();
-			}
-		} catch (error) {
-			console.error('保存过程出错:', error);
-			button.textContent = '保存';
-			button.disabled = false;
-			const statusElem = document.getElementById('saveStatus');
-			if (statusElem) {
-				statusElem.textContent = '错误: ' + error.message;
-				statusElem.style.color = 'red';
-			}
-		}
-	}
-
-	textarea.addEventListener('blur', saveContent);
-	textarea.addEventListener('input', () => {
-		clearTimeout(timer);
-		timer = setTimeout(saveContent, 5000);
-	});
-}
-
-// 通知切换功能
-function toggleNotice() {
-	const noticeContent = document.getElementById('noticeContent');
-	const noticeToggle = document.getElementById('noticeToggle');
-	if (noticeContent.style.display === 'none' || noticeContent.style.display === '') {
-		noticeContent.style.display = 'block';
-		noticeToggle.textContent = '隐藏访客订阅∧';
-	} else {
-		noticeContent.style.display = 'none';
-		noticeToggle.textContent = '查看访客订阅∨';
-	}
-}
-
-// 链接管理功能
-function addLink() {
-	const nameInput = document.getElementById('linkName');
-	const urlInput = document.getElementById('linkUrl');
-	const name = nameInput.value.trim();
-	const url = urlInput.value.trim();
-
-	if (!name || !url) {
-		alert('请输入链接名称和地址');
-		return;
-	}
-
-	try {
-		new URL(url);
-	} catch {
-		alert('请输入有效的链接地址');
-		return;
-	}
-
-	let savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	
-	if (savedLinks.some(link => link.name === name)) {
-		if (!confirm('已存在相同名称的链接，是否覆盖？')) {
-			return;
-		}
-		savedLinks = savedLinks.filter(link => link.name !== name);
-	}
-
-	savedLinks.push({ name, url, timestamp: Date.now() });
-	localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
-
-	nameInput.value = '';
-	urlInput.value = '';
-
-	displaySavedLinks();
-	alert('链接保存成功！');
-}
-
-function deleteLink(name) {
-	if (!confirm('确定要删除这个链接吗？')) {
-		return;
-	}
-
-	let savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	savedLinks = savedLinks.filter(link => link.name !== name);
-	localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
-	displaySavedLinks();
-}
-
-function displaySavedLinks() {
-	const container = document.getElementById('savedLinks');
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-
-	if (savedLinks.length === 0) {
-		container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px 0;">暂无保存的链接</p>';
-		return;
-	}
-
-	savedLinks.sort((a, b) => b.timestamp - a.timestamp);
-
-	container.innerHTML = savedLinks.map(link => 
-		'<div class="saved-link-item">' +
-			'<a href="' + link.url + '" target="_blank" title="' + link.url + '">' + link.name + '</a>' +
-			'<div>' +
-				'<button class="copy-link-btn" onclick="copyLinkToClipboard(\'' + link.url + '\')" title="复制链接">📋</button>' +
-				'<button class="delete-link-btn" onclick="deleteLink(\'' + link.name + '\')" >删除</button>' +
-			'</div>' +
-		'</div>'
-	).join('');
-}
-
-// 链接复制功能 - 移出displaySavedLinks函数
-function copyLinkToClipboard(url) {
-	navigator.clipboard.writeText(url).then(() => {
-		alert('链接已复制到剪贴板');
-	}).catch(err => {
-		console.error('复制失败:', err);
-		alert('复制失败，请手动复制');
-	});
-}
-
-// 导出和导入功能 - 移出displaySavedLinks函数
-function exportLinks() {
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	if (savedLinks.length === 0) {
-		alert('没有可导出的链接');
-		return;
-	}
-
-	const dataStr = JSON.stringify(savedLinks, null, 2);
-	const dataBlob = new Blob([dataStr], {type: 'application/json'});
-	const url = URL.createObjectURL(dataBlob);
-	const link = document.createElement('a');
-	link.href = url;
-	link.download = 'saved-links.json';
-	link.click();
-	URL.revokeObjectURL(url);
-}
-
-function importLinks() {
-	const input = document.createElement('input');
-	input.type = 'file';
-	input.accept = '.json';
-	input.onchange = function(e) {
-		const file = e.target.files[0];
-		if (!file) return;
-
-		const reader = new FileReader();
-		reader.onload = function(e) {
-			try {
-				const importedLinks = JSON.parse(e.target.result);
-				if (!Array.isArray(importedLinks)) {
-					throw new Error('文件格式不正确');
-				}
-
-				const currentLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-				const mergedLinks = [...currentLinks];
-				
-				importedLinks.forEach(importedLink => {
-					if (!mergedLinks.some(link => link.name === importedLink.name)) {
-						mergedLinks.push(importedLink);
-					}
-				});
-
-				localStorage.setItem('savedLinks', JSON.stringify(mergedLinks));
-				displaySavedLinks();
-				alert('成功导入 ' + importedLinks.length + ' 个链接');
-			} catch (error) {
-				alert('导入失败：' + error.message);
-			}
-		};
-		reader.readAsText(file);
-	};
-	input.click();
-}
-
-// SOCKS转换功能
-function switchConversionMode() {
-	const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
-	const yamlMode = document.querySelector('input[name="conversionMode"][value="yaml"]').checked;
-	const base64Mode = document.querySelector('input[name="conversionMode"][value="base64decode"]').checked;
-	
-	const subscriptionInput = document.getElementById('subscriptionInput');
-	const yamlInput = document.getElementById('yamlInput');
-	const base64Input = document.getElementById('base64Input');
-	
-	if (subscriptionMode) {
-		subscriptionInput.style.display = 'block';
-		yamlInput.style.display = 'none';
-		base64Input.style.display = 'none';
-	} else if (yamlMode) {
-		subscriptionInput.style.display = 'none';
-		yamlInput.style.display = 'block';
-		base64Input.style.display = 'none';
-	} else if (base64Mode) {
-		subscriptionInput.style.display = 'none';
-		yamlInput.style.display = 'none';
-		base64Input.style.display = 'block';
-	}
-}
-
-async function fetchSubscription() {
-	const url = document.getElementById('subscriptionUrl').value.trim();
-	const infoDiv = document.getElementById('infoDiv');
-	const inputYAML = document.getElementById('inputYAML');
-	
-	if (!url) {
-		infoDiv.textContent = '请输入订阅链接';
-		return;
-	}
-	
-	try {
-		infoDiv.textContent = '正在获取订阅内容...';
-		infoDiv.style.color = '#17a2b8';
-		
-		let clashUrl = url;
-		if (!url.includes('clash') && !url.includes('yaml')) {
-			clashUrl = url + (url.includes('?') ? '&clash' : '?clash');
-		}
-		
-		let content;
-		
-		try {
-			const directResponse = await fetch(clashUrl, {
-				mode: 'cors',
-				headers: {
-					'Accept': 'text/plain, application/x-yaml, text/yaml',
-					'User-Agent': 'ClashforWindows/0.18.1'
-				}
-			});
-			if (directResponse.ok) {
-				content = await directResponse.text();
-			} else {
-				throw new Error('直接访问失败');
-			}
-		} catch (directError) {
-			throw new Error('无法自动获取订阅内容，这可能是由于CORS限制。请手动复制订阅内容并切换到"YAML文件转换"模式进行转换。');
-		}
-			
-		if (content.trim().startsWith('proxies:') || content.includes('proxies:')) {
-			inputYAML.value = content;
-			infoDiv.textContent = '订阅内容获取成功，已自动填入YAML配置区域';
-			infoDiv.style.color = '#28a745';
-			
-			document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-			switchConversionMode();
-		} else {
-			throw new Error('获取的内容不是有效的Clash YAML格式');
-		}
-	} catch (error) {
-		console.error('获取订阅失败:', error);
-		infoDiv.textContent = '获取订阅失败: ' + error.message;
-		infoDiv.style.color = '#dc3545';
-	}
-}
-
-function processConversion() {
-	const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
-	const yamlMode = document.querySelector('input[name="conversionMode"][value="yaml"]').checked;
-	const base64Mode = document.querySelector('input[name="conversionMode"][value="base64decode"]').checked;
-	
-	if (subscriptionMode) {
-		fetchSubscription().then(() => {
-			setTimeout(() => {
-				processYAMLConversion();
-			}, 1000);
-		});
-	} else if (yamlMode) {
-		processYAMLConversion();
-	} else if (base64Mode) {
-		processBase64Conversion();
-	}
-}
-
-function processYAMLConversion() {
-	const inputYAML = document.getElementById('inputYAML').value.trim();
-	const startPort = parseInt(document.getElementById('startPort').value);
-	const infoDiv = document.getElementById('infoDiv');
-	const outputYAML = document.getElementById('outputYAML');
-	const outputDiv = document.getElementById('outputDiv');
-	
-	if (!inputYAML) {
-		infoDiv.textContent = '请输入YAML配置内容';
-		infoDiv.style.color = '#dc3545';
-		return;
-	}
-	
-	try {
-		// 检查jsyaml是否可用
-		if (typeof jsyaml === 'undefined') {
-			throw new Error('YAML解析库未加载，请确保引入了js-yaml库');
-		}
-		
-		const yamlData = jsyaml.load(inputYAML);
-		
-		if (!yamlData || !yamlData.proxies || !Array.isArray(yamlData.proxies)) {
-			throw new Error('YAML格式错误：未找到有效的proxies数组');
-		}
-		
-		const numProxies = yamlData.proxies.length;
-		
-		const socksConfig = {
-			'allow-lan': true,
-			dns: {
-				enable: true,
-				'enhanced-mode': 'fake-ip',
-				'fake-ip-range': '198.18.0.1/16',
-				'default-nameserver': ['114.114.114.114'],
-				nameserver: ['https://doh.pub/dns-query']
-			},
-			listeners: [],
-			proxies: yamlData.proxies
-		};
-		
-		socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
-			name: 'mixed' + i,
-			type: 'mixed',
-			port: startPort + i,
-			proxy: yamlData.proxies[i].name
-		}));
-		
-		const socksYAMLString = jsyaml.dump(socksConfig);
-		outputYAML.value = socksYAMLString;
-		
-		infoDiv.innerHTML = '共 ' + numProxies + ' 个节点，端口范围：' + startPort + ' - ' + (startPort + numProxies - 1);
-		infoDiv.style.color = '#28a745';
-		
-		const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
-		const downloadUrl = URL.createObjectURL(blob);
-		
-		// 更新下载链接和启用按钮
-		const downloadLink = document.getElementById('downloadLink');
-		const copyButton = outputDiv.querySelector('.copy-text-btn');
-		
-		downloadLink.href = downloadUrl;
-		downloadLink.style.pointerEvents = 'auto';
-		downloadLink.style.opacity = '1';
-		
-		copyButton.disabled = false;
-		copyButton.style.opacity = '1';
-		
-	} catch (error) {
-		console.error('转换失败:', error);
-		infoDiv.textContent = '转换失败: ' + error.message;
-		infoDiv.style.color = '#dc3545';
-		outputYAML.value = '';
-		
-		// 重置按钮状态
-		const downloadLink = document.getElementById('downloadLink');
-		const copyButton = outputDiv.querySelector('.copy-text-btn');
-		
-		downloadLink.href = '#';
-		downloadLink.style.pointerEvents = 'none';
-		downloadLink.style.opacity = '0.5';
-		
-		copyButton.disabled = true;
-		copyButton.style.opacity = '0.5';
-	}
-}
-
-function processBase64Conversion() {
-	const inputBase64 = document.getElementById('inputBase64').value.trim();
-	const startPort = parseInt(document.getElementById('startPort').value);
-	const infoDiv = document.getElementById('infoDiv');
-	const outputYAML = document.getElementById('outputYAML');
-	const outputDiv = document.getElementById('outputDiv');
-	
-	if (!inputBase64) {
-		infoDiv.textContent = '请输入Base64编码内容';
-		infoDiv.style.color = '#dc3545';
-		return;
-	}
-	
-	try {
-		let decodedContent;
-		try {
-			decodedContent = atob(inputBase64);
-		} catch (e) {
-			throw new Error('Base64解码失败，请检查输入内容是否为有效的Base64编码');
-		}
-		
-		const lines = decodedContent.split('\n').filter(line => line.trim());
-		
-		if (lines.length === 0) {
-			throw new Error('解码后的内容为空');
-		}
-		
-		const socksConfigLines = [];
-		let validProxyCount = 0;
-		
-		lines.forEach((line, index) => {
-			const trimmedLine = line.trim();
-			if (trimmedLine && (trimmedLine.includes('://') || trimmedLine.startsWith('ss://') || trimmedLine.startsWith('vmess://') || trimmedLine.startsWith('vless://') || trimmedLine.startsWith('trojan://') || trimmedLine.startsWith('socks5://') || trimmedLine.startsWith('http://'))) {
-				const socksConfig = convertProxyToSocks(trimmedLine, startPort + validProxyCount);
-				if (socksConfig) {
-					socksConfigLines.push(socksConfig);
-					validProxyCount++;
-				}
-			}
-		});
-		
-		if (socksConfigLines.length === 0) {
-			throw new Error('未找到有效的代理配置');
-		}
-		
-		const socksConfigContent = [
-			'# SOCKS代理配置文件',
-			'# 生成时间: ' + new Date().toLocaleString(),
-			'# 节点数量: ' + validProxyCount,
-			'# 端口范围: ' + startPort + ' - ' + (startPort + validProxyCount - 1),
-			'',
-			...socksConfigLines
-		].join('\n');
-		
-		outputYAML.value = socksConfigContent;
-		var numrange = startPort + (startPort + validProxyCount - 1);
-		infoDiv.innerHTML = '共解析' + validProxyCount + '个有效节点,' + '端口范围：' + numrange;
-		infoDiv.style.color = '#28a745';
-		
-		const blob = new Blob([socksConfigContent], {type: 'text/plain'});
-		const downloadUrl = URL.createObjectURL(blob);
-		
-		// 更新下载链接和启用按钮
-		const downloadLink = document.getElementById('downloadLink');
-		const copyButton = outputDiv.querySelector('.copy-text-btn');
-		
-		downloadLink.href = downloadUrl;
-		downloadLink.download = 'socks_config.txt';
-		downloadLink.textContent = '📄 下载SOCKS配置文件';
-		downloadLink.style.pointerEvents = 'auto';
-		downloadLink.style.opacity = '1';
-		
-		copyButton.disabled = false;
-		copyButton.style.opacity = '1';
-		
-		// 更新使用说明
-		const usageDiv = outputDiv.querySelector('div[style*="background: #e9ecef"]');
-		usageDiv.innerHTML = 
-			'<strong>使用说明：</strong><br>' +
-			'1. 下载生成的SOCKS配置文件<br>' +
-			'2. 每行包含一个代理节点的SOCKS配置信息<br>' +
-			'3. 可以根据需要选择对应端口的代理服务<br>' +
-			'4. 配置格式：节点名称 | 协议://地址:端口 | SOCKS端口';
-		
-	} catch (error) {
-		console.error('Base64转换失败:', error);
-		infoDiv.textContent = '转换失败: ' + error.message;
-		infoDiv.style.color = '#dc3545';
-		outputYAML.value = '';
-		
-		// 重置按钮状态
-		const downloadLink = document.getElementById('downloadLink');
-		const copyButton = outputDiv.querySelector('.copy-text-btn');
-		
-		downloadLink.href = '#';
-		downloadLink.style.pointerEvents = 'none';
-		downloadLink.style.opacity = '0.5';
-		
-		copyButton.disabled = true;
-		copyButton.style.opacity = '0.5';
-	}
-}
-
-function convertProxyToSocks(proxyUrl, socksPort) {
-	try {
-		let nodeName = 'Node-' + socksPort;
-		if (proxyUrl.includes('#')) {
-			nodeName = decodeURIComponent(proxyUrl.split('#')[1]) || nodeName;
-		}
-		
-		if (proxyUrl.startsWith('socks5://') || proxyUrl.startsWith('socks4://')) {
-			const url = new URL(proxyUrl);
-			return nodeName + ' | ' + url.protocol + '//' + url.hostname + ':' + (url.port || (url.protocol === 'socks5:' ? '1080' : '1080')) + ' | SOCKS端口: ' + socksPort;
-		} else if (proxyUrl.startsWith('http://') || proxyUrl.startsWith('https://')) {
-			const url = new URL(proxyUrl);
-			return nodeName + ' | ' + url.protocol + '//' + url.hostname + ':' + (url.port || (url.protocol === 'https:' ? '443' : '80')) + ' | SOCKS端口: ' + socksPort;
-		} else if (proxyUrl.startsWith('ss://')) {
-			return nodeName + ' | SS代理 | SOCKS端口: ' + socksPort;
-		} else if (proxyUrl.startsWith('vmess://')) {
-			return nodeName + ' | VMess代理 | SOCKS端口: ' + socksPort;
-		} else if (proxyUrl.startsWith('vless://')) {
-			return nodeName + ' | VLess代理 | SOCKS端口: ' + socksPort;
-		} else if (proxyUrl.startsWith('trojan://')) {
-			return nodeName + ' | Trojan代理 | SOCKS端口: ' + socksPort;
-		} else {
-			return nodeName + ' | 未知协议 | SOCKS端口: ' + socksPort;
-		}
-	} catch (error) {
-		console.error('解析代理URL失败:', error);
-		return null;
-	}
-}
-
-function copySOCKSConfig() {
-	const outputYAML = document.getElementById('outputYAML');
-	if (outputYAML.value) {
-		navigator.clipboard.writeText(outputYAML.value).then(() => {
-			alert('SOCKS配置已复制到剪贴板');
-		}).catch(err => {
-			console.error('复制失败:', err);
-			alert('复制失败，请手动选择文本复制');
-		});
-	} else {
-		alert('没有可复制的配置内容');
-	}
-}
-
-function setupFileDrop() {
-	const inputYAML = document.getElementById('inputYAML');
-	if (inputYAML) {
-		inputYAML.addEventListener('dragover', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			inputYAML.style.borderColor = '#667eea';
-			inputYAML.style.backgroundColor = '#f8f9ff';
-		});
-		
-		inputYAML.addEventListener('dragleave', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			inputYAML.style.borderColor = '#e0e0e0';
-			inputYAML.style.backgroundColor = '';
-		});
-		
-		inputYAML.addEventListener('drop', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			inputYAML.style.borderColor = '#e0e0e0';
-			inputYAML.style.backgroundColor = '';
-			
-			const files = e.dataTransfer.files;
-			if (files.length > 0) {
-				const file = files[0];
-				if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-					const reader = new FileReader();
-					reader.onload = (event) => {
-						inputYAML.value = event.target.result;
-						document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-						switchConversionMode();
-					};
-					reader.readAsText(file);
-				} else {
-					alert('请拖拽YAML文件（.yaml或.yml格式）');
-				}
-			}
-		});
-	}
-}
-
-// 初始化函数
-document.addEventListener('DOMContentLoaded', () => {
-	const noticeContent = document.getElementById('noticeContent');
-	if (noticeContent) {
-		noticeContent.style.display = 'none';
-	}
-	
-	displaySavedLinks();
-	
-	const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
-	modeRadios.forEach(radio => {
-		radio.addEventListener('change', switchConversionMode);
-	});
-	
-	switchConversionMode();
-	setupFileDrop();
-});
-					</script>
 				</head>
 				<body>
 					<div class="container">
@@ -2242,7 +1567,668 @@ document.addEventListener('DOMContentLoaded', () => {
 					<p style="margin-bottom: 10px;">⭐ <strong>GitHub项目:</strong> <a href="https://github.com/cmliu/CF-Workers-SUB" style="color: #007bff; text-decoration: none;">https://github.com/cmliu/CF-Workers-SUB</a></p>
 					<p style="margin: 0; font-size: 0.8rem;">User-Agent: ${request.headers.get('User-Agent')}</p>
 				</div>
+					<script>
+// 全局函数定义 - 确保在DOM加载前就定义好所有函数
+
+// 二维码和复制功能
+function copyToClipboard(text, qrcode) {
+	navigator.clipboard.writeText(text).then(() => {
+		alert('已复制到剪贴板');
+	}).catch(err => {
+		console.error('复制失败:', err);
+	});
+	const qrcodeDiv = document.getElementById(qrcode);
+	qrcodeDiv.innerHTML = '';
+	new QRCode(qrcodeDiv, {
+		text: text,
+		width: 220,
+		height: 220,
+		colorDark: "#000000",
+		colorLight: "#ffffff",
+		correctLevel: QRCode.CorrectLevel.Q,
+		scale: 1
+	});
+}
+
+// 切换通知显示
+function toggleNotice() {
+	const noticeContent = document.getElementById('noticeContent');
+	const toggleBtn = document.getElementById('noticeToggle');
+	if (noticeContent.style.display === 'none') {
+		noticeContent.style.display = 'block';
+		toggleBtn.textContent = '隐藏访客订阅 ∧';
+	} else {
+		noticeContent.style.display = 'none';
+		toggleBtn.textContent = '查看访客订阅 ∨';
+	}
+}
+
+// 添加链接功能
+function addLink() {
+	const name = prompt('请输入链接名称:');
+	if (!name) return;
+	
+	const url = prompt('请输入链接地址:');
+	if (!url) return;
+	
+	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	const existingLink = savedLinks.find(link => link.name === name);
+	
+	if (existingLink) {
+		if (confirm('链接名称已存在，是否覆盖？')) {
+			existingLink.url = url;
+			existingLink.timestamp = new Date().toISOString();
+		} else {
+			return;
+		}
+	} else {
+		savedLinks.push({
+			name: name,
+			url: url,
+			timestamp: new Date().toISOString()
+		});
+	}
+	
+	localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+	displaySavedLinks();
+	alert('链接已保存');
+}
+
+// 导出链接功能
+function exportLinks() {
+	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	if (savedLinks.length === 0) {
+		alert('没有保存的链接');
+		return;
+	}
+	
+	const exportData = {
+		version: '1.0',
+		exportTime: new Date().toISOString(),
+		links: savedLinks
+	};
+	
+	const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = 'saved-links-' + new Date().toISOString().split('T')[0] + '.json';
+	a.click();
+	URL.revokeObjectURL(url);
+}
+
+// 导入链接功能
+function importLinks() {
+	const input = document.createElement('input');
+	input.type = 'file';
+	input.accept = '.json';
+	input.onchange = function(e) {
+		const file = e.target.files[0];
+		if (!file) return;
+		
+		const reader = new FileReader();
+		reader.onload = function(e) {
+			try {
+				const importData = JSON.parse(e.target.result);
+				const importedLinks = importData.links || [];
+				
+				if (!Array.isArray(importedLinks)) {
+					alert('文件格式错误');
+					return;
+				}
+				
+				const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+				let addedCount = 0;
+				
+				importedLinks.forEach(link => {
+					if (link.name && link.url) {
+						const existingIndex = savedLinks.findIndex(existing => existing.name === link.name);
+						if (existingIndex >= 0) {
+							savedLinks[existingIndex] = link;
+						} else {
+							savedLinks.push(link);
+							addedCount++;
+						}
+					}
+				});
+				
+				localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+				displaySavedLinks();
+				alert('成功导入 ' + importedLinks.length + ' 个链接');
+			} catch (error) {
+				alert('文件解析失败: ' + error.message);
+			}
+		};
+		reader.readAsText(file);
+	};
+	input.click();
+}
+
+// 复制链接到剪贴板
+function copyLinkToClipboard(url) {
+	navigator.clipboard.writeText(url).then(() => {
+		alert('链接已复制到剪贴板');
+	}).catch(err => {
+		console.error('复制失败:', err);
+		alert('复制失败，请手动复制');
+	});
+}
+
+// 删除链接
+function deleteLink(name) {
+	if (!confirm('确定要删除链接 "' + name + '" 吗？')) {
+		return;
+	}
+	
+	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	const filteredLinks = savedLinks.filter(link => link.name !== name);
+	localStorage.setItem('savedLinks', JSON.stringify(filteredLinks));
+	displaySavedLinks();
+}
+
+// 获取订阅功能
+function fetchSubscription() {
+	const urlInput = document.getElementById('subscriptionUrl');
+	const infoDiv = document.getElementById('subscriptionInfo');
+	const url = urlInput.value.trim();
+	
+	if (!url) {
+		alert('请输入订阅链接');
+		return;
+	}
+	
+	infoDiv.textContent = '正在获取订阅内容...';
+	
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('HTTP ' + response.status);
+			}
+			return response.text();
+		})
+		.then(data => {
+			document.getElementById('yamlInput').value = data;
+			infoDiv.textContent = '订阅内容已加载到输入框';
+		})
+		.catch(error => {
+			infoDiv.textContent = '获取订阅失败: ' + error.message;
+		});
+}
+
+// 处理转换功能
+function processConversion() {
+	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
+	if (mode === 'yaml') {
+		processYamlConversion();
+	} else {
+		processBase64Conversion();
+	}
+}
+
+// 处理YAML转换
+function processYamlConversion() {
+	const yamlInput = document.getElementById('yamlInput').value.trim();
+	const infoDiv = document.getElementById('conversionInfo');
+	const outputDiv = document.getElementById('socksOutput');
+	const copyBtn = document.querySelector('.copy-text-btn');
+	
+	if (!yamlInput) {
+		alert('请输入YAML内容');
+		return;
+	}
+	
+	try {
+		const yamlData = jsyaml.load(yamlInput);
+		const proxies = yamlData.proxies || [];
+		
+		if (proxies.length === 0) {
+			throw new Error('未找到代理节点');
+		}
+		
+		const startPort = 10000;
+		const socksConfig = {
+			listeners: proxies.map((proxy, index) => ({
+				name: 'socks-' + (index + 1),
+				type: 'socks',
+				port: startPort + index,
+				proxy: proxy.name
+			}))
+		};
+		
+		const numProxies = proxies.length;
+		outputDiv.textContent = JSON.stringify(socksConfig, null, 2);
+		infoDiv.innerHTML = '共 ' + numProxies + ' 个节点，端口范围：' + startPort + ' - ' + (startPort + numProxies - 1);
+		copyBtn.disabled = false;
+		copyBtn.style.opacity = '1';
+	} catch (error) {
+		infoDiv.textContent = '转换失败: ' + error.message;
+		outputDiv.textContent = '';
+		copyBtn.disabled = true;
+		copyBtn.style.opacity = '0.5';
+	}
+}
+
+// 处理Base64转换
+function processBase64Conversion() {
+	const base64Input = document.getElementById('yamlInput').value.trim();
+	const infoDiv = document.getElementById('conversionInfo');
+	const outputDiv = document.getElementById('socksOutput');
+	const copyBtn = document.querySelector('.copy-text-btn');
+	const usageDiv = document.getElementById('usageInstructions');
+	
+	if (!base64Input) {
+		alert('请输入Base64内容');
+		return;
+	}
+	
+	try {
+		const decoded = atob(base64Input);
+		const lines = decoded.split('\n').filter(line => line.trim());
+		
+		if (lines.length === 0) {
+			throw new Error('解码后未找到有效内容');
+		}
+		
+		const socksConfigs = lines.map((line, index) => {
+			const proxyInfo = parseProxyUrl(line);
+			if (proxyInfo) {
+				return convertProxyToSocks(proxyInfo, 10000 + index);
+			}
+			return null;
+		}).filter(config => config !== null);
+		
+		if (socksConfigs.length === 0) {
+			throw new Error('未找到有效的代理配置');
+		}
+		
+		const downloadLink = 'data:text/plain;charset=utf-8,' + encodeURIComponent(socksConfigs.join('\n\n'));
+		outputDiv.innerHTML = '<a href="' + downloadLink + '" download="socks-config.txt" style="color: #007bff; text-decoration: underline;">点击下载SOCKS配置文件</a>';
+		
+		usageDiv.innerHTML = '<h4>使用说明：</h4><p>1. 下载配置文件</p><p>2. 在支持SOCKS的应用中导入配置</p><p>3. 端口范围：10000-' + (10000 + socksConfigs.length - 1) + '</p>';
+		
+		infoDiv.textContent = '成功转换 ' + socksConfigs.length + ' 个代理配置';
+		copyBtn.disabled = false;
+		copyBtn.style.opacity = '1';
+		
+		// 存储配置文本用于复制
+		window.socksConfigText = socksConfigs.join('\n\n');
+	} catch (error) {
+		infoDiv.textContent = '转换失败: ' + error.message;
+		outputDiv.textContent = '';
+		copyBtn.disabled = true;
+		copyBtn.style.opacity = '0.5';
+	}
+}
+
+// 复制SOCKS配置
+function copySOCKSConfig() {
+	const outputDiv = document.getElementById('socksOutput');
+	let textToCopy = outputDiv.textContent;
+	
+	// 如果是Base64模式，使用存储的配置文本
+	if (window.socksConfigText) {
+		textToCopy = window.socksConfigText;
+	}
+	
+	if (!textToCopy.trim()) {
+		alert('没有可复制的内容');
+		return;
+	}
+	
+	navigator.clipboard.writeText(textToCopy).then(() => {
+		alert('配置已复制到剪贴板');
+	}).catch(err => {
+		console.error('复制失败:', err);
+		alert('复制失败，请手动复制');
+	});
+}
+
+// 显示保存的链接
+function displaySavedLinks() {
+	const container = document.getElementById('savedLinksContainer');
+	if (!container) return;
+	
+	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	
+	if (savedLinks.length === 0) {
+		container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无保存的链接</p>';
+		return;
+	}
+	
+	container.innerHTML = savedLinks.map(link => 
+		'<div class="saved-link-item">' +
+		'<div class="link-info">' +
+		'<div class="link-name">' + link.name + '</div>' +
+		'<div class="link-url">' + link.url + '</div>' +
+		'<div class="link-time">保存时间: ' + new Date(link.timestamp).toLocaleString() + '</div>' +
+		'</div>' +
+		'<div class="link-actions">' +
+		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\'' + link.url + '\')" title="复制链接">📋</button>' +
+		'<button class="delete-link-btn" onclick="deleteLink(\'' + link.name + '\')" >删除</button>' +
+		'</div>' +
+		'</div>'
+	).join('');
+}
+
+// 切换转换模式
+function switchConversionMode() {
+	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
+	const yamlLabel = document.querySelector('label[for="yamlInput"]');
+	const processBtn = document.getElementById('processButton');
+	
+	if (mode === 'yaml') {
+		yamlLabel.textContent = 'YAML内容:';
+		processBtn.textContent = '🔄 生成SOCKS配置';
+	} else {
+		yamlLabel.textContent = 'Base64内容:';
+		processBtn.textContent = '🔄 转换为SOCKS';
+	}
+	
+	// 清空之前的结果
+	document.getElementById('conversionInfo').textContent = '';
+	document.getElementById('socksOutput').textContent = '';
+	const copyBtn = document.querySelector('.copy-text-btn');
+	copyBtn.disabled = true;
+	copyBtn.style.opacity = '0.5';
+}
+
+// 解析代理URL
+function parseProxyUrl(url) {
+	try {
+		if (url.startsWith('vmess://')) {
+			const decoded = atob(url.substring(8));
+			const config = JSON.parse(decoded);
+			return {
+				type: 'vmess',
+				server: config.add,
+				port: config.port,
+				uuid: config.id,
+				alterId: config.aid || 0,
+				cipher: config.scy || 'auto',
+				network: config.net || 'tcp'
+			};
+		} else if (url.startsWith('ss://')) {
+			const decoded = atob(url.substring(5).split('#')[0]);
+			const [method, password] = decoded.split(':');
+			const [server, port] = password.split('@')[1].split(':');
+			return {
+				type: 'shadowsocks',
+				server: server,
+				port: parseInt(port),
+				method: method,
+				password: password.split('@')[0]
+			};
+		}
+		return null;
+	} catch (error) {
+		console.error('解析代理URL失败:', error);
+		return null;
+	}
+}
+
+// 转换代理为SOCKS配置
+function convertProxyToSocks(proxyInfo, port) {
+	if (proxyInfo.type === 'vmess') {
+		return 'listener socks-' + port + ' {\n' +
+			'  type socks\n' +
+			'  port ' + port + '\n' +
+			'  proxy vmess {\n' +
+			'    server ' + proxyInfo.server + '\n' +
+			'    port ' + proxyInfo.port + '\n' +
+			'    uuid ' + proxyInfo.uuid + '\n' +
+			'    alter_id ' + proxyInfo.alterId + '\n' +
+			'    cipher ' + proxyInfo.cipher + '\n' +
+			'    network ' + proxyInfo.network + '\n' +
+			'  }\n' +
+			'}';
+	} else if (proxyInfo.type === 'shadowsocks') {
+		return 'listener socks-' + port + ' {\n' +
+			'  type socks\n' +
+			'  port ' + port + '\n' +
+			'  proxy shadowsocks {\n' +
+			'    server ' + proxyInfo.server + '\n' +
+			'    port ' + proxyInfo.port + '\n' +
+			'    method ' + proxyInfo.method + '\n' +
+			'    password ' + proxyInfo.password + '\n' +
+			'  }\n' +
+			'}';
+	}
+	return null;
+}
+
+// 文件拖拽功能
+function setupFileDrop() {
+	const yamlInput = document.getElementById('yamlInput');
+	if (!yamlInput) return;
+	
+	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+		yamlInput.addEventListener(eventName, preventDefaults, false);
+	});
+	
+	function preventDefaults(e) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
+	
+	['dragenter', 'dragover'].forEach(eventName => {
+		yamlInput.addEventListener(eventName, highlight, false);
+	});
+	
+	['dragleave', 'drop'].forEach(eventName => {
+		yamlInput.addEventListener(eventName, unhighlight, false);
+	});
+	
+	function highlight(e) {
+		yamlInput.style.backgroundColor = '#f0f8ff';
+	}
+	
+	function unhighlight(e) {
+		yamlInput.style.backgroundColor = '';
+	}
+	
+	yamlInput.addEventListener('drop', handleDrop, false);
+	
+	function handleDrop(e) {
+		const dt = e.dataTransfer;
+		const files = dt.files;
+		
+		if (files.length > 0) {
+			const file = files[0];
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				yamlInput.value = e.target.result;
+			};
+			reader.readAsText(file);
+		}
+	}
+}
+
+// 编辑器相关功能 - 只在编辑器页面加载
+
+// 编辑器相关功能
+if (document.querySelector('.editor')) {
+	let timer;
+	const textarea = document.getElementById('content');
+	const originalContent = textarea.value;
+
+	function goBack() {
+		const currentUrl = window.location.href;
+		const parentUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+		window.location.href = parentUrl;
+	}
+
+	function replaceFullwidthColon() {
+		const text = textarea.value;
+		textarea.value = text.replace(/：/g, ':');
+	}
+	
+	function saveContent(button) {
+		try {
+			const updateButtonText = (step) => {
+				button.textContent = '保存中: ' + step;
+			};
 			
+			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+			
+			if (!isIOS) {
+				replaceFullwidthColon();
+			}
+			updateButtonText('开始保存');
+			button.disabled = true;
+
+			const textarea = document.getElementById('content');
+			if (!textarea) {
+				throw new Error('找不到文本编辑区域');
+			}
+
+			updateButtonText('获取内容');
+			let newContent;
+			let originalContent;
+			try {
+				newContent = textarea.value || '';
+				originalContent = textarea.defaultValue || '';
+			} catch (e) {
+				console.error('获取内容错误:', e);
+				throw new Error('无法获取编辑内容');
+			}
+
+			updateButtonText('准备状态更新函数');
+			const updateStatus = (message, isError = false) => {
+				const statusElem = document.getElementById('saveStatus');
+				if (statusElem) {
+					statusElem.textContent = message;
+					statusElem.style.color = isError ? 'red' : '#666';
+				}
+			};
+
+			updateButtonText('准备按钮重置函数');
+			const resetButton = () => {
+				button.textContent = '保存';
+				button.disabled = false;
+			};
+
+			if (newContent !== originalContent) {
+				updateButtonText('发送保存请求');
+				fetch(window.location.href, {
+					method: 'POST',
+					body: newContent,
+					headers: {
+						'Content-Type': 'text/plain;charset=UTF-8'
+					},
+					cache: 'no-cache'
+				})
+				.then(response => {
+					updateButtonText('检查响应状态');
+					if (!response.ok) {
+						throw new Error('HTTP error! status: ' + response.status);
+					}
+					updateButtonText('更新保存状态');
+					const now = new Date().toLocaleString();
+					document.title = '编辑已保存 ' + now;
+					updateStatus('已保存 ' + now);
+				})
+				.catch(error => {
+					updateButtonText('处理错误');
+					console.error('Save error:', error);
+					updateStatus('保存失败: ' + error.message, true);
+				})
+				.finally(() => {
+					resetButton();
+				});
+			} else {
+				updateButtonText('检查内容变化');
+				updateStatus('内容未变化');
+				resetButton();
+			}
+		} catch (error) {
+			console.error('保存过程出错:', error);
+			button.textContent = '保存';
+			button.disabled = false;
+			const statusElem = document.getElementById('saveStatus');
+			if (statusElem) {
+				statusElem.textContent = '错误: ' + error.message;
+				statusElem.style.color = 'red';
+			}
+		}
+	}
+
+	textarea.addEventListener('blur', saveContent);
+	textarea.addEventListener('input', () => {
+		clearTimeout(timer);
+		timer = setTimeout(saveContent, 5000);
+	});
+}
+
+
+
+
+
+
+
+
+
+
+
+function setupFileDrop() {
+	const inputYAML = document.getElementById('inputYAML');
+	if (inputYAML) {
+		inputYAML.addEventListener('dragover', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			inputYAML.style.borderColor = '#667eea';
+			inputYAML.style.backgroundColor = '#f8f9ff';
+		});
+		
+		inputYAML.addEventListener('dragleave', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			inputYAML.style.borderColor = '#e0e0e0';
+			inputYAML.style.backgroundColor = '';
+		});
+		
+		inputYAML.addEventListener('drop', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			inputYAML.style.borderColor = '#e0e0e0';
+			inputYAML.style.backgroundColor = '';
+			
+			const files = e.dataTransfer.files;
+			if (files.length > 0) {
+				const file = files[0];
+				if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+					const reader = new FileReader();
+					reader.onload = (event) => {
+						inputYAML.value = event.target.result;
+						document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+						switchConversionMode();
+					};
+					reader.readAsText(file);
+				} else {
+					alert('请拖拽YAML文件（.yaml或.yml格式）');
+				}
+			}
+		});
+	}
+}
+
+// 初始化函数
+document.addEventListener('DOMContentLoaded', () => {
+	const noticeContent = document.getElementById('noticeContent');
+	if (noticeContent) {
+		noticeContent.style.display = 'none';
+	}
+	
+	displaySavedLinks();
+	
+	const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
+	modeRadios.forEach(radio => {
+		radio.addEventListener('change', switchConversionMode);
+	});
+	
+	switchConversionMode();
+	setupFileDrop();
+});
+					</script>
 				</body>
 			</html>
 		`;
