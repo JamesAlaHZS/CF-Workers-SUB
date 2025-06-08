@@ -1754,6 +1754,10 @@ function deleteLink(name) {
 function fetchSubscription() {
 	const urlInput = document.getElementById('subscriptionUrl');
 	const infoDiv = document.getElementById('infoDiv');
+	const outputYAML = document.getElementById('outputYAML');
+	const copyBtn = document.querySelector('.copy-text-btn');
+	const downloadLink = document.getElementById('downloadLink');
+	const startPortInput = document.getElementById('startPort');
 	const url = urlInput.value.trim();
 	
 	if (!url) {
@@ -1771,11 +1775,87 @@ function fetchSubscription() {
 			return response.text();
 		})
 		.then(data => {
-			document.getElementById('yamlInput').value = data;
-			infoDiv.textContent = '订阅内容已加载到输入框';
+			try {
+				// 尝试Base64解码
+				let decoded;
+				try {
+					decoded = atob(data);
+				} catch {
+					// 如果不是Base64，直接使用原始数据
+					decoded = data;
+				}
+				
+				const lines = decoded.split('\\n').filter(line => line.trim());
+				
+				if (lines.length === 0) {
+					throw new Error('订阅内容为空或格式不正确');
+				}
+				
+				const startPort = parseInt(startPortInput.value) || 42000;
+				const socksConfigs = lines.map((line, index) => {
+					const proxyInfo = parseProxyUrl(line);
+					if (proxyInfo) {
+						return convertProxyToSocks(proxyInfo, startPort + index);
+					}
+					return null;
+				}).filter(config => config !== null);
+				
+				if (socksConfigs.length === 0) {
+					throw new Error('未找到有效的代理配置');
+				}
+				
+				// 生成YAML格式的配置
+				const yamlConfig = \`# SOCKS代理配置\\n# 生成时间: \${new Date().toLocaleString()}\\n# 节点数量: \${socksConfigs.length}\\n# 端口范围: \${startPort}-\${startPort + socksConfigs.length - 1}\\n\\n\${socksConfigs.join('\\n\\n')}\`;
+				
+				// 显示在输出区域
+				if (outputYAML) {
+					outputYAML.value = yamlConfig;
+				}
+				
+				// 设置下载链接
+				const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
+				if (downloadLink) {
+					downloadLink.href = downloadData;
+					downloadLink.download = 'socks-config.yaml';
+					downloadLink.style.pointerEvents = 'auto';
+					downloadLink.style.opacity = '1';
+				}
+				
+				// 启用复制按钮
+				if (copyBtn) {
+					copyBtn.disabled = false;
+					copyBtn.style.opacity = '1';
+				}
+				
+				// 存储配置文本用于复制
+				window.socksConfigText = yamlConfig;
+				
+				infoDiv.textContent = \`成功转换 \${socksConfigs.length} 个代理配置\`;
+				
+			} catch (parseError) {
+				infoDiv.textContent = \`解析订阅失败: \${parseError.message}\`;
+				if (outputYAML) outputYAML.value = '';
+				if (copyBtn) {
+					copyBtn.disabled = true;
+					copyBtn.style.opacity = '0.5';
+				}
+				if (downloadLink) {
+					downloadLink.style.pointerEvents = 'none';
+					downloadLink.style.opacity = '0.5';
+				}
+			}
 		})
 		.catch(error => {
 			infoDiv.textContent = '获取订阅失败: ' + error.message;
+			if (outputYAML) outputYAML.value = '';
+			if (copyBtn) {
+				copyBtn.disabled = true;
+				copyBtn.style.opacity = '0.5';
+			}
+			if (downloadLink) {
+				downloadLink.style.pointerEvents = 'none';
+				downloadLink.style.opacity = '0.5';
+			}
 		});
 }
 
