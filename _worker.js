@@ -1497,6 +1497,10 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 										<input type="radio" name="conversionMode" value="yaml">
 										<span>📄 YAML文件转换</span>
 									</label>
+									<label class="mode-label">
+										<input type="radio" name="conversionMode" value="base64decode">
+										<span>🔓 Base64解码转换</span>
+									</label>
 								</div>
 								
 								<!-- 订阅链接输入区域 -->
@@ -1510,6 +1514,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<div id="yamlInput" class="input-section" style="display: none;">
 									<label>YAML配置：</label>
 									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
+								</div>
+								
+								<!-- Base64解码输入区域 -->
+								<div id="base64Input" class="input-section" style="display: none;">
+									<label>Base64编码内容：</label>
+									<textarea class="converter-input" id="inputBase64" placeholder="在此处粘贴Base64编码的节点配置内容"></textarea>
 								</div>
 								
 								<div class="converter-controls">
@@ -1840,15 +1850,25 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					// 转换模式切换
 					function switchConversionMode() {
 						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const yamlMode = document.querySelector('input[name="conversionMode"][value="yaml"]').checked;
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64decode"]').checked;
+						
 						const subscriptionInput = document.getElementById('subscriptionInput');
 						const yamlInput = document.getElementById('yamlInput');
+						const base64Input = document.getElementById('base64Input');
 						
 						if (subscriptionMode) {
 							subscriptionInput.style.display = 'block';
 							yamlInput.style.display = 'none';
-						} else {
+							base64Input.style.display = 'none';
+						} else if (yamlMode) {
 							subscriptionInput.style.display = 'none';
 							yamlInput.style.display = 'block';
+							base64Input.style.display = 'none';
+						} else if (base64Mode) {
+							subscriptionInput.style.display = 'none';
+							yamlInput.style.display = 'none';
+							base64Input.style.display = 'block';
 						}
 					}
 					
@@ -1916,6 +1936,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					// 处理转换
 					function processConversion() {
 						const subscriptionMode = document.querySelector('input[name="conversionMode"][value="subscription"]').checked;
+						const yamlMode = document.querySelector('input[name="conversionMode"][value="yaml"]').checked;
+						const base64Mode = document.querySelector('input[name="conversionMode"][value="base64decode"]').checked;
 						
 						if (subscriptionMode) {
 							// 如果是订阅模式，先获取订阅内容
@@ -1925,9 +1947,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									processYAMLConversion();
 								}, 1000);
 							});
-						} else {
+						} else if (yamlMode) {
 							// 直接处理YAML转换
 							processYAMLConversion();
+						} else if (base64Mode) {
+							// 处理Base64解码转换
+							processBase64Conversion();
 						}
 					}
 					
@@ -1971,7 +1996,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							
 							// 生成监听器配置
 							socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
-								name: \`mixed\${i}\`,
+								name: `mixed${i}`,
 								type: 'mixed',
 								port: startPort + i,
 								proxy: yamlData.proxies[i].name
@@ -2007,6 +2032,130 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							infoDiv.style.color = '#dc3545';
 							outputYAML.value = '';
 							outputDiv.innerHTML = '';
+						}
+					}
+					
+					// Base64解码转换处理
+					function processBase64Conversion() {
+						const inputBase64 = document.getElementById('inputBase64').value.trim();
+						const startPort = parseInt(document.getElementById('startPort').value);
+						const infoDiv = document.getElementById('infoDiv');
+						const outputYAML = document.getElementById('outputYAML');
+						const outputDiv = document.getElementById('outputDiv');
+						
+						if (!inputBase64) {
+							infoDiv.textContent = '请输入Base64编码内容';
+							infoDiv.style.color = '#dc3545';
+							return;
+						}
+						
+						try {
+							// 解码Base64
+							let decodedContent;
+							try {
+								decodedContent = atob(inputBase64);
+							} catch (e) {
+								throw new Error('Base64解码失败，请检查输入内容是否为有效的Base64编码');
+							}
+							
+							// 将解码后的内容按行分割
+							const lines = decodedContent.split('\n').filter(line => line.trim());
+							
+							if (lines.length === 0) {
+								throw new Error('解码后的内容为空');
+							}
+							
+							// 转换为SOCKS配置
+							const socksConfigLines = [];
+							let validProxyCount = 0;
+							
+							lines.forEach((line, index) => {
+								const trimmedLine = line.trim();
+								if (trimmedLine && (trimmedLine.includes('://') || trimmedLine.startsWith('ss://') || trimmedLine.startsWith('vmess://') || trimmedLine.startsWith('vless://') || trimmedLine.startsWith('trojan://') || trimmedLine.startsWith('socks5://') || trimmedLine.startsWith('http://'))) {
+									const socksConfig = convertProxyToSocks(trimmedLine, startPort + validProxyCount);
+									if (socksConfig) {
+										socksConfigLines.push(socksConfig);
+										validProxyCount++;
+									}
+								}
+							});
+							
+							if (socksConfigLines.length === 0) {
+								throw new Error('未找到有效的代理配置');
+							}
+							
+							// 生成完整的SOCKS配置文件
+							const socksConfigContent = [
+								'# SOCKS代理配置文件',
+								'# 生成时间: ' + new Date().toLocaleString(),
+								'# 节点数量: ' + validProxyCount,
+								'# 端口范围: ' + startPort + ' - ' + (startPort + validProxyCount - 1),
+								'',
+								...socksConfigLines
+							].join('\n');
+							
+							outputYAML.value = socksConfigContent;
+							
+							// 更新信息显示
+							infoDiv.innerHTML = \`共解析 \${validProxyCount} 个有效节点，端口范围：\${startPort} - \${startPort + validProxyCount - 1}\`;
+							infoDiv.style.color = '#28a745';
+							
+							// 生成下载链接和复制按钮
+							const blob = new Blob([socksConfigContent], {type: 'text/plain'});
+							const downloadUrl = URL.createObjectURL(blob);
+							
+							outputDiv.innerHTML = \`
+								<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+								<a href="\${downloadUrl}" download="socks_config.txt" class="download-btn">📄 下载SOCKS配置文件</a>
+								<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
+								<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+									<strong>使用说明：</strong><br>
+									1. 下载生成的SOCKS配置文件<br>
+									2. 每行包含一个代理节点的SOCKS配置信息<br>
+									3. 可以根据需要选择对应端口的代理服务<br>
+									4. 配置格式：节点名称 | 协议://地址:端口 | SOCKS端口
+								</div>
+							\`;
+							
+						} catch (error) {
+							console.error('Base64转换失败:', error);
+							infoDiv.textContent = \`转换失败: \${error.message}\`;
+							infoDiv.style.color = '#dc3545';
+							outputYAML.value = '';
+							outputDiv.innerHTML = '';
+						}
+					}
+					
+					// 将代理链接转换为SOCKS配置
+					function convertProxyToSocks(proxyUrl, socksPort) {
+						try {
+							// 提取节点名称（如果有的话）
+							let nodeName = 'Node-' + socksPort;
+							if (proxyUrl.includes('#')) {
+								nodeName = decodeURIComponent(proxyUrl.split('#')[1]) || nodeName;
+							}
+							
+							// 解析不同协议
+							if (proxyUrl.startsWith('socks5://') || proxyUrl.startsWith('socks4://')) {
+								const url = new URL(proxyUrl);
+								return \`\${nodeName} | \${url.protocol}//\${url.hostname}:\${url.port || (url.protocol === 'socks5:' ? '1080' : '1080')} | SOCKS端口: \${socksPort}\`;
+							} else if (proxyUrl.startsWith('http://') || proxyUrl.startsWith('https://')) {
+								const url = new URL(proxyUrl);
+								return \`\${nodeName} | \${url.protocol}//\${url.hostname}:\${url.port || (url.protocol === 'https:' ? '443' : '80')} | SOCKS端口: \${socksPort}\`;
+							} else if (proxyUrl.startsWith('ss://')) {
+								return \`\${nodeName} | SS代理 | SOCKS端口: \${socksPort}\`;
+							} else if (proxyUrl.startsWith('vmess://')) {
+								return \`\${nodeName} | VMess代理 | SOCKS端口: \${socksPort}\`;
+							} else if (proxyUrl.startsWith('vless://')) {
+								return \`\${nodeName} | VLess代理 | SOCKS端口: \${socksPort}\`;
+							} else if (proxyUrl.startsWith('trojan://')) {
+								return \`\${nodeName} | Trojan代理 | SOCKS端口: \${socksPort}\`;
+							} else {
+								return \`\${nodeName} | 未知协议 | SOCKS端口: \${socksPort}\`;
+							}
+						} catch (error) {
+							console.error('解析代理URL失败:', error);
+							return null;
 						}
 					}
 					
