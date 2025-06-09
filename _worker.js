@@ -17,7 +17,7 @@ https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray
 `;
 
 let urls = [];
-let subConverter = "subapi.ala168.cn"; //在线订阅转换后端，目前使用CM的订阅转换功能。支持自建psub 可自行搭建https://github.com/bulianglin/psub
+let subConverter = "SUBAPI.cmliussss.net"; //在线订阅转换后端，目前使用CM的订阅转换功能。支持自建psub 可自行搭建https://github.com/bulianglin/psub
 let subConfig = "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online_MultiCountry.ini"; //订阅配置文件
 let subProtocol = 'https';
 
@@ -534,1047 +534,126 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 		}
 
 		const html = `
-				<!DOCTYPE html>
+			<!DOCTYPE html>
 			<html>
 				<head>
-					<title>${FileName} 订阅管理中心</title>
+					<title>${FileName} 订阅编辑</title>
 					<meta charset="utf-8">
 					<meta name="viewport" content="width=device-width, initial-scale=1">
 					<style>
-						* {
-							margin: 0;
-							padding: 0;
-							box-sizing: border-box;
-						}
-						
 						body {
-							font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-							background: #ffffff;
-							min-height: 100vh;
-							color: #333;
-							line-height: 1.6;
+							margin: 0;
+							padding: 15px; /* 调整padding */
+							box-sizing: border-box;
+							font-size: 13px; /* 设置全局字体大小 */
 						}
-						
-						.container {
-							max-width: 1200px;
-							margin: 0 auto;
-							padding: 20px;
-						}
-						
-						.header {
-							text-align: center;
-							margin-bottom: 30px;
-							color: #2c3e50;
-							background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-							padding: 30px;
-							border-radius: 15px;
-							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-						}
-						
-						.header h1 {
-							font-size: 2.5rem;
-							margin-bottom: 10px;
-							color: #2c3e50;
-							text-shadow: none;
-						}
-						
-						.header p {
-							font-size: 1.1rem;
-							color: #6c757d;
-							opacity: 1;
-						}
-						
-						.card {
-							background: #ffffff;
-							border-radius: 15px;
-							padding: 25px;
-							margin-bottom: 25px;
-							box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-							border: 1px solid #e9ecef;
-							position: relative;
-							overflow: hidden;
-							transition: all 0.3s ease;
-						}
-						
-						.card:hover {
-							transform: translateY(-2px);
-							box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-						}
-						
-						.card::before {
-							content: '';
-							position: absolute;
-							top: 0;
-							left: -100%;
-							width: 100%;
-							height: 2px;
-							background: linear-gradient(90deg, transparent, #3498db, transparent);
-							transition: left 0.5s ease;
-						}
-						
-						.card:hover::before {
-							left: 100%;
-						}
-						
-						.card-title {
-							font-size: 1.4rem;
-							font-weight: 600;
-							margin-bottom: 20px;
-							color: #2c3e50;
-							border-bottom: 2px solid #f39c12;
-							padding-bottom: 10px;
-							position: relative;
-						}
-						
-						.subscription-grid {
-							display: grid;
-							grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-							gap: 20px;
-							margin-bottom: 20px;
-						}
-						
-						.sub-item {
-							background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-							border-radius: 12px;
-							padding: 20px;
-							text-align: center;
-							transition: all 0.3s ease;
-							cursor: pointer;
-							border: none;
-							color: white;
-							text-decoration: none;
-							display: block;
-						}
-						
-						.sub-item:hover {
-							transform: translateY(-5px);
-							box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-							text-decoration: none;
-							color: white;
-						}
-						
-						.sub-item h3 {
-							font-size: 1.2rem;
-							margin-bottom: 10px;
-							font-weight: 600;
-						}
-						
-						.sub-item .url {
-							font-size: 0.9rem;
-							opacity: 0.9;
-							word-break: break-all;
-							background: rgba(255,255,255,0.2);
-							padding: 8px;
-							border-radius: 6px;
-							margin-top: 10px;
-						}
-						
-						.qr-container {
-							margin-top: 15px;
-							padding: 15px;
-							background: white;
-							border-radius: 8px;
-							display: none;
-						}
-						
-						.guest-section {
-							background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-							border-radius: 12px;
-							padding: 20px;
-							margin-top: 20px;
-						}
-						
-						.toggle-btn {
-							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-							color: white;
-							border: none;
-							padding: 12px 24px;
-							border-radius: 25px;
-							cursor: pointer;
-							font-size: 1rem;
-							font-weight: 600;
-							transition: all 0.3s ease;
-							margin-bottom: 15px;
-						}
-						
-						.toggle-btn:hover {
-							transform: translateY(-2px);
-							box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-						}
-						
 						.editor-container {
-							margin-top: 20px;
+							width: 100%;
+							max-width: 100%;
+							margin: 0 auto;
 						}
-						
 						.editor {
 							width: 100%;
-							min-height: 300px;
-							padding: 20px;
-							border: 2px solid #e0e0e0;
-							border-radius: 12px;
-							font-size: 14px;
-							line-height: 1.6;
-							resize: vertical;
-							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-							background: #f8f9fa;
-							transition: border-color 0.3s ease;
+							height: 300px; /* 调整高度 */
+							margin: 15px 0; /* 调整margin */
+							padding: 10px; /* 调整padding */
+							box-sizing: border-box;
+							border: 1px solid #ccc;
+							border-radius: 4px;
+							font-size: 13px;
+							line-height: 1.5;
+							overflow-y: auto;
+							resize: none;
 						}
-						
-						.editor:focus {
-							outline: none;
-							border-color: #667eea;
-							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-						}
-						
 						.save-container {
-							margin-top: 15px;
+							margin-top: 8px; /* 调整margin */
 							display: flex;
 							align-items: center;
-							gap: 15px;
-							flex-wrap: wrap;
+							gap: 10px; /* 调整gap */
 						}
-						
-						.save-btn {
-							background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+						.save-btn, .back-btn {
+							padding: 6px 15px; /* 调整padding */
 							color: white;
 							border: none;
-							padding: 12px 24px;
-							border-radius: 25px;
+							border-radius: 4px;
 							cursor: pointer;
-							font-size: 1rem;
-							font-weight: 600;
-							transition: all 0.3s ease;
 						}
-						
+						.save-btn {
+							background: #4CAF50;
+						}
 						.save-btn:hover {
-							transform: translateY(-2px);
-							box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+							background: #45a049;
 						}
-						
-						.save-btn:disabled {
-							opacity: 0.6;
-							cursor: not-allowed;
-							transform: none;
+						.back-btn {
+							background: #666;
 						}
-						
+						.back-btn:hover {
+							background: #555;
+						}
 						.save-status {
 							color: #666;
-							font-weight: 500;
-						}
-						
-						.info-section {
-							background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-							border-radius: 12px;
-							padding: 20px;
-							margin-bottom: 20px;
-						}
-						
-						.info-section h3 {
-							color: #d35400;
-							margin-bottom: 15px;
-						}
-						
-						.info-item {
-							margin-bottom: 10px;
-							padding: 10px;
-							background: rgba(255,255,255,0.3);
-							border-radius: 8px;
-						}
-						
-						.info-item strong {
-							color: #c0392b;
-						}
-						
-						.footer-info {
-							text-align: center;
-							color: white;
-							margin-top: 30px;
-							padding: 20px;
-							background: rgba(255,255,255,0.1);
-							border-radius: 12px;
-							backdrop-filter: blur(10px);
-						}
-						
-						.footer-info a {
-							color: #ffd700;
-							text-decoration: none;
-							font-weight: 600;
-						}
-						
-						.footer-info a:hover {
-							text-decoration: underline;
-						}
-						
-						/* 链接保存功能样式 */
-						.link-manager {
-							background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-							border-radius: 12px;
-							padding: 20px;
-							margin-bottom: 20px;
-						}
-						
-						.link-input-group {
-							display: flex;
-							gap: 10px;
-							margin-bottom: 15px;
-							flex-wrap: wrap;
-						}
-						
-						.link-input {
-							flex: 1;
-							min-width: 200px;
-							padding: 12px;
-							border: 2px solid #e0e0e0;
-							border-radius: 8px;
-							font-size: 14px;
-						}
-						
-						.link-input:focus {
-							outline: none;
-							border-color: #667eea;
-						}
-						
-						.add-link-btn {
-							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-							color: white;
-							border: none;
-							padding: 12px 20px;
-							border-radius: 8px;
-							cursor: pointer;
-							font-weight: 600;
-							white-space: nowrap;
-						}
-						
-						.saved-links {
-							margin-top: 15px;
-						}
-						
-						.saved-link-item {
-							display: flex;
-							justify-content: space-between;
-							align-items: center;
-							padding: 12px;
-							background: rgba(255,255,255,0.4);
-							border-radius: 10px;
-							margin-bottom: 10px;
-							transition: all 0.3s ease;
-							border: 1px solid rgba(255,255,255,0.2);
-						}
-						
-						.saved-link-item:hover {
-							background: rgba(255,255,255,0.6);
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-						}
-						
-						.saved-link-item a {
-							color: #2c3e50;
-							text-decoration: none;
-							font-weight: 500;
-							flex: 1;
-							margin-right: 10px;
-							overflow: hidden;
-							text-overflow: ellipsis;
-							white-space: nowrap;
-						}
-						
-						.saved-link-item a:hover {
-							text-decoration: underline;
-							color: #667eea;
-						}
-						
-						.saved-link-item > div {
-							display: flex;
-							gap: 8px;
-							align-items: center;
-						}
-						
-						.copy-link-btn {
-							background: #3498db;
-							color: white;
-							border: none;
-							padding: 6px 8px;
-							border-radius: 6px;
-							cursor: pointer;
-							font-size: 12px;
-							transition: all 0.3s ease;
-							min-width: 32px;
-						}
-						
-						.copy-link-btn:hover {
-							background: #2980b9;
-							transform: scale(1.05);
-						}
-						
-						.delete-link-btn {
-							background: #e74c3c;
-							color: white;
-							border: none;
-							padding: 6px 10px;
-							border-radius: 6px;
-							cursor: pointer;
-							font-size: 12px;
-							transition: all 0.3s ease;
-						}
-						
-						.delete-link-btn:hover {
-							background: #c0392b;
-							transform: scale(1.05);
-						}
-						
-						.link-management-controls {
-							display: flex;
-							gap: 10px;
-							margin-top: 15px;
-							flex-wrap: wrap;
-							justify-content: center;
-						}
-						
-						.export-import-btn {
-							background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-							color: white;
-							border: none;
-							padding: 8px 16px;
-							border-radius: 8px;
-							cursor: pointer;
-							font-size: 13px;
-							font-weight: 500;
-							transition: all 0.3s ease;
-						}
-						
-						.export-import-btn:hover {
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-						}
-						
-						/* SOCKS转换功能样式 */
-						.socks-converter {
-							background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-							border-radius: 12px;
-							padding: 20px;
-							margin-bottom: 20px;
-						}
-						
-						.conversion-mode {
-							display: flex;
-							gap: 20px;
-							margin-bottom: 20px;
-							padding: 15px;
-							background: rgba(255, 255, 255, 0.9);
-							border-radius: 8px;
-							border: 1px solid rgba(255, 255, 255, 0.3);
-						}
-						
-						.mode-label {
-							display: flex;
-							align-items: center;
-							gap: 8px;
-							cursor: pointer;
-							padding: 8px 12px;
-							border-radius: 6px;
-							transition: background-color 0.3s ease;
-							font-weight: 600;
-						}
-						
-						.mode-label:hover {
-							background-color: rgba(255, 255, 255, 0.5);
-						}
-						
-						.mode-label input[type="radio"] {
-							margin: 0;
-							accent-color: #667eea;
-						}
-						
-						.input-section {
-							margin-bottom: 20px;
-							padding: 15px;
-							background: rgba(255, 255, 255, 0.9);
-							border-radius: 8px;
-							border: 1px solid rgba(255, 255, 255, 0.3);
-						}
-						
-						.input-section label {
-							display: block;
-							margin-bottom: 8px;
-							font-weight: 600;
-							color: #495057;
-						}
-						
-						.subscription-url {
-							width: calc(100% - 130px);
-							padding: 12px 15px;
-							border: 2px solid #e0e0e0;
-							border-radius: 6px;
-							font-size: 14px;
-							margin-right: 10px;
-							transition: border-color 0.3s ease;
-							box-sizing: border-box;
-						}
-						
-						.subscription-url:focus {
-							border-color: #667eea;
-							outline: none;
-							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-						}
-						
-						.fetch-btn {
-							padding: 12px 20px;
-							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-							color: white;
-							border: none;
-							border-radius: 6px;
-							font-size: 14px;
-							font-weight: 600;
-							cursor: pointer;
-							transition: all 0.3s ease;
-							vertical-align: top;
-						}
-						
-						.fetch-btn:hover {
-							background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
-						}
-						
-						.converter-input {
-							width: 100%;
-							min-height: 150px;
-							padding: 15px;
-							border: 2px solid #e0e0e0;
-							border-radius: 8px;
-							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-							font-size: 13px;
-							resize: vertical;
-							margin-bottom: 15px;
-							box-sizing: border-box;
-						}
-						
-						.converter-input:focus {
-							border-color: #667eea;
-							outline: none;
-							box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-						}
-						
-						.converter-controls {
-							display: flex;
-							gap: 15px;
-							align-items: center;
-							margin-bottom: 15px;
-							flex-wrap: wrap;
-						}
-						
-						.port-input {
-							width: 120px;
-							padding: 8px;
-							border: 2px solid #e0e0e0;
-							border-radius: 6px;
-							transition: border-color 0.3s ease;
-						}
-						
-						.port-input:focus {
-							border-color: #667eea;
-							outline: none;
-						}
-						
-						.convert-btn {
-							background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
-							color: white;
-							border: none;
-							padding: 10px 20px;
-							border-radius: 8px;
-							cursor: pointer;
-							font-weight: 600;
-							transition: all 0.3s ease;
-						}
-						
-						.convert-btn:hover {
-							background: linear-gradient(135deg, #5a32a3 0%, #6f42c1 100%);
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
-						}
-						
-						.upload-file-btn {
-							background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-							color: white;
-							border: none;
-							padding: 8px 16px;
-							border-radius: 6px;
-							cursor: pointer;
-							font-size: 14px;
-							font-weight: 600;
-							transition: all 0.3s ease;
-						}
-						
-						.upload-file-btn:hover {
-							background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
-						}
-						
-						.converter-output {
-							margin-top: 15px;
-						}
-						
-						.download-section {
-							margin-top: 15px;
-							padding: 15px;
-							background: rgba(255, 255, 255, 0.9);
-							border-radius: 8px;
-							border: 1px solid rgba(255, 255, 255, 0.3);
-						}
-						
-						.download-btn {
-							display: inline-block;
-							padding: 10px 20px;
-							background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-							color: white;
-							text-decoration: none;
-							border-radius: 6px;
-							font-size: 14px;
-							font-weight: 600;
-							margin-right: 10px;
-							margin-bottom: 10px;
-							transition: all 0.3s ease;
-						}
-						
-						.download-btn:hover {
-							background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-							text-decoration: none;
-							color: white;
-						}
-						
-						.copy-text-btn {
-							padding: 10px 20px;
-							background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-							color: white;
-							border: none;
-							border-radius: 6px;
-							font-size: 14px;
-							font-weight: 600;
-							cursor: pointer;
-							margin-right: 10px;
-							margin-bottom: 10px;
-							transition: all 0.3s ease;
-						}
-						
-						.copy-text-btn:hover {
-							background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
-							transform: translateY(-2px);
-							box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-						}
-						
-						.converter-result {
-							background: #f8f9fa;
-							border: 2px solid #e0e0e0;
-							border-radius: 8px;
-							padding: 15px;
-							font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-							font-size: 13px;
-							white-space: pre-wrap;
-							max-height: 300px;
-							overflow-y: auto;
-						}
-						
-						.download-link {
-							display: inline-block;
-							margin-top: 10px;
-							padding: 10px 20px;
-							background: #27ae60;
-							color: white;
-							text-decoration: none;
-							border-radius: 8px;
-							font-weight: 600;
-						}
-						
-						.download-link:hover {
-							background: #229954;
-							text-decoration: none;
-							color: white;
-						}
-						
-						/* 现代化增强样式 */
-						
-						.qr-container {
-							animation: fadeIn 0.3s ease;
-						}
-						
-						@keyframes fadeIn {
-							from { opacity: 0; transform: translateY(10px); }
-							to { opacity: 1; transform: translateY(0); }
-						}
-						
-						/* 加载动画 */
-						.loading {
-							position: relative;
-							overflow: hidden;
-						}
-						
-						.loading::after {
-							content: '';
-							position: absolute;
-							top: 0;
-							left: -100%;
-							width: 100%;
-							height: 100%;
-							background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-							animation: shimmer 1.5s infinite;
-						}
-						
-						@keyframes shimmer {
-							0% { left: -100%; }
-							100% { left: 100%; }
-						}
-						
-						/* 响应式设计 */
-						@media (max-width: 1024px) {
-							.subscription-grid {
-								grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-							}
-						}
-						
-						@media (max-width: 768px) {
-							.container {
-								padding: 12px;
-							}
-							
-							.header h1 {
-								font-size: 1.8rem;
-							}
-							
-							.header p {
-								font-size: 1rem;
-							}
-							
-							.card {
-								padding: 18px;
-								margin-bottom: 20px;
-							}
-							
-							.card-title {
-								font-size: 1.2rem;
-							}
-							
-							.subscription-grid {
-								grid-template-columns: 1fr;
-								gap: 15px;
-							}
-							
-							.sub-item {
-								padding: 16px;
-							}
-							
-							.sub-item h3 {
-								font-size: 1.1rem;
-							}
-							
-							.link-input-group {
-								flex-direction: column;
-								gap: 12px;
-							}
-							
-							.link-input {
-								min-width: auto;
-								padding: 14px;
-								font-size: 16px; /* 防止iOS缩放 */
-							}
-							
-							.add-link-btn {
-								padding: 14px 20px;
-								font-size: 16px;
-							}
-							
-							.saved-link-item {
-								flex-direction: column;
-								align-items: flex-start;
-								gap: 10px;
-							}
-							
-							.saved-link-item a {
-								margin-right: 0;
-								width: 100%;
-							}
-							
-							.saved-link-item > div {
-								width: 100%;
-								justify-content: flex-end;
-							}
-							
-							.link-management-controls {
-								flex-direction: column;
-								align-items: stretch;
-							}
-							
-							.export-import-btn {
-								padding: 12px 16px;
-								font-size: 14px;
-							}
-							
-							.converter-controls {
-								flex-direction: column;
-								align-items: stretch;
-								gap: 12px;
-							}
-							
-							.port-input {
-								width: 100%;
-								padding: 12px;
-								font-size: 16px;
-							}
-							
-							.convert-btn {
-								padding: 12px 20px;
-								font-size: 16px;
-							}
-							
-							.editor {
-								padding: 16px;
-								font-size: 14px;
-							}
-							
-							.save-container {
-								flex-direction: column;
-								align-items: stretch;
-								gap: 10px;
-							}
-							
-							.save-btn {
-								padding: 14px 24px;
-								font-size: 16px;
-							}
-						}
-						
-						@media (max-width: 480px) {
-							.container {
-								padding: 10px;
-							}
-							
-							.header h1 {
-								font-size: 1.6rem;
-							}
-							
-							.card {
-								padding: 15px;
-							}
-							
-							.subscription-grid {
-								gap: 12px;
-							}
-							
-							.sub-item {
-								padding: 14px;
-							}
 						}
 					</style>
 					<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
-					<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 				</head>
 				<body>
-					<div class="container">
-						<div class="header">
-							<h1>🚀 ${FileName} 订阅管理中心</h1>
-							<p>现代化的订阅管理与转换工具</p>
-						</div>
-					
-						<!-- 订阅链接卡片 -->
-						<div class="card">
-							<h2 class="card-title">📡 订阅链接</h2>
-							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
-							
-							<div class="subscription-grid">
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
-									<h3>🔄 自适应订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}</div>
-									<div id="qrcode_0" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')">
-									<h3>📝 Base64订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?b64</div>
-									<div id="qrcode_1" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')">
-									<h3>⚔️ Clash订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?clash</div>
-									<div id="qrcode_2" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')">
-									<h3>📦 SingBox订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?sb</div>
-									<div id="qrcode_3" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')">
-									<h3>🌊 Surge订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?surge</div>
-									<div id="qrcode_4" class="qr-container"></div>
-								</div>
-								
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')">
-									<h3>🎈 Loon订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}?loon</div>
-									<div id="qrcode_5" class="qr-container"></div>
-								</div>
-							</div>
-						</div>
-					
-						<!-- 访客订阅卡片 -->
-						<div class="card">
-							<h2 class="card-title">👥 访客订阅</h2>
-							<button class="toggle-btn" id="noticeToggle" onclick="toggleNotice()">查看访客订阅 ∨</button>
-							
-							<div id="noticeContent" class="guest-section" style="display: none;">
-								<p style="margin-bottom: 15px; color: #e67e22; font-weight: 600;">⚠️ 访客订阅只能使用订阅功能，无法查看配置页！</p>
-								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
-								
-								<div class="subscription-grid">
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
-										<h3>🔄 自适应订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
-										<div id="guest_0" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')">
-										<h3>📝 Base64订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&b64</div>
-										<div id="guest_1" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')">
-										<h3>⚔️ Clash订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&clash</div>
-										<div id="guest_2" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')">
-										<h3>📦 SingBox订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&sb</div>
-										<div id="guest_3" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')">
-										<h3>🌊 Surge订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&surge</div>
-										<div id="guest_4" class="qr-container"></div>
-									</div>
-									
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')">
-										<h3>🎈 Loon订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}&loon</div>
-										<div id="guest_5" class="qr-container"></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					
-						<!-- 订阅转换配置信息 -->
-						<div class="info-section">
-							<h3>⚙️ 订阅转换配置</h3>
-							<div class="info-item">
-								<strong>SUBAPI（订阅转换后端）:</strong> ${subProtocol}://${subConverter}
-							</div>
-							<div class="info-item">
-								<strong>SUBCONFIG（订阅转换配置文件）:</strong> ${subConfig}
-							</div>
-						</div>
-					
-						<!-- 链接保存管理 -->
-						<div class="card">
-							<h2 class="card-title">🔗 链接保存管理</h2>
-							<div class="link-manager">
-								<p style="margin-bottom: 15px; color: #2c3e50; font-weight: 500;">💡 保存常用链接，支持导出导入，数据存储在本地浏览器中</p>
-								<div class="link-input-group">
-									<input type="text" class="link-input" id="linkName" placeholder="输入链接名称（如：GitHub、文档等）">
-									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
-									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
-								</div>
-								<div class="saved-links" id="savedLinks"></div>
-								<div class="link-management-controls">
-									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
-									<button class="export-import-btn" onclick="importLinks()">📥 导入链接</button>
-								</div>
-							</div>
-						</div>
-					
-						<!-- SOCKS转换工具 -->
-						<div class="card">
-							<h2 class="card-title">🔧 SOCKS转换工具</h2>
-							<div class="socks-converter">
-								<p style="margin-bottom: 15px; color: #8e44ad; font-weight: 600;">将机场节点和自建节点任意协议转换为本地SOCKS节点，支持从订阅链接自动生成Clash规则文件</p>
-								
-								<!-- 转换模式选择 -->
-								<div class="conversion-mode">
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="subscription" checked>
-										<span>📡 订阅链接转换</span>
-									</label>
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="yaml">
-										<span>📄 YAML文件转换</span>
-									</label>
-									<label class="mode-label">
-										<input type="radio" name="conversionMode" value="base64decode">
-										<span>🔓 Base64解码转换</span>
-									</label>
-								</div>
-								
-								<!-- 订阅链接输入区域 -->
-								<div id="subscriptionInput" class="input-section">
-									<label>订阅链接：</label>
-									<input type="url" class="subscription-url" id="subscriptionUrl" placeholder="输入订阅链接，例如：https://example.com/sub?token=xxx">
-									<button class="fetch-btn" onclick="fetchSubscription()">📥 获取订阅</button>
-								</div>
-								
-								<!-- YAML输入区域 -->
-								<div id="yamlInput" class="input-section" style="display: none;">
-									<label>YAML配置：</label>
-									<div class="file-upload-container" style="margin-bottom: 10px;">
-										<input type="file" id="yamlFileInput" accept=".yaml,.yml" style="display: none;">
-										<button type="button" class="upload-file-btn" onclick="document.getElementById('yamlFileInput').click()">
-											📁 选择YAML文件
-										</button>
-									</div>
-									<textarea class="converter-input" id="inputYAML" placeholder="拖动YAML文件到此处或在此处粘贴节点配置"></textarea>
-								</div>
-								
-								<!-- Base64解码输入区域 -->
-								<div id="base64Input" class="input-section" style="display: none;">
-									<label>Base64编码内容：</label>
-									<textarea class="converter-input" id="inputBase64" placeholder="在此处粘贴Base64编码的节点配置内容"></textarea>
-								</div>
-								
-								<div class="converter-controls">
-									<label>起始端口：</label>
-									<input type="number" class="port-input" id="startPort" min="1" step="1" value="42000">
-									<button class="convert-btn" id="processButton" onclick="processConversion()">🔄 生成SOCKS配置</button>
-								</div>
-								
-								<div class="converter-output">
-									<p><strong>节点信息：</strong><span id="infoDiv" style="color: #e74c3c;"></span></p>
-									<textarea class="converter-input" id="outputYAML" placeholder="生成结果" readonly></textarea>
-									<div id="outputDiv" class="download-section">
-										<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-										<a href="#" download="socks-config.yaml" class="download-btn" id="downloadLink" style="pointer-events: none; opacity: 0.5;">📄 下载YAML文件</a>
-										<button class="copy-text-btn" onclick="copySOCKSConfig()" disabled style="opacity: 0.5;">📋 复制配置文本</button>
-										<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-											<strong>使用说明：</strong><br>
-											1. 下载生成的YAML文件并导入到Clash客户端<br>
-											2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-											3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					
-						<!-- 订阅编辑器 -->
-						<div class="card">
-							<h2 class="card-title">📝 ${FileName} 汇聚订阅编辑</h2>
-							<div class="editor-container">
-								${hasKV ? `
+					################################################################<br>
+					Subscribe / sub 订阅地址, 点击链接自动 <strong>复制订阅链接</strong> 并 <strong>生成订阅二维码</strong> <br>
+					---------------------------------------------------------------<br>
+					自适应订阅地址:<br>
+					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sub','qrcode_0')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}</a><br>
+					<div id="qrcode_0" style="margin: 10px 10px 10px 10px;"></div>
+					Base64订阅地址:<br>
+					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?b64','qrcode_1')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?b64</a><br>
+					<div id="qrcode_1" style="margin: 10px 10px 10px 10px;"></div>
+					clash订阅地址:<br>
+					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?clash','qrcode_2')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?clash</a><br>
+					<div id="qrcode_2" style="margin: 10px 10px 10px 10px;"></div>
+					singbox订阅地址:<br>
+					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?sb','qrcode_3')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?sb</a><br>
+					<div id="qrcode_3" style="margin: 10px 10px 10px 10px;"></div>
+					surge订阅地址:<br>
+					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?surge','qrcode_4')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?surge</a><br>
+					<div id="qrcode_4" style="margin: 10px 10px 10px 10px;"></div>
+					loon订阅地址:<br>
+					<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?loon','qrcode_5')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/${mytoken}?loon</a><br>
+					<div id="qrcode_5" style="margin: 10px 10px 10px 10px;"></div>
+					&nbsp;&nbsp;<strong><a href="javascript:void(0);" id="noticeToggle" onclick="toggleNotice()">查看访客订阅∨</a></strong><br>
+					<div id="noticeContent" class="notice-content" style="display: none;">
+						---------------------------------------------------------------<br>
+						访客订阅只能使用订阅功能，无法查看配置页！<br>
+						GUEST（访客订阅TOKEN）: <strong>${guest}</strong><br>
+						---------------------------------------------------------------<br>
+						自适应订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}</a><br>
+						<div id="guest_0" style="margin: 10px 10px 10px 10px;"></div>
+						Base64订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&b64','guest_1')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&b64</a><br>
+						<div id="guest_1" style="margin: 10px 10px 10px 10px;"></div>
+						clash订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&clash','guest_2')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&clash</a><br>
+						<div id="guest_2" style="margin: 10px 10px 10px 10px;"></div>
+						singbox订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&sb','guest_3')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&sb</a><br>
+						<div id="guest_3" style="margin: 10px 10px 10px 10px;"></div>
+						surge订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&surge','guest_4')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&surge</a><br>
+						<div id="guest_4" style="margin: 10px 10px 10px 10px;"></div>
+						loon订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&loon','guest_5')" style="color:blue;text-decoration:underline;cursor:pointer;">https://${url.hostname}/sub?token=${guest}&loon</a><br>
+						<div id="guest_5" style="margin: 10px 10px 10px 10px;"></div>
+					</div>
+					---------------------------------------------------------------<br>
+					################################################################<br>
+					订阅转换配置<br>
+					---------------------------------------------------------------<br>
+					SUBAPI（订阅转换后端）: <strong>${subProtocol}://${subConverter}</strong><br>
+					SUBCONFIG（订阅转换配置文件）: <strong>${subConfig}</strong><br>
+					---------------------------------------------------------------<br>
+					################################################################<br>
+					${FileName} 汇聚订阅编辑: 
+					<div class="editor-container">
+						${hasKV ? `
 						<textarea class="editor" 
 							placeholder="${decodeURIComponent(atob('TElOSyVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNCVCOCVBQSVFOCU4QSU4MiVFNyU4MiVCOSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQp2bGVzcyUzQSUyRiUyRjI0NmFhNzk1LTA2MzctNGY0Yy04ZjY0LTJjOGZiMjRjMWJhZCU0MDEyNy4wLjAuMSUzQTEyMzQlM0ZlbmNyeXB0aW9uJTNEbm9uZSUyNnNlY3VyaXR5JTNEdGxzJTI2c25pJTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2YWxsb3dJbnNlY3VyZSUzRDElMjZ0eXBlJTNEd3MlMjZob3N0JTNEVEcuQ01MaXVzc3NzLmxvc2V5b3VyaXAuY29tJTI2cGF0aCUzRCUyNTJGJTI1M0ZlZCUyNTNEMjU2MCUyM0NGbmF0CnRyb2phbiUzQSUyRiUyRmFhNmRkZDJmLWQxY2YtNGE1Mi1iYTFiLTI2NDBjNDFhNzg1NiU0MDIxOC4xOTAuMjMwLjIwNyUzQTQxMjg4JTNGc2VjdXJpdHklM0R0bHMlMjZzbmklM0RoazEyLmJpbGliaWxpLmNvbSUyNmFsbG93SW5zZWN1cmUlM0QxJTI2dHlwZSUzRHRjcCUyNmhlYWRlclR5cGUlM0Rub25lJTIzSEsKc3MlM0ElMkYlMkZZMmhoWTJoaE1qQXRhV1YwWmkxd2IyeDVNVE13TlRveVJYUlFjVzQyU0ZscVZVNWpTRzlvVEdaVmNFWlJkMjVtYWtORFVUVnRhREZ0U21SRlRVTkNkV04xVjFvNVVERjFaR3RTUzBodVZuaDFielUxYXpGTFdIb3lSbTgyYW5KbmRERTRWelkyYjNCMGVURmxOR0p0TVdwNlprTm1RbUklMjUzRCU0MDg0LjE5LjMxLjYzJTNBNTA4NDElMjNERQoKCiVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNyVBNCVCQSVFNCVCRSU4QiVFRiVCQyU4OCVFNCVCOCU4MCVFOCVBMSU4QyVFNCVCOCU4MCVFNiU5RCVBMSVFOCVBRSVBMiVFOSU5OCU4NSVFOSU5MyVCRSVFNiU4RSVBNSVFNSU4RCVCMyVFNSU4RiVBRiVFRiVCQyU4OSVFRiVCQyU5QQpodHRwcyUzQSUyRiUyRnN1Yi54Zi5mcmVlLmhyJTJGYXV0bw=='))}"
 							id="content">${content}</textarea>
@@ -1583,1197 +662,162 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							<span class="save-status" id="saveStatus"></span>
 						</div>
 						` : '<p>请绑定 <strong>变量名称</strong> 为 <strong>KV</strong> 的KV命名空间</p>'}
-				</div>
-				
-				<!-- 页面底部信息 -->
-				<div class="footer-info" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #6c757d; font-size: 0.9rem;">
-					<p style="margin-bottom: 10px;">📱 <strong>Telegram交流群:</strong> <a href="https://t.me/CMliussss" style="color: #007bff; text-decoration: none;">https://t.me/CMliussss</a></p>
-					<p style="margin-bottom: 10px;">⭐ <strong>GitHub项目:</strong> <a href="https://github.com/cmliu/CF-Workers-SUB" style="color: #007bff; text-decoration: none;">https://github.com/cmliu/CF-Workers-SUB</a></p>
-					<p style="margin: 0; font-size: 0.8rem;">User-Agent: ${request.headers.get('User-Agent')}</p>
-				</div>
+					</div>
+					<br>
+					################################################################<br>
+					${decodeURIComponent(atob('dGVsZWdyYW0lMjAlRTQlQkElQTQlRTYlQjUlODElRTclQkUlQTQlMjAlRTYlOEElODAlRTYlOUMlQUYlRTUlQTQlQTclRTQlQkQlQUMlN0UlRTUlOUMlQTglRTclQkElQkYlRTUlOEYlOTElRTclODklOEMhJTNDYnIlM0UKJTNDYSUyMGhyZWYlM0QlMjdodHRwcyUzQSUyRiUyRnQubWUlMkZDTUxpdXNzc3MlMjclM0VodHRwcyUzQSUyRiUyRnQubWUlMkZDTUxpdXNzc3MlM0MlMkZhJTNFJTNDYnIlM0UKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tJTNDYnIlM0UKZ2l0aHViJTIwJUU5JUExJUI5JUU3JTlCJUFFJUU1JTlDJUIwJUU1JTlEJTgwJTIwU3RhciFTdGFyIVN0YXIhISElM0NiciUzRQolM0NhJTIwaHJlZiUzRCUyN2h0dHBzJTNBJTJGJTJGZ2l0aHViLmNvbSUyRmNtbGl1JTJGQ0YtV29ya2Vycy1TVUIlMjclM0VodHRwcyUzQSUyRiUyRmdpdGh1Yi5jb20lMkZjbWxpdSUyRkNGLVdvcmtlcnMtU1VCJTNDJTJGYSUzRSUzQ2JyJTNFCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSUzQ2JyJTNFCiUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMyUyMw=='))}
+					<br><br>UA: <strong>${request.headers.get('User-Agent')}</strong>
 					<script>
-// 全局函数定义 - 确保在DOM加载前就定义好所有函数
-
-// 二维码和复制功能
-function copyToClipboard(text, qrcode) {
-	navigator.clipboard.writeText(text).then(() => {
-		alert('已复制到剪贴板');
-	}).catch(err => {
-		console.error('复制失败:', err);
-	});
-	const qrcodeDiv = document.getElementById(qrcode);
-	qrcodeDiv.innerHTML = '';
-	new QRCode(qrcodeDiv, {
-		text: text,
-		width: 220,
-		height: 220,
-		colorDark: "#000000",
-		colorLight: "#ffffff",
-		correctLevel: QRCode.CorrectLevel.Q,
-		scale: 1
-	});
-}
-
-// 切换通知显示
-function toggleNotice() {
-	const noticeContent = document.getElementById('noticeContent');
-	const toggleBtn = document.getElementById('noticeToggle');
-	if (noticeContent.style.display === 'none') {
-		noticeContent.style.display = 'block';
-		toggleBtn.textContent = '隐藏访客订阅 ∧';
-	} else {
-		noticeContent.style.display = 'none';
-		toggleBtn.textContent = '查看访客订阅 ∨';
-	}
-}
-
-// 添加链接功能
-function addLink() {
-	const name = prompt('请输入链接名称:');
-	if (!name) return;
-	
-	const url = prompt('请输入链接地址:');
-	if (!url) return;
-	
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	const existingLink = savedLinks.find(link => link.name === name);
-	
-	if (existingLink) {
-		if (confirm('链接名称已存在，是否覆盖？')) {
-			existingLink.url = url;
-			existingLink.timestamp = new Date().toISOString();
-		} else {
-			return;
-		}
-	} else {
-		savedLinks.push({
-			name: name,
-			url: url,
-			timestamp: new Date().toISOString()
-		});
-	}
-	
-	localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
-	displaySavedLinks();
-	alert('链接已保存');
-}
-
-// 导出链接功能
-function exportLinks() {
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	if (savedLinks.length === 0) {
-		alert('没有保存的链接');
-		return;
-	}
-	
-	const exportData = {
-		version: '1.0',
-		exportTime: new Date().toISOString(),
-		links: savedLinks
-	};
-	
-	const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = 'saved-links-' + new Date().toISOString().split('T')[0] + '.json';
-	a.click();
-	URL.revokeObjectURL(url);
-}
-
-// 导入链接功能
-function importLinks() {
-	const input = document.createElement('input');
-	input.type = 'file';
-	input.accept = '.json';
-	input.onchange = function(e) {
-		const file = e.target.files[0];
-		if (!file) return;
+					function copyToClipboard(text, qrcode) {
+						navigator.clipboard.writeText(text).then(() => {
+							alert('已复制到剪贴板');
+						}).catch(err => {
+							console.error('复制失败:', err);
+						});
+						const qrcodeDiv = document.getElementById(qrcode);
+						qrcodeDiv.innerHTML = '';
+						new QRCode(qrcodeDiv, {
+							text: text,
+							width: 220, // 调整宽度
+							height: 220, // 调整高度
+							colorDark: "#000000", // 二维码颜色
+							colorLight: "#ffffff", // 背景颜色
+							correctLevel: QRCode.CorrectLevel.Q, // 设置纠错级别
+							scale: 1 // 调整像素颗粒度
+						});
+					}
+						
+					if (document.querySelector('.editor')) {
+						let timer;
+						const textarea = document.getElementById('content');
+						const originalContent = textarea.value;
 		
-		const reader = new FileReader();
-		reader.onload = function(e) {
-			try {
-				const importData = JSON.parse(e.target.result);
-				const importedLinks = importData.links || [];
-				
-				if (!Array.isArray(importedLinks)) {
-					alert('文件格式错误');
-					return;
-				}
-				
-				const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-				let addedCount = 0;
-				
-				importedLinks.forEach(link => {
-					if (link.name && link.url) {
-						const existingIndex = savedLinks.findIndex(existing => existing.name === link.name);
-						if (existingIndex >= 0) {
-							savedLinks[existingIndex] = link;
+						function goBack() {
+							const currentUrl = window.location.href;
+							const parentUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+							window.location.href = parentUrl;
+						}
+		
+						function replaceFullwidthColon() {
+							const text = textarea.value;
+							textarea.value = text.replace(/：/g, ':');
+						}
+						
+						function saveContent(button) {
+							try {
+								const updateButtonText = (step) => {
+									button.textContent = \`保存中: \${step}\`;
+								};
+								// 检测是否为iOS设备
+								const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+								
+								// 仅在非iOS设备上执行replaceFullwidthColon
+								if (!isIOS) {
+									replaceFullwidthColon();
+								}
+								updateButtonText('开始保存');
+								button.disabled = true;
+
+								// 获取textarea内容和原始内容
+								const textarea = document.getElementById('content');
+								if (!textarea) {
+									throw new Error('找不到文本编辑区域');
+								}
+
+								updateButtonText('获取内容');
+								let newContent;
+								let originalContent;
+								try {
+									newContent = textarea.value || '';
+									originalContent = textarea.defaultValue || '';
+								} catch (e) {
+									console.error('获取内容错误:', e);
+									throw new Error('无法获取编辑内容');
+								}
+
+								updateButtonText('准备状态更新函数');
+								const updateStatus = (message, isError = false) => {
+									const statusElem = document.getElementById('saveStatus');
+									if (statusElem) {
+										statusElem.textContent = message;
+										statusElem.style.color = isError ? 'red' : '#666';
+									}
+								};
+
+								updateButtonText('准备按钮重置函数');
+								const resetButton = () => {
+									button.textContent = '保存';
+									button.disabled = false;
+								};
+
+								if (newContent !== originalContent) {
+									updateButtonText('发送保存请求');
+									fetch(window.location.href, {
+										method: 'POST',
+										body: newContent,
+										headers: {
+											'Content-Type': 'text/plain;charset=UTF-8'
+										},
+										cache: 'no-cache'
+									})
+									.then(response => {
+										updateButtonText('检查响应状态');
+										if (!response.ok) {
+											throw new Error(\`HTTP error! status: \${response.status}\`);
+										}
+										updateButtonText('更新保存状态');
+										const now = new Date().toLocaleString();
+										document.title = \`编辑已保存 \${now}\`;
+										updateStatus(\`已保存 \${now}\`);
+									})
+									.catch(error => {
+										updateButtonText('处理错误');
+										console.error('Save error:', error);
+										updateStatus(\`保存失败: \${error.message}\`, true);
+									})
+									.finally(() => {
+										resetButton();
+									});
+								} else {
+									updateButtonText('检查内容变化');
+									updateStatus('内容未变化');
+									resetButton();
+								}
+							} catch (error) {
+								console.error('保存过程出错:', error);
+								button.textContent = '保存';
+								button.disabled = false;
+								const statusElem = document.getElementById('saveStatus');
+								if (statusElem) {
+									statusElem.textContent = \`错误: \${error.message}\`;
+									statusElem.style.color = 'red';
+								}
+							}
+						}
+		
+						textarea.addEventListener('blur', saveContent);
+						textarea.addEventListener('input', () => {
+							clearTimeout(timer);
+							timer = setTimeout(saveContent, 5000);
+						});
+					}
+
+					function toggleNotice() {
+						const noticeContent = document.getElementById('noticeContent');
+						const noticeToggle = document.getElementById('noticeToggle');
+						if (noticeContent.style.display === 'none' || noticeContent.style.display === '') {
+							noticeContent.style.display = 'block';
+							noticeToggle.textContent = '隐藏访客订阅∧';
 						} else {
-							savedLinks.push(link);
-							addedCount++;
+							noticeContent.style.display = 'none';
+							noticeToggle.textContent = '查看访客订阅∨';
 						}
 					}
-				});
-				
-				localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
-				displaySavedLinks();
-				alert('成功导入 ' + importedLinks.length + ' 个链接');
-			} catch (error) {
-				alert('文件解析失败: ' + error.message);
-			}
-		};
-		reader.readAsText(file);
-	};
-	input.click();
-}
-
-// 复制链接到剪贴板
-function copyLinkToClipboard(url) {
-	navigator.clipboard.writeText(url).then(() => {
-		alert('链接已复制到剪贴板');
-	}).catch(err => {
-		console.error('复制失败:', err);
-		alert('复制失败，请手动复制');
-	});
-}
-
-// 删除链接
-function deleteLink(name) {
-	if (!confirm('确定要删除链接 "' + name + '" 吗？')) {
-		return;
-	}
-	
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	const filteredLinks = savedLinks.filter(link => link.name !== name);
-	localStorage.setItem('savedLinks', JSON.stringify(filteredLinks));
-	displaySavedLinks();
-}
-
-// 抽象函数：解析YAML格式数据
-function parseYAMLData(data) {
-	try {
-		// 尝试Base64解码
-		let decoded;
-		try {
-			decoded = atob(data);
-		} catch {
-			// 如果不是Base64，直接使用原始数据
-			decoded = data;
-		}
-		
-		let proxies = [];
-		
-		// 检查是否为Clash YAML格式
-		if (decoded.includes('proxies:') || decoded.includes('- {name:')) {
-			// 解析Clash YAML格式
-			try {
-				// 提取proxies部分
-				const proxiesMatch = decoded.match(/proxies:\\s*([\\s\\S]*?)(?=\\n\\w|$)/i);
-				if (proxiesMatch) {
-					const proxiesSection = proxiesMatch[1];
-					// 匹配每个代理配置
-					const proxyMatches = proxiesSection.match(/- \\{[^}]+\\}/g);
-					if (proxyMatches) {
-						proxies = proxyMatches.map(match => {
-							try {
-								// 移除开头的"- "并解析为对象
-								const configStr = match.replace(/^- /, '').replace(/[{}]/g, '');
-								// 手动解析键值对
-								const config = {};
-								const pairs = configStr.split(',');
-								for (const pair of pairs) {
-									const colonIndex = pair.indexOf(':');
-									if (colonIndex > 0) {
-										const key = pair.substring(0, colonIndex).trim();
-										let value = pair.substring(colonIndex + 1).trim();
-										// 处理不同类型的值
-										if (value === 'true') {
-											config[key] = true;
-										} else if (value === 'false') {
-											config[key] = false;
-										} else if (/^\\d+$/.test(value)) {
-											config[key] = parseInt(value);
-										} else {
-											config[key] = value;
-										}
-									}
-								}
-								return config;
-							} catch (e) {
-								console.warn('解析代理配置失败:', match, e);
-								return null;
-							}
-						}).filter(p => p !== null);
-					}
-				}
-			} catch (yamlError) {
-				console.warn('YAML解析失败，尝试其他格式:', yamlError);
-			}
-		}
-		
-		// 如果没有解析到Clash格式，尝试解析单行代理URL格式
-		if (proxies.length === 0) {
-			const lines = decoded.split('\\n').filter(line => line.trim());
-			proxies = lines.map(line => {
-				const proxyInfo = parseProxyUrl(line);
-				return proxyInfo;
-			}).filter(p => p !== null);
-		}
-		
-		return proxies;
-	} catch (error) {
-		throw new Error('YAML数据解析失败: ' + error.message);
-	}
-}
-
-// 抽象函数：显示节点数量信息
-function displayNodeCount(count, infoDiv, startPort) {
-	if (infoDiv) {
-		if (startPort !== undefined) {
-			infoDiv.innerHTML = \`共 \${count} 个节点，端口范围：\${startPort} - \${startPort + count - 1}\`;
-			infoDiv.style.color = '#28a745';
-		} else {
-			infoDiv.textContent = \`成功转换 \${count} 个代理配置\`;
-		}
-	}
-}
-
-// 抽象函数：生成标准Clash YAML格式配置
-function generateClashYAMLConfig(proxies, startPort) {
-	// 生成标准Clash YAML格式的配置
-	const clashProxies = proxies.map((proxy, index) => {
-		// 如果是Clash格式，直接使用
-		if (proxy.type && proxy.server) {
-			return proxy;
-		}
-		// 如果是其他格式，转换为Clash格式
-		return {
-			name: \`proxy\${index}\`,
-			...proxy
-		};
-	}).filter(p => p !== null);
-	
-	if (clashProxies.length === 0) {
-		throw new Error('未找到有效的代理配置');
-	}
-	
-	const socksConfig = {
-		'allow-lan': true,
-		dns: {
-			enable: true,
-			'enhanced-mode': 'fake-ip',
-			'fake-ip-range': '198.18.0.1/16',
-			'default-nameserver': ['114.114.114.114'],
-			nameserver: ['https://doh.pub/dns-query']
-		},
-		listeners: [],
-		proxies: clashProxies
-	};
-	
-	// 生成监听器配置
-	socksConfig.listeners = clashProxies.map((proxy, i) => ({
-		name: \`mixed\${i}\`,
-		type: 'mixed',
-		port: startPort + i,
-		proxy: proxy.name
-	}));
-	
-	// 转换为YAML字符串
-	const yamlConfig = jsyaml.dump(socksConfig);
-	
-	return {
-		yamlConfig,
-		clashProxies
-	};
-}
-
-// 抽象函数：生成复制和下载链接
-function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
-	// 复制配置文本的函数
-	const copyConfig = () => {
-		const outputYAML = document.getElementById('outputYAML');
-		let textToCopy = outputYAML ? outputYAML.value : '';
-		
-		// 如果是Base64模式或有存储的配置文本，使用存储的配置文本
-		if (yamlConfig) {
-			textToCopy = yamlConfig;
-		}
-		
-		if (!textToCopy.trim()) {
-			alert('没有可复制的内容');
-			return;
-		}
-		
-		navigator.clipboard.writeText(textToCopy).then(() => {
-			alert('配置已复制到剪贴板');
-		}).catch(err => {
-			console.error('复制失败:', err);
-			alert('复制失败，请手动复制');
-		});
-	};
-	
-	// 设置下载链接
-	const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
-	if (downloadLink) {
-		downloadLink.href = downloadData;
-		downloadLink.download = 'socks-config.yaml';
-		downloadLink.style.pointerEvents = 'auto';
-		downloadLink.style.opacity = '1';
-	}
-	
-	// 启用复制按钮并绑定事件
-	if (copyBtn) {
-		copyBtn.disabled = false;
-		copyBtn.style.opacity = '1';
-		copyBtn.onclick = copyConfig;
-	}
-	
-	// 存储配置文本用于复制（保持向后兼容）
-	window.socksConfigText = yamlConfig;
-	// 将复制函数也存储到全局，供HTML内联事件使用
-	window.copySOCKSConfig = copyConfig;
-	
-	// 如果有outputDiv，生成详细的下载和复制选项
-	if (outputDiv) {
-		const blob = new Blob([yamlConfig], {type: 'text/yaml'});
-		const downloadUrl = URL.createObjectURL(blob);
-		
-		outputDiv.innerHTML = \`
-			<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-			<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
-			<button class="copy-text-btn" onclick="window.copySOCKSConfig()">📋 复制配置文本</button>
-			<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-				<strong>使用说明：</strong><br>
-				1. 下载生成的YAML文件并导入到Clash客户端<br>
-				2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-				3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-			</div>
-		\`;
-	}
-}
-
-// 获取订阅功能
-function fetchSubscription() {
-	const urlInput = document.getElementById('subscriptionUrl');
-	const infoDiv = document.getElementById('infoDiv');
-	const outputYAML = document.getElementById('outputYAML');
-	const copyBtn = document.querySelector('.copy-text-btn');
-	const downloadLink = document.getElementById('downloadLink');
-	const startPortInput = document.getElementById('startPort');
-	const url = urlInput.value.trim();
-	
-	if (!url) {
-		alert('请输入订阅链接');
-		return;
-	}
-	
-	infoDiv.textContent = '正在获取订阅内容...';
-	
-	fetch(url)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('HTTP ' + response.status);
-			}
-			return response.text();
-		})
-		.then(data => {
-			try {
-				// 使用抽象的YAML解析函数
-				const proxies = parseYAMLData(data);
-				const startPort = parseInt(startPortInput.value) || 42000;
-				
-				if (proxies.length === 0) {
-					throw new Error('未找到有效的代理配置');
-				}
-				
-				// 使用统一的generateClashYAMLConfig函数生成配置
-				const { yamlConfig, clashProxies } = generateClashYAMLConfig(proxies, startPort);
-				
-				// 显示在输出区域
-				if (outputYAML) {
-					outputYAML.value = yamlConfig;
-				}
-				
-				// 使用抽象的节点数量显示函数
-				displayNodeCount(clashProxies.length, infoDiv);
-				
-				// 使用抽象的复制和下载链接生成函数
-				setupCopyAndDownload(yamlConfig, copyBtn, downloadLink);
-				
-			} catch (parseError) {
-				infoDiv.textContent = \`解析订阅失败: \${parseError.message}\`;
-				if (outputYAML) outputYAML.value = '';
-				if (copyBtn) {
-					copyBtn.disabled = true;
-					copyBtn.style.opacity = '0.5';
-				}
-				if (downloadLink) {
-					downloadLink.style.pointerEvents = 'none';
-					downloadLink.style.opacity = '0.5';
-				}
-			}
-		})
-		.catch(error => {
-			infoDiv.textContent = '获取订阅失败: ' + error.message;
-			if (outputYAML) outputYAML.value = '';
-			if (copyBtn) {
-				copyBtn.disabled = true;
-				copyBtn.style.opacity = '0.5';
-			}
-			if (downloadLink) {
-				downloadLink.style.pointerEvents = 'none';
-				downloadLink.style.opacity = '0.5';
-			}
-		});
-}
-
-// 处理转换功能
-function processConversion() {
-	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
-	if (mode === 'yaml') {
-		processYAMLConversion();
-	} else {
-		processBase64Conversion();
-	}
-}
-
-// 处理YAML转换
-function processYAMLConversion() {
-	const inputYAML = document.getElementById('inputYAML').value.trim();
-	const startPort = parseInt(document.getElementById('startPort').value);
-	const infoDiv = document.getElementById('infoDiv');
-	const outputYAML = document.getElementById('outputYAML');
-	const outputDiv = document.getElementById('outputDiv');
-	
-	if (!inputYAML) {
-		infoDiv.textContent = '请输入YAML配置内容';
-		infoDiv.style.color = '#dc3545';
-		return;
-	}
-	
-	try {
-		// 解析YAML
-		const yamlData = jsyaml.load(inputYAML);
-		
-		if (!yamlData || !yamlData.proxies || !Array.isArray(yamlData.proxies)) {
-			throw new Error('YAML格式错误：未找到有效的proxies数组');
-		}
-		
-		// 使用抽象的YAML解析函数处理代理数据
-		const proxies = yamlData.proxies;
-		
-		// 使用统一的generateClashYAMLConfig函数生成配置
-		const result = generateClashYAMLConfig(proxies, startPort);
-		const socksYAMLString = result.yamlConfig;
-		
-		outputYAML.value = socksYAMLString;
-		
-		// 使用抽象的节点数量显示函数
-		displayNodeCount(result.clashProxies.length, infoDiv, startPort);
-		
-		// 使用抽象的复制和下载链接生成函数
-		setupCopyAndDownload(socksYAMLString, null, null, outputDiv);
-		
-	} catch (error) {
-		console.error('转换失败:', error);
-		infoDiv.textContent = \`转换失败: \${error.message}\`;
-		infoDiv.style.color = '#dc3545';
-		outputYAML.value = '';
-		outputDiv.innerHTML = '';
-	}
-}
-
-// 处理Base64转换
-function processBase64Conversion() {
-	const base64InputElement = document.getElementById('inputBase64');
-	if (!base64InputElement) {
-		console.error('inputBase64 element not found');
-		return;
-	}
-	
-	const base64Input = base64InputElement.value?.trim();
-	const infoDiv = document.getElementById('infoDiv');
-	const outputYAML = document.getElementById('outputYAML');
-	const copyBtn = document.querySelector('.copy-text-btn');
-	const downloadLink = document.getElementById('downloadLink');
-	
-	if (!base64Input) {
-		return;
-	}
-	
-	try {
-		// 使用抽象的YAML解析函数
-		const proxies = parseYAMLData(base64Input);
-		
-		if (proxies.length === 0) {
-			throw new Error('未找到有效的代理配置');
-		}
-		
-		// 使用抽象的生成Clash YAML配置函数
-		const { yamlConfig, clashProxies } = generateClashYAMLConfig(proxies, 10000);
-		
-		// 显示在输出区域
-		if (outputYAML) {
-			outputYAML.value = yamlConfig;
-		}
-		
-		// 使用抽象的节点数量显示函数
-		displayNodeCount(clashProxies.length, infoDiv);
-		
-		// 使用抽象的复制和下载链接生成函数
-		setupCopyAndDownload(yamlConfig, copyBtn, downloadLink);
-		
-	} catch (error) {
-		if (infoDiv) infoDiv.textContent = \`转换失败: \${error.message}\`;
-		if (outputYAML) outputYAML.value = '';
-		if (copyBtn) {
-			copyBtn.disabled = true;
-			copyBtn.style.opacity = '0.5';
-		}
-		if (downloadLink) {
-			downloadLink.style.pointerEvents = 'none';
-			downloadLink.style.opacity = '0.5';
-		}
-	}
-}
-
-// 复制SOCKS配置
-// copySOCKSConfig函数已合并到setupCopyAndDownload中，通过window.copySOCKSConfig访问
-
-// 显示保存的链接
-function displaySavedLinks() {
-	const container = document.getElementById('savedLinksContainer');
-	if (!container) return;
-	
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
-	
-	if (savedLinks.length === 0) {
-		container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无保存的链接</p>';
-		return;
-	}
-	
-	container.innerHTML = savedLinks.map(link => 
-		\`<div class="saved-link-item">
-			<div class="link-info">
-				<div class="link-name">\${link.name}</div>
-				<div class="link-url">\${link.url}</div>
-				<div class="link-time">保存时间: \${new Date(link.timestamp).toLocaleString()}</div>
-			</div>
-			<div class="link-actions">
-				<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
-				<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
-			</div>
-		</div>\`).join('');
-}
-
-// 切换转换模式
-function switchConversionMode() {
-	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
-	const subscriptionInput = document.getElementById('subscriptionInput');
-	const yamlInput = document.getElementById('yamlInput');
-	const base64Input = document.getElementById('base64Input');
-	
-	if (mode === 'subscription') {
-		subscriptionInput.style.display = 'block';
-		yamlInput.style.display = 'none';
-		base64Input.style.display = 'none';
-	} else if (mode === 'yaml') {
-		subscriptionInput.style.display = 'none';
-		yamlInput.style.display = 'block';
-		base64Input.style.display = 'none';
-	} else {
-		subscriptionInput.style.display = 'none';
-		yamlInput.style.display = 'none';
-		base64Input.style.display = 'block';
-	}
-}
-
-// 解析代理URL
-function parseProxyUrl(url) {
-	try {
-		if (url.startsWith('vmess://')) {
-			// VMess协议解析
-			const decoded = atob(url.substring(8));
-			const config = JSON.parse(decoded);
-			return {
-				type: 'vmess',
-				server: config.add,
-				port: config.port,
-				uuid: config.id,
-				alterId: config.aid || 0,
-				cipher: config.scy || 'auto',
-				network: config.net || 'tcp',
-				tls: config.tls === 'tls',
-				'ws-opts': config.net === 'ws' ? {
-					path: config.path || '/',
-					headers: { Host: config.host || config.add }
-				} : undefined
-			};
-		} else if (url.startsWith('vless://')) {
-			// VLESS协议解析
-			const urlObj = new URL(url);
-			return {
-				type: 'vless',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 443,
-				uuid: urlObj.username,
-				flow: urlObj.searchParams.get('flow') || '',
-				network: urlObj.searchParams.get('type') || 'tcp',
-				tls: urlObj.searchParams.get('security') === 'tls',
-				reality: urlObj.searchParams.get('security') === 'reality',
-				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
-				'reality-opts': urlObj.searchParams.get('security') === 'reality' ? {
-					'public-key': urlObj.searchParams.get('pbk'),
-					'short-id': urlObj.searchParams.get('sid')
-				} : undefined
-			};
-		} else if (url.startsWith('ss://')) {
-			// Shadowsocks协议解析
-			const decoded = atob(url.substring(5).split('#')[0]);
-			const [method, password] = decoded.split(':');
-			const [server, port] = password.split('@')[1].split(':');
-			return {
-				type: 'shadowsocks',
-				server: server,
-				port: parseInt(port),
-				method: method,
-				password: password.split('@')[0]
-			};
-		} else if (url.startsWith('ssr://')) {
-			// ShadowsocksR协议解析
-			const decoded = atob(url.substring(6));
-			const parts = decoded.split(':');
-			if (parts.length >= 6) {
-				const [server, port, protocol, method, obfs, passwordBase64] = parts;
-				const password = atob(passwordBase64.split('/?')[0]);
-				return {
-					type: 'ssr',
-					server: server,
-					port: parseInt(port),
-					method: method,
-					password: password,
-					protocol: protocol,
-					obfs: obfs
-				};
-			}
-		} else if (url.startsWith('trojan://')) {
-			// Trojan协议解析
-			const urlObj = new URL(url);
-			return {
-				type: 'trojan',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 443,
-				password: urlObj.username,
-				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
-				'skip-cert-verify': urlObj.searchParams.get('allowInsecure') === '1',
-				network: urlObj.searchParams.get('type') || 'tcp',
-				'ws-opts': urlObj.searchParams.get('type') === 'ws' ? {
-					path: urlObj.searchParams.get('path') || '/'
-				} : undefined
-			};
-		} else if (url.startsWith('hysteria2://') || url.startsWith('hy2://')) {
-			// Hysteria2协议解析
-			const urlObj = new URL(url);
-			return {
-				type: 'hysteria2',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 443,
-				auth: urlObj.username || urlObj.searchParams.get('auth'),
-				'skip-cert-verify': urlObj.searchParams.get('insecure') === '1',
-				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
-				'up-speed': parseInt(urlObj.searchParams.get('upmbps')) || 100,
-				'down-speed': parseInt(urlObj.searchParams.get('downmbps')) || 100
-			};
-		} else if (url.startsWith('tuic://')) {
-			// TUIC协议解析
-			const urlObj = new URL(url);
-			return {
-				type: 'tuic',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 443,
-				uuid: urlObj.username,
-				password: urlObj.password,
-				version: parseInt(urlObj.searchParams.get('version')) || 5,
-				'skip-cert-verify': urlObj.searchParams.get('allow_insecure') === '1',
-				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
-				alpn: urlObj.searchParams.get('alpn') ? [urlObj.searchParams.get('alpn')] : ['h3']
-			};
-		} else if (url.startsWith('snell://')) {
-			// Snell协议解析
-			const urlObj = new URL(url);
-			return {
-				type: 'snell',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 6160,
-				psk: urlObj.username,
-				version: parseInt(urlObj.searchParams.get('version')) || 4,
-				'obfs-opts': {
-					mode: urlObj.searchParams.get('obfs') || 'http',
-					host: urlObj.searchParams.get('obfs-host') || urlObj.hostname
-				}
-			};
-		} else if (url.startsWith('http://') || url.startsWith('https://')) {
-			// HTTP/HTTPS代理解析
-			const urlObj = new URL(url);
-			return {
-				type: 'http',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || (url.startsWith('https://') ? 443 : 80),
-				username: urlObj.username || undefined,
-				password: urlObj.password || undefined,
-				tls: url.startsWith('https://')
-			};
-		} else if (url.startsWith('socks5://') || url.startsWith('socks://')) {
-			// SOCKS5代理解析
-			const urlObj = new URL(url);
-			return {
-				type: 'socks5',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 1080,
-				username: urlObj.username || undefined,
-				password: urlObj.password || undefined
-			};
-		}
-		return null;
-	} catch (error) {
-		console.error('解析代理URL失败:', error, 'URL:', url);
-		return null;
-	}
-}
-
-// 转换代理为SOCKS配置
-function convertProxyToSocks(proxyInfo, port) {
-	if (proxyInfo.type === 'vmess') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy vmess {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    uuid \${proxyInfo.uuid}
-    alter_id \${proxyInfo.alterId}
-    cipher \${proxyInfo.cipher}
-    network \${proxyInfo.network}
-  }
-}\`;
-	} else if (proxyInfo.type === 'vless') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy vless {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    uuid \${proxyInfo.uuid}
-    flow \${proxyInfo.flow || ''}
-    network \${proxyInfo.network}
-    tls \${proxyInfo.tls}
-    sni \${proxyInfo.sni}
-  }
-}\`;
-	} else if (proxyInfo.type === 'shadowsocks') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy shadowsocks {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    method \${proxyInfo.method}
-    password \${proxyInfo.password}
-  }
-}\`;
-	} else if (proxyInfo.type === 'ssr') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy ssr {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    method \${proxyInfo.method}
-    password \${proxyInfo.password}
-    protocol \${proxyInfo.protocol}
-    obfs \${proxyInfo.obfs}
-  }
-}\`;
-	} else if (proxyInfo.type === 'trojan') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy trojan {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    password \${proxyInfo.password}
-    sni \${proxyInfo.sni}
-    skip_cert_verify \${proxyInfo['skip-cert-verify'] || false}
-    network \${proxyInfo.network}
-  }
-}\`;
-	} else if (proxyInfo.type === 'hysteria2') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy hysteria2 {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    auth \${proxyInfo.auth}
-    sni \${proxyInfo.sni}
-    skip_cert_verify \${proxyInfo['skip-cert-verify'] || false}
-    up_speed \${proxyInfo['up-speed']}mbps
-    down_speed \${proxyInfo['down-speed']}mbps
-  }
-}\`;
-	} else if (proxyInfo.type === 'tuic') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy tuic {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    uuid \${proxyInfo.uuid}
-    password \${proxyInfo.password}
-    version \${proxyInfo.version}
-    sni \${proxyInfo.sni}
-    skip_cert_verify \${proxyInfo['skip-cert-verify'] || false}
-  }
-}\`;
-	} else if (proxyInfo.type === 'snell') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy snell {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    psk \${proxyInfo.psk}
-    version \${proxyInfo.version}
-    obfs_mode \${proxyInfo['obfs-opts']?.mode || 'http'}
-    obfs_host \${proxyInfo['obfs-opts']?.host || proxyInfo.server}
-  }
-}\`;
-	} else if (proxyInfo.type === 'http') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy http {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    username \${proxyInfo.username || ''}
-    password \${proxyInfo.password || ''}
-    tls \${proxyInfo.tls}
-  }
-}\`;
-	} else if (proxyInfo.type === 'socks5') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy socks5 {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    username \${proxyInfo.username || ''}
-    password \${proxyInfo.password || ''}
-  }
-}\`;
-	}
-	return null;
-}
-
-// 文件拖拽功能
-function setupFileDrop() {
-	// 文件处理配置
-	const fileConfigs = [
-		{
-			elementId: 'yamlInput',
-			highlightColor: '#f0f8ff',
-			borderColor: null,
-			validateFile: () => true,
-			onFileLoad: (content, element) => {
-				element.value = content;
-			}
-		},
-		{
-			elementId: 'inputYAML',
-			highlightColor: '#f8f9ff',
-			borderColor: '#667eea',
-			validateFile: (file) => {
-				return file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml');
-			},
-			onFileLoad: (content, element) => {
-				element.value = content;
-				document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-				switchConversionMode();
-			},
-			onInvalidFile: () => {
-				alert('请拖拽YAML文件（.yaml或.yml格式）');
-			}
-		}
-	];
-	
-	// 批量设置拖拽功能
-	fileConfigs.forEach(config => {
-		const element = document.getElementById(config.elementId);
-		if (element) {
-			setupElementDrop(element, {
-				highlightColor: config.highlightColor,
-				borderColor: config.borderColor,
-				validateFile: config.validateFile,
-				onFileLoad: (content) => config.onFileLoad(content, element),
-				onInvalidFile: config.onInvalidFile
-			});
-		}
-	});
-	
-	// 设置文件上传按钮事件（复用inputYAML的配置）
-	const yamlFileInput = document.getElementById('yamlFileInput');
-	const inputYAML = document.getElementById('inputYAML');
-	if (yamlFileInput && inputYAML) {
-		const yamlConfig = fileConfigs.find(config => config.elementId === 'inputYAML');
-		yamlFileInput.addEventListener('change', (e) => {
-			const file = e.target.files[0];
-			if (file) {
-				if (yamlConfig.validateFile(file)) {
-					const reader = new FileReader();
-					reader.onload = (event) => {
-						yamlConfig.onFileLoad(event.target.result, inputYAML);
-					};
-					reader.readAsText(file);
-				} else {
-					alert('请选择YAML文件（.yaml或.yml格式）');
-				}
-				// 清空文件输入，允许重复选择同一文件
-				e.target.value = '';
-			}
-		});
-	}
-}
-
-// 通用的元素拖拽设置函数
-function setupElementDrop(element, options) {
-	const {
-		highlightColor,
-		borderColor,
-		validateFile,
-		onFileLoad,
-		onInvalidFile
-	} = options;
-	
-	// 阻止默认行为
-	function preventDefaults(e) {
-		e.preventDefault();
-		e.stopPropagation();
-	}
-	
-	// 高亮显示
-	function highlight() {
-		if (highlightColor) {
-			element.style.backgroundColor = highlightColor;
-		}
-		if (borderColor) {
-			element.style.borderColor = borderColor;
-		}
-	}
-	
-	// 取消高亮
-	function unhighlight() {
-		element.style.backgroundColor = '';
-		if (borderColor) {
-			element.style.borderColor = '#e0e0e0';
-		}
-	}
-	
-	// 处理文件拖拽
-	function handleDrop(e) {
-		preventDefaults(e);
-		unhighlight();
-		
-		const files = e.dataTransfer.files;
-		if (files.length > 0) {
-			const file = files[0];
-			if (validateFile(file)) {
-				const reader = new FileReader();
-				reader.onload = (event) => {
-					onFileLoad(event.target.result);
-				};
-				reader.readAsText(file);
-			} else if (onInvalidFile) {
-				onInvalidFile();
-			}
-		}
-	}
-	
-	// 绑定事件
-	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-		element.addEventListener(eventName, preventDefaults, false);
-	});
-	
-	['dragenter', 'dragover'].forEach(eventName => {
-		element.addEventListener(eventName, highlight, false);
-	});
-	
-	['dragleave', 'drop'].forEach(eventName => {
-		element.addEventListener(eventName, unhighlight, false);
-	});
-	
-	element.addEventListener('drop', handleDrop, false);
-}
-
-// 编辑器相关功能 - 只在编辑器页面加载
-
-// 编辑器相关功能
-if (document.querySelector('.editor')) {
-	let timer;
-	const textarea = document.getElementById('content');
-	const originalContent = textarea.value;
-
-	function goBack() {
-		const currentUrl = window.location.href;
-		const parentUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-		window.location.href = parentUrl;
-	}
-
-	function replaceFullwidthColon() {
-		const text = textarea.value;
-		textarea.value = text.replace(/：/g, ':');
-	}
-	
-	function saveContent(button) {
-		try {
-			// 验证button参数
-			if (!button) {
-				console.error('saveContent: button参数未定义');
-				return;
-			}
 			
-			const updateButtonText = (step) => {
-				if (button && button.textContent !== undefined) {
-					button.textContent = '保存中: ' + step;
-				}
-			};
-			
-			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-			
-			if (!isIOS) {
-				replaceFullwidthColon();
-			}
-			updateButtonText('开始保存');
-			if (button) {
-				button.disabled = true;
-			}
-
-			const textarea = document.getElementById('content');
-			if (!textarea) {
-				throw new Error('找不到文本编辑区域');
-			}
-
-			updateButtonText('获取内容');
-			let newContent;
-			let originalContent;
-			try {
-				newContent = textarea.value || '';
-				originalContent = textarea.defaultValue || '';
-			} catch (e) {
-				console.error('获取内容错误:', e);
-				throw new Error('无法获取编辑内容');
-			}
-
-			updateButtonText('准备状态更新函数');
-			const updateStatus = (message, isError = false) => {
-				const statusElem = document.getElementById('saveStatus');
-				if (statusElem) {
-					statusElem.textContent = message;
-					statusElem.style.color = isError ? 'red' : '#666';
-				}
-			};
-
-			updateButtonText('准备按钮重置函数');
-			const resetButton = () => {
-				if (button) {
-					button.textContent = '保存';
-					button.disabled = false;
-				}
-			};
-
-			if (newContent !== originalContent) {
-				updateButtonText('发送保存请求');
-				fetch(window.location.href, {
-					method: 'POST',
-					body: newContent,
-					headers: {
-						'Content-Type': 'text/plain;charset=UTF-8'
-					},
-					cache: 'no-cache'
-				})
-				.then(response => {
-					updateButtonText('检查响应状态');
-					if (!response.ok) {
-						throw new Error('HTTP error! status: ' + response.status);
-					}
-					updateButtonText('更新保存状态');
-					const now = new Date().toLocaleString();
-					document.title = '编辑已保存 ' + now;
-					updateStatus('已保存 ' + now);
-				})
-				.catch(error => {
-					updateButtonText('处理错误');
-					console.error('Save error:', error);
-					updateStatus('保存失败: ' + error.message, true);
-				})
-				.finally(() => {
-					resetButton();
-				});
-			} else {
-				updateButtonText('检查内容变化');
-				updateStatus('内容未变化');
-				resetButton();
-			}
-		} catch (error) {
-			console.error('保存过程出错:', error);
-			if (button) {
-				button.textContent = '保存';
-				button.disabled = false;
-			}
-			const statusElem = document.getElementById('saveStatus');
-			if (statusElem) {
-				statusElem.textContent = '错误: ' + error.message;
-				statusElem.style.color = 'red';
-			}
-		}
-	}
-
-	textarea.addEventListener('blur', saveContent);
-	textarea.addEventListener('input', () => {
-		clearTimeout(timer);
-		timer = setTimeout(saveContent, 5000);
-	});
-}
-
-
-
-
-
-
-
-
-
-
-
-// setupFileDrop函数已合并到上面的统一实现中
-
-// 初始化函数
-document.addEventListener('DOMContentLoaded', () => {
-	const noticeContent = document.getElementById('noticeContent');
-	if (noticeContent) {
-		noticeContent.style.display = 'none';
-	}
-	
-	displaySavedLinks();
-	
-	const modeRadios = document.querySelectorAll('input[name="conversionMode"]');
-	modeRadios.forEach(radio => {
-		radio.addEventListener('change', switchConversionMode);
-	});
-	
-	switchConversionMode();
-	setupFileDrop();
-});
+					// 初始化 noticeContent 的 display 属性
+					document.addEventListener('DOMContentLoaded', () => {
+						document.getElementById('noticeContent').style.display = 'none';
+					});
 					</script>
 				</body>
 			</html>
@@ -2784,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	} catch (error) {
 		console.error('处理请求时发生错误:', error);
-		return new Response('服务器错误: ' + error.message, {
+		return new Response("服务器错误: " + error.message, {
 			status: 500,
 			headers: { "Content-Type": "text/plain;charset=utf-8" }
 		});
