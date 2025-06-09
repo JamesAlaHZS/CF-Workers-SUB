@@ -2478,49 +2478,141 @@ function convertProxyToSocks(proxyInfo, port) {
 
 // 文件拖拽功能
 function setupFileDrop() {
-	const yamlInput = document.getElementById('yamlInput');
-	if (!yamlInput) return;
+	// 文件处理配置
+	const fileConfigs = [
+		{
+			elementId: 'yamlInput',
+			highlightColor: '#f0f8ff',
+			borderColor: null,
+			validateFile: () => true,
+			onFileLoad: (content, element) => {
+				element.value = content;
+			}
+		},
+		{
+			elementId: 'inputYAML',
+			highlightColor: '#f8f9ff',
+			borderColor: '#667eea',
+			validateFile: (file) => {
+				return file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml');
+			},
+			onFileLoad: (content, element) => {
+				element.value = content;
+				document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
+				switchConversionMode();
+			},
+			onInvalidFile: () => {
+				alert('请拖拽YAML文件（.yaml或.yml格式）');
+			}
+		}
+	];
 	
-	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-		yamlInput.addEventListener(eventName, preventDefaults, false);
+	// 批量设置拖拽功能
+	fileConfigs.forEach(config => {
+		const element = document.getElementById(config.elementId);
+		if (element) {
+			setupElementDrop(element, {
+				highlightColor: config.highlightColor,
+				borderColor: config.borderColor,
+				validateFile: config.validateFile,
+				onFileLoad: (content) => config.onFileLoad(content, element),
+				onInvalidFile: config.onInvalidFile
+			});
+		}
 	});
 	
+	// 设置文件上传按钮事件（复用inputYAML的配置）
+	const yamlFileInput = document.getElementById('yamlFileInput');
+	const inputYAML = document.getElementById('inputYAML');
+	if (yamlFileInput && inputYAML) {
+		const yamlConfig = fileConfigs.find(config => config.elementId === 'inputYAML');
+		yamlFileInput.addEventListener('change', (e) => {
+			const file = e.target.files[0];
+			if (file) {
+				if (yamlConfig.validateFile(file)) {
+					const reader = new FileReader();
+					reader.onload = (event) => {
+						yamlConfig.onFileLoad(event.target.result, inputYAML);
+					};
+					reader.readAsText(file);
+				} else {
+					alert('请选择YAML文件（.yaml或.yml格式）');
+				}
+				// 清空文件输入，允许重复选择同一文件
+				e.target.value = '';
+			}
+		});
+	}
+}
+
+// 通用的元素拖拽设置函数
+function setupElementDrop(element, options) {
+	const {
+		highlightColor,
+		borderColor,
+		validateFile,
+		onFileLoad,
+		onInvalidFile
+	} = options;
+	
+	// 阻止默认行为
 	function preventDefaults(e) {
 		e.preventDefault();
 		e.stopPropagation();
 	}
 	
+	// 高亮显示
+	function highlight() {
+		if (highlightColor) {
+			element.style.backgroundColor = highlightColor;
+		}
+		if (borderColor) {
+			element.style.borderColor = borderColor;
+		}
+	}
+	
+	// 取消高亮
+	function unhighlight() {
+		element.style.backgroundColor = '';
+		if (borderColor) {
+			element.style.borderColor = '#e0e0e0';
+		}
+	}
+	
+	// 处理文件拖拽
+	function handleDrop(e) {
+		preventDefaults(e);
+		unhighlight();
+		
+		const files = e.dataTransfer.files;
+		if (files.length > 0) {
+			const file = files[0];
+			if (validateFile(file)) {
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					onFileLoad(event.target.result);
+				};
+				reader.readAsText(file);
+			} else if (onInvalidFile) {
+				onInvalidFile();
+			}
+		}
+	}
+	
+	// 绑定事件
+	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+		element.addEventListener(eventName, preventDefaults, false);
+	});
+	
 	['dragenter', 'dragover'].forEach(eventName => {
-		yamlInput.addEventListener(eventName, highlight, false);
+		element.addEventListener(eventName, highlight, false);
 	});
 	
 	['dragleave', 'drop'].forEach(eventName => {
-		yamlInput.addEventListener(eventName, unhighlight, false);
+		element.addEventListener(eventName, unhighlight, false);
 	});
 	
-	function highlight(e) {
-		yamlInput.style.backgroundColor = '#f0f8ff';
-	}
-	
-	function unhighlight(e) {
-		yamlInput.style.backgroundColor = '';
-	}
-	
-	yamlInput.addEventListener('drop', handleDrop, false);
-	
-	function handleDrop(e) {
-		const dt = e.dataTransfer;
-		const files = dt.files;
-		
-		if (files.length > 0) {
-			const file = files[0];
-			const reader = new FileReader();
-			reader.onload = function(e) {
-				yamlInput.value = e.target.result;
-			};
-			reader.readAsText(file);
-		}
-	}
+	element.addEventListener('drop', handleDrop, false);
 }
 
 // 编辑器相关功能 - 只在编辑器页面加载
@@ -2653,32 +2745,17 @@ if (document.querySelector('.editor')) {
 	});
 }
 
-	// 设置文件上传按钮事件
-	const yamlFileInput = document.getElementById('yamlFileInput');
-	if (yamlFileInput) {
-		yamlFileInput.addEventListener('change', (e) => {
-			const file = e.target.files[0];
-			if (file) {
-				if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-					const reader = new FileReader();
-					reader.onload = (event) => {
-						const inputYAML = document.getElementById('inputYAML');
-						if (inputYAML) {
-							inputYAML.value = event.target.result;
-							document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-							switchConversionMode();
-						}
-					};
-					reader.readAsText(file);
-				} else {
-					alert('请选择YAML文件（.yaml或.yml格式）');
-				}
-				// 清空文件输入，允许重复选择同一文件
-				e.target.value = '';
-			}
-		});
-	}
-}
+
+
+
+
+
+
+
+
+
+
+// setupFileDrop函数已合并到上面的统一实现中
 
 // 初始化函数
 document.addEventListener('DOMContentLoaded', () => {
