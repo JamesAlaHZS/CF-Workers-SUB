@@ -674,7 +674,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							padding: 15px;
 							background: white;
 							border-radius: 8px;
-							display: none;
+							display: block;
 						}
 						
 						.guest-section {
@@ -1612,6 +1612,8 @@ function copyToClipboard(text, qrcode) {
 		correctLevel: QRCode.CorrectLevel.Q,
 		scale: 1
 	});
+	// 显示二维码容器
+	qrcodeDiv.style.display = \`block\`;
 }
 
 // 切换通知显示
