@@ -1,5 +1,4 @@
 
-// 部署完成后在网址后面加上这个，获取自建节点和机场聚合节点，/?token=auto或/auto或
 
 let mytoken = 'auto';
 let guestToken = ''; //可以随便取，或者uuid生成，https://1024tools.com/uuid
@@ -1597,18 +1596,18 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 // 二维码和复制功能
 function copyToClipboard(text, qrcode) {
 	navigator.clipboard.writeText(text).then(() => {
-		alert('已复制到剪贴板');
+		alert(\`已复制到剪贴板\`);
 	}).catch(err => {
-		console.error('复制失败:', err);
+		console.error(\`复制失败:\`, err);
 	});
 	const qrcodeDiv = document.getElementById(qrcode);
-	qrcodeDiv.innerHTML = '';
+	qrcodeDiv.innerHTML = \`\`;
 	new QRCode(qrcodeDiv, {
 		text: text,
 		width: 220,
 		height: 220,
-		colorDark: "#000000",
-		colorLight: "#ffffff",
+		colorDark: \`#000000\`,
+		colorLight: \`#ffffff\`,
 		correctLevel: QRCode.CorrectLevel.Q,
 		scale: 1
 	});
@@ -1616,30 +1615,30 @@ function copyToClipboard(text, qrcode) {
 
 // 切换通知显示
 function toggleNotice() {
-	const noticeContent = document.getElementById('noticeContent');
-	const toggleBtn = document.getElementById('noticeToggle');
-	if (noticeContent.style.display === 'none') {
-		noticeContent.style.display = 'block';
-		toggleBtn.textContent = '隐藏访客订阅 ∧';
+	const noticeContent = document.getElementById(\`noticeContent\`);
+	const toggleBtn = document.getElementById(\`noticeToggle\`);
+	if (noticeContent.style.display === \`none\`) {
+		noticeContent.style.display = \`block\`;
+		toggleBtn.textContent = \`隐藏访客订阅 ∧\`;
 	} else {
-		noticeContent.style.display = 'none';
-		toggleBtn.textContent = '查看访客订阅 ∨';
+		noticeContent.style.display = \`none\`;
+		toggleBtn.textContent = \`查看访客订阅 ∨\`;
 	}
 }
 
 // 添加链接功能
 function addLink() {
-	const name = prompt('请输入链接名称:');
+	const name = prompt(\`请输入链接名称:\`);
 	if (!name) return;
 	
-	const url = prompt('请输入链接地址:');
+	const url = prompt(\`请输入链接地址:\`);
 	if (!url) return;
 	
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
 	const existingLink = savedLinks.find(link => link.name === name);
 	
 	if (existingLink) {
-		if (confirm('链接名称已存在，是否覆盖？')) {
+		if (confirm(\`链接名称已存在，是否覆盖？\`)) {
 			existingLink.url = url;
 			existingLink.timestamp = new Date().toISOString();
 		} else {
@@ -1653,39 +1652,39 @@ function addLink() {
 		});
 	}
 	
-	localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+	localStorage.setItem(\`savedLinks\`, JSON.stringify(savedLinks));
 	displaySavedLinks();
-	alert('链接已保存');
+	alert(\`链接已保存\`);
 }
 
 // 导出链接功能
 function exportLinks() {
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
 	if (savedLinks.length === 0) {
-		alert('没有保存的链接');
+		alert(\`没有保存的链接\`);
 		return;
 	}
 	
 	const exportData = {
-		version: '1.0',
+		version: \`1.0\`,
 		exportTime: new Date().toISOString(),
 		links: savedLinks
 	};
 	
-	const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+	const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: \`application/json\` });
 	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
+	const a = document.createElement(\`a\`);
 	a.href = url;
-	a.download = 'saved-links-' + new Date().toISOString().split('T')[0] + '.json';
+	a.download = \`saved-links-\` + new Date().toISOString().split(\`T\`)[0] + \`.json\`;
 	a.click();
 	URL.revokeObjectURL(url);
 }
 
 // 导入链接功能
 function importLinks() {
-	const input = document.createElement('input');
-	input.type = 'file';
-	input.accept = '.json';
+	const input = document.createElement(\`input\`);
+	input.type = \`file\`;
+	input.accept = \`.json\`;
 	input.onchange = function(e) {
 		const file = e.target.files[0];
 		if (!file) return;
@@ -1697,11 +1696,11 @@ function importLinks() {
 				const importedLinks = importData.links || [];
 				
 				if (!Array.isArray(importedLinks)) {
-					alert('文件格式错误');
+					alert(\`文件格式错误\`);
 					return;
 				}
 				
-				const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+				const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
 				let addedCount = 0;
 				
 				importedLinks.forEach(link => {
@@ -1716,11 +1715,11 @@ function importLinks() {
 					}
 				});
 				
-				localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+				localStorage.setItem(\`savedLinks\`, JSON.stringify(savedLinks));
 				displaySavedLinks();
-				alert('成功导入 ' + importedLinks.length + ' 个链接');
+				alert(\`成功导入 \` + importedLinks.length + \` 个链接\`);
 			} catch (error) {
-				alert('文件解析失败: ' + error.message);
+				alert(\`文件解析失败: \` + error.message);
 			}
 		};
 		reader.readAsText(file);
@@ -1731,22 +1730,22 @@ function importLinks() {
 // 复制链接到剪贴板
 function copyLinkToClipboard(url) {
 	navigator.clipboard.writeText(url).then(() => {
-		alert('链接已复制到剪贴板');
+		alert(\`链接已复制到剪贴板\`);
 	}).catch(err => {
-		console.error('复制失败:', err);
-		alert('复制失败，请手动复制');
+		console.error(\`复制失败:\`, err);
+		alert(\`复制失败，请手动复制\`);
 	});
 }
 
 // 删除链接
 function deleteLink(name) {
-	if (!confirm('确定要删除链接 "' + name + '" 吗？')) {
+	if (!confirm(\`确定要删除链接 "\` + name + \`" 吗？\`)) {
 		return;
 	}
 	
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
 	const filteredLinks = savedLinks.filter(link => link.name !== name);
-	localStorage.setItem('savedLinks', JSON.stringify(filteredLinks));
+	localStorage.setItem(\`savedLinks\`, JSON.stringify(filteredLinks));
 	displaySavedLinks();
 }
 
@@ -1765,7 +1764,7 @@ function parseYAMLData(data) {
 		let proxies = [];
 		
 		// 检查是否为Clash YAML格式
-		if (decoded.includes('proxies:') || decoded.includes('- {name:')) {
+		if (decoded.includes(\`proxies:\`) || decoded.includes(\`- {name:\`)) {
 			// 解析Clash YAML格式
 			try {
 				// 提取proxies部分
@@ -1777,20 +1776,20 @@ function parseYAMLData(data) {
 					if (proxyMatches) {
 						proxies = proxyMatches.map(match => {
 							try {
-								// 移除开头的"- "并解析为对象
-								const configStr = match.replace(/^- /, '').replace(/[{}]/g, '');
+								// 移除开头的\`- \`并解析为对象
+								const configStr = match.replace(/^- /, \`\`).replace(/[{}]/g, \`\`);
 								// 手动解析键值对
 								const config = {};
-								const pairs = configStr.split(',');
+								const pairs = configStr.split(\`,\`);
 								for (const pair of pairs) {
-									const colonIndex = pair.indexOf(':');
+									const colonIndex = pair.indexOf(\`:\`);
 									if (colonIndex > 0) {
 										const key = pair.substring(0, colonIndex).trim();
 										let value = pair.substring(colonIndex + 1).trim();
 										// 处理不同类型的值
-										if (value === 'true') {
+										if (value === \`true\`) {
 											config[key] = true;
-										} else if (value === 'false') {
+										} else if (value === \`false\`) {
 											config[key] = false;
 										} else if (/^\\d+$/.test(value)) {
 											config[key] = parseInt(value);
@@ -1801,20 +1800,20 @@ function parseYAMLData(data) {
 								}
 								return config;
 							} catch (e) {
-								console.warn('解析代理配置失败:', match, e);
+								console.warn(\`解析代理配置失败:\`, match, e);
 								return null;
 							}
 						}).filter(p => p !== null);
 					}
 				}
 			} catch (yamlError) {
-				console.warn('YAML解析失败，尝试其他格式:', yamlError);
+				console.warn(\`YAML解析失败，尝试其他格式:\`, yamlError);
 			}
 		}
 		
 		// 如果没有解析到Clash格式，尝试解析单行代理URL格式
 		if (proxies.length === 0) {
-			const lines = decoded.split('\\n').filter(line => line.trim());
+			const lines = decoded.split(\`\\n\`).filter(line => line.trim());
 			proxies = lines.map(line => {
 				const proxyInfo = parseProxyUrl(line);
 				return proxyInfo;
@@ -1823,7 +1822,7 @@ function parseYAMLData(data) {
 		
 		return proxies;
 	} catch (error) {
-		throw new Error('YAML数据解析失败: ' + error.message);
+		throw new Error(\`YAML数据解析失败: \` + error.message);
 	}
 }
 
@@ -1832,7 +1831,7 @@ function displayNodeCount(count, infoDiv, startPort) {
 	if (infoDiv) {
 		if (startPort !== undefined) {
 			infoDiv.innerHTML = \`共 \${count} 个节点，端口范围：\${startPort} - \${startPort + count - 1}\`;
-			infoDiv.style.color = '#28a745';
+			infoDiv.style.color = \`#28a745\`;
 		} else {
 			infoDiv.textContent = \`成功转换 \${count} 个代理配置\`;
 		}
@@ -1855,17 +1854,17 @@ function generateClashYAMLConfig(proxies, startPort) {
 	}).filter(p => p !== null);
 	
 	if (clashProxies.length === 0) {
-		throw new Error('未找到有效的代理配置');
+		throw new Error(\`未找到有效的代理配置\`);
 	}
 	
 	const socksConfig = {
-		'allow-lan': true,
+		\`allow-lan\`: true,
 		dns: {
 			enable: true,
-			'enhanced-mode': 'fake-ip',
-			'fake-ip-range': '198.18.0.1/16',
-			'default-nameserver': ['114.114.114.114'],
-			nameserver: ['https://doh.pub/dns-query']
+			\`enhanced-mode\`: \`fake-ip\`,
+			\`fake-ip-range\`: \`198.18.0.1/16\`,
+			\`default-nameserver\`: [\`114.114.114.114\`],
+			nameserver: [\`https://doh.pub/dns-query\`]
 		},
 		listeners: [],
 		proxies: clashProxies
@@ -1874,7 +1873,7 @@ function generateClashYAMLConfig(proxies, startPort) {
 	// 生成监听器配置
 	socksConfig.listeners = clashProxies.map((proxy, i) => ({
 		name: \`mixed\${i}\`,
-		type: 'mixed',
+		type: \`mixed\`,
 		port: startPort + i,
 		proxy: proxy.name
 	}));
@@ -1892,8 +1891,8 @@ function generateClashYAMLConfig(proxies, startPort) {
 function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
 	// 复制配置文本的函数
 	const copyConfig = () => {
-		const outputYAML = document.getElementById('outputYAML');
-		let textToCopy = outputYAML ? outputYAML.value : '';
+		const outputYAML = document.getElementById(\`outputYAML\`);
+		let textToCopy = outputYAML ? outputYAML.value : \`\`;
 		
 		// 如果是Base64模式或有存储的配置文本，使用存储的配置文本
 		if (yamlConfig) {
@@ -1901,15 +1900,15 @@ function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
 		}
 		
 		if (!textToCopy.trim()) {
-			alert('没有可复制的内容');
+			alert(\`没有可复制的内容\`);
 			return;
 		}
 		
 		navigator.clipboard.writeText(textToCopy).then(() => {
-			alert('配置已复制到剪贴板');
+			alert(\`配置已复制到剪贴板\`);
 		}).catch(err => {
-			console.error('复制失败:', err);
-			alert('复制失败，请手动复制');
+			console.error(\`复制失败:\`, err);
+			alert(\`复制失败，请手动复制\`);
 		});
 	};
 	
@@ -1917,15 +1916,15 @@ function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
 	const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
 	if (downloadLink) {
 		downloadLink.href = downloadData;
-		downloadLink.download = 'socks-config.yaml';
-		downloadLink.style.pointerEvents = 'auto';
-		downloadLink.style.opacity = '1';
+		downloadLink.download = \`socks-config.yaml\`;
+		downloadLink.style.pointerEvents = \`auto\`;
+		downloadLink.style.opacity = \`1\`;
 	}
 	
 	// 启用复制按钮并绑定事件
 	if (copyBtn) {
 		copyBtn.disabled = false;
-		copyBtn.style.opacity = '1';
+		copyBtn.style.opacity = \`1\`;
 		copyBtn.onclick = copyConfig;
 	}
 	
@@ -1936,7 +1935,7 @@ function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
 	
 	// 如果有outputDiv，生成详细的下载和复制选项
 	if (outputDiv) {
-		const blob = new Blob([yamlConfig], {type: 'text/yaml'});
+		const blob = new Blob([yamlConfig], {type: \`text/yaml\`});
 		const downloadUrl = URL.createObjectURL(blob);
 		
 		outputDiv.innerHTML = \`
@@ -2143,13 +2142,13 @@ function processBase64Conversion() {
 
 // 显示保存的链接
 function displaySavedLinks() {
-	const container = document.getElementById('savedLinksContainer');
+	const container = document.getElementById(\`savedLinksContainer\`);
 	if (!container) return;
 	
-	const savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
 	
 	if (savedLinks.length === 0) {
-		container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无保存的链接</p>';
+		container.innerHTML = \`<p style="color: #666; text-align: center; padding: 20px;">暂无保存的链接</p>\`;
 		return;
 	}
 	
@@ -2164,28 +2163,28 @@ function displaySavedLinks() {
 				<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
 				<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
 			</div>
-		</div>\`).join('');
+		</div>\`).join(\`\`);
 }
 
 // 切换转换模式
 function switchConversionMode() {
-	const mode = document.querySelector('input[name="conversionMode"]:checked').value;
-	const subscriptionInput = document.getElementById('subscriptionInput');
-	const yamlInput = document.getElementById('yamlInput');
-	const base64Input = document.getElementById('base64Input');
+	const mode = document.querySelector(\`input[name="conversionMode"]:checked\`).value;
+	const subscriptionInput = document.getElementById(\`subscriptionInput\`);
+	const yamlInput = document.getElementById(\`yamlInput\`);
+	const base64Input = document.getElementById(\`base64Input\`);
 	
-	if (mode === 'subscription') {
-		subscriptionInput.style.display = 'block';
-		yamlInput.style.display = 'none';
-		base64Input.style.display = 'none';
-	} else if (mode === 'yaml') {
-		subscriptionInput.style.display = 'none';
-		yamlInput.style.display = 'block';
-		base64Input.style.display = 'none';
+	if (mode === \`subscription\`) {
+		subscriptionInput.style.display = \`block\`;
+		yamlInput.style.display = \`none\`;
+		base64Input.style.display = \`none\`;
+	} else if (mode === \`yaml\`) {
+		subscriptionInput.style.display = \`none\`;
+		yamlInput.style.display = \`block\`;
+		base64Input.style.display = \`none\`;
 	} else {
-		subscriptionInput.style.display = 'none';
-		yamlInput.style.display = 'none';
-		base64Input.style.display = 'block';
+		subscriptionInput.style.display = \`none\`;
+		yamlInput.style.display = \`none\`;
+		base64Input.style.display = \`block\`;
 	}
 }
 
