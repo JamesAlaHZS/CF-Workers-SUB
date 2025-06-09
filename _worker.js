@@ -15,7 +15,7 @@ let timestamp = 4102329600000;//2099-12-31
 let MainData = `
 https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray
 `;
-//SUBAPI.cmliussss.net
+
 let urls = [];
 let subConverter = "subapi.ala168.cn"; //在线订阅转换后端，目前使用CM的订阅转换功能。支持自建psub 可自行搭建https://github.com/bulianglin/psub
 let subConfig = "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online_MultiCountry.ini"; //订阅配置文件
@@ -1750,6 +1750,209 @@ function deleteLink(name) {
 	displaySavedLinks();
 }
 
+// 抽象函数：解析YAML格式数据
+function parseYAMLData(data) {
+	try {
+		// 尝试Base64解码
+		let decoded;
+		try {
+			decoded = atob(data);
+		} catch {
+			// 如果不是Base64，直接使用原始数据
+			decoded = data;
+		}
+		
+		let proxies = [];
+		
+		// 检查是否为Clash YAML格式
+		if (decoded.includes('proxies:') || decoded.includes('- {name:')) {
+			// 解析Clash YAML格式
+			try {
+				// 提取proxies部分
+				const proxiesMatch = decoded.match(/proxies:\\s*([\\s\\S]*?)(?=\\n\\w|$)/i);
+				if (proxiesMatch) {
+					const proxiesSection = proxiesMatch[1];
+					// 匹配每个代理配置
+					const proxyMatches = proxiesSection.match(/- \\{[^}]+\\}/g);
+					if (proxyMatches) {
+						proxies = proxyMatches.map(match => {
+							try {
+								// 移除开头的"- "并解析为对象
+								const configStr = match.replace(/^- /, '').replace(/[{}]/g, '');
+								// 手动解析键值对
+								const config = {};
+								const pairs = configStr.split(',');
+								for (const pair of pairs) {
+									const colonIndex = pair.indexOf(':');
+									if (colonIndex > 0) {
+										const key = pair.substring(0, colonIndex).trim();
+										let value = pair.substring(colonIndex + 1).trim();
+										// 处理不同类型的值
+										if (value === 'true') {
+											config[key] = true;
+										} else if (value === 'false') {
+											config[key] = false;
+										} else if (/^\\d+$/.test(value)) {
+											config[key] = parseInt(value);
+										} else {
+											config[key] = value;
+										}
+									}
+								}
+								return config;
+							} catch (e) {
+								console.warn('解析代理配置失败:', match, e);
+								return null;
+							}
+						}).filter(p => p !== null);
+					}
+				}
+			} catch (yamlError) {
+				console.warn('YAML解析失败，尝试其他格式:', yamlError);
+			}
+		}
+		
+		// 如果没有解析到Clash格式，尝试解析单行代理URL格式
+		if (proxies.length === 0) {
+			const lines = decoded.split('\\n').filter(line => line.trim());
+			proxies = lines.map(line => {
+				const proxyInfo = parseProxyUrl(line);
+				return proxyInfo;
+			}).filter(p => p !== null);
+		}
+		
+		return proxies;
+	} catch (error) {
+		throw new Error('YAML数据解析失败: ' + error.message);
+	}
+}
+
+// 抽象函数：显示节点数量信息
+function displayNodeCount(count, infoDiv, startPort) {
+	if (infoDiv) {
+		if (startPort !== undefined) {
+			infoDiv.innerHTML = \`共 \${count} 个节点，端口范围：\${startPort} - \${startPort + count - 1}\`;
+			infoDiv.style.color = '#28a745';
+		} else {
+			infoDiv.textContent = \`成功转换 \${count} 个代理配置\`;
+		}
+	}
+}
+
+// 抽象函数：生成标准Clash YAML格式配置
+function generateClashYAMLConfig(proxies, startPort) {
+	// 生成标准Clash YAML格式的配置
+	const clashProxies = proxies.map((proxy, index) => {
+		// 如果是Clash格式，直接使用
+		if (proxy.type && proxy.server) {
+			return proxy;
+		}
+		// 如果是其他格式，转换为Clash格式
+		return {
+			name: \`proxy\${index}\`,
+			...proxy
+		};
+	}).filter(p => p !== null);
+	
+	if (clashProxies.length === 0) {
+		throw new Error('未找到有效的代理配置');
+	}
+	
+	const socksConfig = {
+		'allow-lan': true,
+		dns: {
+			enable: true,
+			'enhanced-mode': 'fake-ip',
+			'fake-ip-range': '198.18.0.1/16',
+			'default-nameserver': ['114.114.114.114'],
+			nameserver: ['https://doh.pub/dns-query']
+		},
+		listeners: [],
+		proxies: clashProxies
+	};
+	
+	// 生成监听器配置
+	socksConfig.listeners = clashProxies.map((proxy, i) => ({
+		name: \`mixed\${i}\`,
+		type: 'mixed',
+		port: startPort + i,
+		proxy: proxy.name
+	}));
+	
+	// 转换为YAML字符串
+	const yamlConfig = jsyaml.dump(socksConfig);
+	
+	return {
+		yamlConfig,
+		clashProxies
+	};
+}
+
+// 抽象函数：生成复制和下载链接
+function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
+	// 复制配置文本的函数
+	const copyConfig = () => {
+		const outputYAML = document.getElementById('outputYAML');
+		let textToCopy = outputYAML ? outputYAML.value : '';
+		
+		// 如果是Base64模式或有存储的配置文本，使用存储的配置文本
+		if (yamlConfig) {
+			textToCopy = yamlConfig;
+		}
+		
+		if (!textToCopy.trim()) {
+			alert('没有可复制的内容');
+			return;
+		}
+		
+		navigator.clipboard.writeText(textToCopy).then(() => {
+			alert('配置已复制到剪贴板');
+		}).catch(err => {
+			console.error('复制失败:', err);
+			alert('复制失败，请手动复制');
+		});
+	};
+	
+	// 设置下载链接
+	const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
+	if (downloadLink) {
+		downloadLink.href = downloadData;
+		downloadLink.download = 'socks-config.yaml';
+		downloadLink.style.pointerEvents = 'auto';
+		downloadLink.style.opacity = '1';
+	}
+	
+	// 启用复制按钮并绑定事件
+	if (copyBtn) {
+		copyBtn.disabled = false;
+		copyBtn.style.opacity = '1';
+		copyBtn.onclick = copyConfig;
+	}
+	
+	// 存储配置文本用于复制（保持向后兼容）
+	window.socksConfigText = yamlConfig;
+	// 将复制函数也存储到全局，供HTML内联事件使用
+	window.copySOCKSConfig = copyConfig;
+	
+	// 如果有outputDiv，生成详细的下载和复制选项
+	if (outputDiv) {
+		const blob = new Blob([yamlConfig], {type: 'text/yaml'});
+		const downloadUrl = URL.createObjectURL(blob);
+		
+		outputDiv.innerHTML = \`
+			<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
+			<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
+			<button class="copy-text-btn" onclick="window.copySOCKSConfig()">📋 复制配置文本</button>
+			<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
+				<strong>使用说明：</strong><br>
+				1. 下载生成的YAML文件并导入到Clash客户端<br>
+				2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
+				3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
+			</div>
+		\`;
+	}
+}
+
 // 获取订阅功能
 function fetchSubscription() {
 	const urlInput = document.getElementById('subscriptionUrl');
@@ -1776,171 +1979,27 @@ function fetchSubscription() {
 		})
 		.then(data => {
 			try {
-				// 尝试Base64解码
-				let decoded;
-				try {
-					decoded = atob(data);
-				} catch {
-					// 如果不是Base64，直接使用原始数据
-					decoded = data;
-				}
-				
-				let proxies = [];
+				// 使用抽象的YAML解析函数
+				const proxies = parseYAMLData(data);
 				const startPort = parseInt(startPortInput.value) || 42000;
-				
-				// 检查是否为Clash YAML格式
-				if (decoded.includes('proxies:') || decoded.includes('- {name:')) {
-					// 解析Clash YAML格式
-					try {
-						// 提取proxies部分
-						const proxiesMatch = decoded.match(/proxies:\\s*([\\s\\S]*?)(?=\\n\\w|$)/i);
-						if (proxiesMatch) {
-							const proxiesSection = proxiesMatch[1];
-							// 匹配每个代理配置
-							const proxyMatches = proxiesSection.match(/- \\{[^}]+\\}/g);
-							if (proxyMatches) {
-								proxies = proxyMatches.map(match => {
-									try {
-										// 移除开头的"- "并解析为对象
-										const configStr = match.replace(/^- /, '').replace(/[{}]/g, '');
-										// 手动解析键值对
-										const config = {};
-										const pairs = configStr.split(',');
-										for (const pair of pairs) {
-											const colonIndex = pair.indexOf(':');
-											if (colonIndex > 0) {
-												const key = pair.substring(0, colonIndex).trim();
-												let value = pair.substring(colonIndex + 1).trim();
-												// 处理不同类型的值
-												if (value === 'true') {
-													config[key] = true;
-												} else if (value === 'false') {
-													config[key] = false;
-												} else if (/^\\d+$/.test(value)) {
-													config[key] = parseInt(value);
-												} else {
-													config[key] = value;
-												}
-											}
-										}
-										return config;
-									} catch (e) {
-										console.warn('解析代理配置失败:', match, e);
-										return null;
-									}
-								}).filter(p => p !== null);
-							}
-						}
-					} catch (yamlError) {
-						console.warn('YAML解析失败，尝试其他格式:', yamlError);
-					}
-				}
-				
-				// 如果没有解析到Clash格式，尝试解析单行代理URL格式
-				if (proxies.length === 0) {
-					const lines = decoded.split('\\n').filter(line => line.trim());
-					proxies = lines.map(line => {
-						const proxyInfo = parseProxyUrl(line);
-						return proxyInfo;
-					}).filter(p => p !== null);
-				}
 				
 				if (proxies.length === 0) {
 					throw new Error('未找到有效的代理配置');
 				}
 				
-				// 转换为SOCKS配置
-				const socksConfigs = proxies.map((proxy, index) => {
-					// 如果是Clash格式，转换为标准格式
-					let proxyInfo;
-					if (proxy.type && proxy.server) {
-						// Clash格式
-						proxyInfo = {
-							type: proxy.type,
-							server: proxy.server,
-							port: proxy.port,
-							uuid: proxy.uuid,
-							alterId: proxy.alterId || 0,
-							cipher: proxy.cipher || 'auto',
-							network: proxy.network || 'tcp',
-							password: proxy.password,
-							method: proxy.method,
-							sni: proxy.sni || proxy.server,
-							allowInsecure: proxy['skip-cert-verify'] || false
-						};
-					} else {
-						// 已经是标准格式
-						proxyInfo = proxy;
-					}
-					
-					if (proxyInfo) {
-						return convertProxyToSocks(proxyInfo, startPort + index);
-					}
-					return null;
-				}).filter(config => config !== null);
-				
-				if (socksConfigs.length === 0) {
-					throw new Error('转换SOCKS配置失败');
-				}
-				
-				// 生成标准Clash YAML格式的配置
-				const clashProxies = proxies.map((proxy, index) => {
-					// 如果是Clash格式，直接使用
-					if (proxy.type && proxy.server) {
-						return proxy;
-					}
-					// 如果是其他格式，转换为Clash格式
-					return proxy;
-				}).filter(p => p !== null);
-				
-				const socksConfig = {
-					'allow-lan': true,
-					dns: {
-						enable: true,
-						'enhanced-mode': 'fake-ip',
-						'fake-ip-range': '198.18.0.1/16',
-						'default-nameserver': ['114.114.114.114'],
-						nameserver: ['https://doh.pub/dns-query']
-					},
-					listeners: [],
-					proxies: clashProxies
-				};
-				
-				// 生成监听器配置
-				socksConfig.listeners = clashProxies.map((proxy, i) => ({
-					name: \`mixed\${i}\`,
-					type: 'mixed',
-					port: startPort + i,
-					proxy: proxy.name
-				}));
-				
-				// 转换为YAML字符串
-				const yamlConfig = jsyaml.dump(socksConfig);
+				// 使用统一的generateClashYAMLConfig函数生成配置
+				const { yamlConfig, clashProxies } = generateClashYAMLConfig(proxies, startPort);
 				
 				// 显示在输出区域
 				if (outputYAML) {
 					outputYAML.value = yamlConfig;
 				}
 				
-				// 设置下载链接
-				const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
-				if (downloadLink) {
-					downloadLink.href = downloadData;
-					downloadLink.download = 'socks-config.yaml';
-					downloadLink.style.pointerEvents = 'auto';
-					downloadLink.style.opacity = '1';
-				}
+				// 使用抽象的节点数量显示函数
+				displayNodeCount(clashProxies.length, infoDiv);
 				
-				// 启用复制按钮
-				if (copyBtn) {
-					copyBtn.disabled = false;
-					copyBtn.style.opacity = '1';
-				}
-				
-				// 存储配置文本用于复制
-				window.socksConfigText = yamlConfig;
-				
-				infoDiv.textContent = \`成功转换 \${clashProxies.length} 个代理配置\`;
+				// 使用抽象的复制和下载链接生成函数
+				setupCopyAndDownload(yamlConfig, copyBtn, downloadLink);
 				
 			} catch (parseError) {
 				infoDiv.textContent = \`解析订阅失败: \${parseError.message}\`;
@@ -2001,53 +2060,20 @@ function processYAMLConversion() {
 			throw new Error('YAML格式错误：未找到有效的proxies数组');
 		}
 		
-		const numProxies = yamlData.proxies.length;
+		// 使用抽象的YAML解析函数处理代理数据
+		const proxies = yamlData.proxies;
 		
-		// 生成SOCKS配置
-		const socksConfig = {
-			'allow-lan': true,
-			dns: {
-				enable: true,
-				'enhanced-mode': 'fake-ip',
-				'fake-ip-range': '198.18.0.1/16',
-				'default-nameserver': ['114.114.114.114'],
-				nameserver: ['https://doh.pub/dns-query']
-			},
-			listeners: [],
-			proxies: yamlData.proxies
-		};
+		// 使用统一的generateClashYAMLConfig函数生成配置
+		const result = generateClashYAMLConfig(proxies, startPort);
+		const socksYAMLString = result.yamlConfig;
 		
-		// 生成监听器配置
-		socksConfig.listeners = Array.from({length: numProxies}, (_, i) => ({
-			name: \`mixed\${i}\`,
-			type: 'mixed',
-			port: startPort + i,
-			proxy: yamlData.proxies[i].name
-		}));
-		
-		// 转换为YAML字符串
-		const socksYAMLString = jsyaml.dump(socksConfig);
 		outputYAML.value = socksYAMLString;
 		
-		// 更新信息显示
-		infoDiv.innerHTML = \`共 \${numProxies} 个节点，端口范围：\${startPort} - \${startPort + numProxies - 1}\`;
-		infoDiv.style.color = '#28a745';
+		// 使用抽象的节点数量显示函数
+		displayNodeCount(result.clashProxies.length, infoDiv, startPort);
 		
-		// 生成下载链接和复制按钮
-		const blob = new Blob([socksYAMLString], {type: 'text/yaml'});
-		const downloadUrl = URL.createObjectURL(blob);
-		
-		outputDiv.innerHTML = \`
-			<h4 style="margin-bottom: 15px; color: #495057;">📥 下载和复制选项</h4>
-			<a href="\${downloadUrl}" download="socks-config.yaml" class="download-btn">📄 下载YAML文件</a>
-			<button class="copy-text-btn" onclick="copySOCKSConfig()">📋 复制配置文本</button>
-			<div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 13px; color: #6c757d;">
-				<strong>使用说明：</strong><br>
-				1. 下载生成的YAML文件并导入到Clash客户端<br>
-				2. 启动Clash后，每个节点将在对应端口提供SOCKS5代理服务<br>
-				3. 在需要代理的应用中配置SOCKS5代理：127.0.0.1:端口号
-			</div>
-		\`;
+		// 使用抽象的复制和下载链接生成函数
+		setupCopyAndDownload(socksYAMLString, null, null, outputDiv);
 		
 	} catch (error) {
 		console.error('转换失败:', error);
@@ -2077,88 +2103,27 @@ function processBase64Conversion() {
 	}
 	
 	try {
-		const decoded = atob(base64Input);
-		const lines = decoded.split('\\n').filter(line => line.trim());
+		// 使用抽象的YAML解析函数
+		const proxies = parseYAMLData(base64Input);
 		
-		if (lines.length === 0) {
-			throw new Error('解码后未找到有效内容');
-		}
-		
-		const socksConfigs = lines.map((line, index) => {
-			const proxyInfo = parseProxyUrl(line);
-			if (proxyInfo) {
-				return convertProxyToSocks(proxyInfo, 10000 + index);
-			}
-			return null;
-		}).filter(config => config !== null);
-		
-		if (socksConfigs.length === 0) {
+		if (proxies.length === 0) {
 			throw new Error('未找到有效的代理配置');
 		}
 		
-		// 生成标准Clash YAML格式的配置
-		const clashProxies = lines.map((line, index) => {
-			const proxyInfo = parseProxyUrl(line);
-			if (proxyInfo) {
-				// 转换为Clash格式
-				return {
-					name: \`proxy\${index}\`,
-					...proxyInfo
-				};
-			}
-			return null;
-		}).filter(p => p !== null);
-		
-		if (clashProxies.length === 0) {
-			throw new Error('未找到有效的代理配置');
-		}
-		
-		const socksConfig = {
-			'allow-lan': true,
-			dns: {
-				enable: true,
-				'enhanced-mode': 'fake-ip',
-				'fake-ip-range': '198.18.0.1/16',
-				'default-nameserver': ['114.114.114.114'],
-				nameserver: ['https://doh.pub/dns-query']
-			},
-			listeners: [],
-			proxies: clashProxies
-		};
-		
-		// 生成监听器配置
-		socksConfig.listeners = clashProxies.map((proxy, i) => ({
-			name: \`mixed\${i}\`,
-			type: 'mixed',
-			port: 10000 + i,
-			proxy: proxy.name
-		}));
-		
-		// 转换为YAML字符串
-		const yamlConfig = jsyaml.dump(socksConfig);
+		// 使用抽象的生成Clash YAML配置函数
+		const { yamlConfig, clashProxies } = generateClashYAMLConfig(proxies, 10000);
 		
 		// 显示在输出区域
 		if (outputYAML) {
 			outputYAML.value = yamlConfig;
 		}
 		
-		// 设置下载链接
-		const downloadData = \`data:text/yaml;charset=utf-8,\${encodeURIComponent(yamlConfig)}\`;
-		if (downloadLink) {
-			downloadLink.href = downloadData;
-			downloadLink.download = 'socks-config.yaml';
-			downloadLink.style.pointerEvents = 'auto';
-			downloadLink.style.opacity = '1';
-		}
+		// 使用抽象的节点数量显示函数
+		displayNodeCount(clashProxies.length, infoDiv);
 		
-		if (infoDiv) infoDiv.textContent = \`成功转换 \${clashProxies.length} 个代理配置\`;
-		if (copyBtn) {
-			copyBtn.disabled = false;
-			copyBtn.style.opacity = '1';
-		}
+		// 使用抽象的复制和下载链接生成函数
+		setupCopyAndDownload(yamlConfig, copyBtn, downloadLink);
 		
-		// 存储配置文本用于复制
-		window.socksConfigText = yamlConfig;
 	} catch (error) {
 		if (infoDiv) infoDiv.textContent = \`转换失败: \${error.message}\`;
 		if (outputYAML) outputYAML.value = '';
@@ -2174,27 +2139,7 @@ function processBase64Conversion() {
 }
 
 // 复制SOCKS配置
-function copySOCKSConfig() {
-	const outputYAML = document.getElementById('outputYAML');
-	let textToCopy = outputYAML ? outputYAML.value : '';
-	
-	// 如果是Base64模式，使用存储的配置文本
-	if (window.socksConfigText) {
-		textToCopy = window.socksConfigText;
-	}
-	
-	if (!textToCopy.trim()) {
-		alert('没有可复制的内容');
-		return;
-	}
-	
-	navigator.clipboard.writeText(textToCopy).then(() => {
-		alert('配置已复制到剪贴板');
-	}).catch(err => {
-		console.error('复制失败:', err);
-		alert('复制失败，请手动复制');
-	});
-}
+// copySOCKSConfig函数已合并到setupCopyAndDownload中，通过window.copySOCKSConfig访问
 
 // 显示保存的链接
 function displaySavedLinks() {
@@ -2209,17 +2154,17 @@ function displaySavedLinks() {
 	}
 	
 	container.innerHTML = savedLinks.map(link => 
-		\'<div class="saved-link-item">' +
-		'<div class="link-info">' +
-		'<div class="link-name">' + link.name + '</div>' +
-		'<div class="link-url">' + link.url + '</div>' +
-		'<div class="link-time">保存时间: ' + new Date(link.timestamp).toLocaleString() + '</div>' +
-		'</div>' +
-		'<div class="link-actions">' +
-		'<button class="copy-link-btn" onclick="copyLinkToClipboard(\"' + link.url + '\")" title="复制链接">📋</button>' +
-		'<button class="delete-link-btn" onclick="deleteLink(\"' + link.name + '\")" >删除</button>' +
-		'</div>' +
-		'</div>\').join('');
+		\`<div class="saved-link-item">
+			<div class="link-info">
+				<div class="link-name">\${link.name}</div>
+				<div class="link-url">\${link.url}</div>
+				<div class="link-time">保存时间: \${new Date(link.timestamp).toLocaleString()}</div>
+			</div>
+			<div class="link-actions">
+				<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
+				<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
+			</div>
+		</div>\`).join('');
 }
 
 // 切换转换模式
@@ -2228,13 +2173,12 @@ function switchConversionMode() {
 	const subscriptionInput = document.getElementById('subscriptionInput');
 	const yamlInput = document.getElementById('yamlInput');
 	const base64Input = document.getElementById('base64Input');
-	const processBtn = document.getElementById('processButton');
 	
 	if (mode === 'subscription') {
 		subscriptionInput.style.display = 'block';
 		yamlInput.style.display = 'none';
 		base64Input.style.display = 'none';
-	} else if (mode == 'yaml') {
+	} else if (mode === 'yaml') {
 		subscriptionInput.style.display = 'none';
 		yamlInput.style.display = 'block';
 		base64Input.style.display = 'none';
@@ -2243,13 +2187,13 @@ function switchConversionMode() {
 		yamlInput.style.display = 'none';
 		base64Input.style.display = 'block';
 	}
-	
 }
 
 // 解析代理URL
 function parseProxyUrl(url) {
 	try {
 		if (url.startsWith('vmess://')) {
+			// VMess协议解析
 			const decoded = atob(url.substring(8));
 			const config = JSON.parse(decoded);
 			return {
@@ -2259,9 +2203,33 @@ function parseProxyUrl(url) {
 				uuid: config.id,
 				alterId: config.aid || 0,
 				cipher: config.scy || 'auto',
-				network: config.net || 'tcp'
+				network: config.net || 'tcp',
+				tls: config.tls === 'tls',
+				'ws-opts': config.net === 'ws' ? {
+					path: config.path || '/',
+					headers: { Host: config.host || config.add }
+				} : undefined
+			};
+		} else if (url.startsWith('vless://')) {
+			// VLESS协议解析
+			const urlObj = new URL(url);
+			return {
+				type: 'vless',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || 443,
+				uuid: urlObj.username,
+				flow: urlObj.searchParams.get('flow') || '',
+				network: urlObj.searchParams.get('type') || 'tcp',
+				tls: urlObj.searchParams.get('security') === 'tls',
+				reality: urlObj.searchParams.get('security') === 'reality',
+				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
+				'reality-opts': urlObj.searchParams.get('security') === 'reality' ? {
+					'public-key': urlObj.searchParams.get('pbk'),
+					'short-id': urlObj.searchParams.get('sid')
+				} : undefined
 			};
 		} else if (url.startsWith('ss://')) {
+			// Shadowsocks协议解析
 			const decoded = atob(url.substring(5).split('#')[0]);
 			const [method, password] = decoded.split(':');
 			const [server, port] = password.split('@')[1].split(':');
@@ -2272,8 +2240,25 @@ function parseProxyUrl(url) {
 				method: method,
 				password: password.split('@')[0]
 			};
+		} else if (url.startsWith('ssr://')) {
+			// ShadowsocksR协议解析
+			const decoded = atob(url.substring(6));
+			const parts = decoded.split(':');
+			if (parts.length >= 6) {
+				const [server, port, protocol, method, obfs, passwordBase64] = parts;
+				const password = atob(passwordBase64.split('/?')[0]);
+				return {
+					type: 'ssr',
+					server: server,
+					port: parseInt(port),
+					method: method,
+					password: password,
+					protocol: protocol,
+					obfs: obfs
+				};
+			}
 		} else if (url.startsWith('trojan://')) {
-			// 解析trojan://password@server:port?params#name格式
+			// Trojan协议解析
 			const urlObj = new URL(url);
 			return {
 				type: 'trojan',
@@ -2281,13 +2266,78 @@ function parseProxyUrl(url) {
 				port: parseInt(urlObj.port) || 443,
 				password: urlObj.username,
 				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
-				allowInsecure: urlObj.searchParams.get('allowInsecure') === '1',
-				type_param: urlObj.searchParams.get('type') || 'tcp'
+				'skip-cert-verify': urlObj.searchParams.get('allowInsecure') === '1',
+				network: urlObj.searchParams.get('type') || 'tcp',
+				'ws-opts': urlObj.searchParams.get('type') === 'ws' ? {
+					path: urlObj.searchParams.get('path') || '/'
+				} : undefined
+			};
+		} else if (url.startsWith('hysteria2://') || url.startsWith('hy2://')) {
+			// Hysteria2协议解析
+			const urlObj = new URL(url);
+			return {
+				type: 'hysteria2',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || 443,
+				auth: urlObj.username || urlObj.searchParams.get('auth'),
+				'skip-cert-verify': urlObj.searchParams.get('insecure') === '1',
+				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
+				'up-speed': parseInt(urlObj.searchParams.get('upmbps')) || 100,
+				'down-speed': parseInt(urlObj.searchParams.get('downmbps')) || 100
+			};
+		} else if (url.startsWith('tuic://')) {
+			// TUIC协议解析
+			const urlObj = new URL(url);
+			return {
+				type: 'tuic',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || 443,
+				uuid: urlObj.username,
+				password: urlObj.password,
+				version: parseInt(urlObj.searchParams.get('version')) || 5,
+				'skip-cert-verify': urlObj.searchParams.get('allow_insecure') === '1',
+				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
+				alpn: urlObj.searchParams.get('alpn') ? [urlObj.searchParams.get('alpn')] : ['h3']
+			};
+		} else if (url.startsWith('snell://')) {
+			// Snell协议解析
+			const urlObj = new URL(url);
+			return {
+				type: 'snell',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || 6160,
+				psk: urlObj.username,
+				version: parseInt(urlObj.searchParams.get('version')) || 4,
+				'obfs-opts': {
+					mode: urlObj.searchParams.get('obfs') || 'http',
+					host: urlObj.searchParams.get('obfs-host') || urlObj.hostname
+				}
+			};
+		} else if (url.startsWith('http://') || url.startsWith('https://')) {
+			// HTTP/HTTPS代理解析
+			const urlObj = new URL(url);
+			return {
+				type: 'http',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || (url.startsWith('https://') ? 443 : 80),
+				username: urlObj.username || undefined,
+				password: urlObj.password || undefined,
+				tls: url.startsWith('https://')
+			};
+		} else if (url.startsWith('socks5://') || url.startsWith('socks://')) {
+			// SOCKS5代理解析
+			const urlObj = new URL(url);
+			return {
+				type: 'socks5',
+				server: urlObj.hostname,
+				port: parseInt(urlObj.port) || 1080,
+				username: urlObj.username || undefined,
+				password: urlObj.password || undefined
 			};
 		}
 		return null;
 	} catch (error) {
-		console.error('解析代理URL失败:', error);
+		console.error('解析代理URL失败:', error, 'URL:', url);
 		return null;
 	}
 }
@@ -2307,6 +2357,20 @@ function convertProxyToSocks(proxyInfo, port) {
     network \${proxyInfo.network}
   }
 }\`;
+	} else if (proxyInfo.type === 'vless') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy vless {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    uuid \${proxyInfo.uuid}
+    flow \${proxyInfo.flow || ''}
+    network \${proxyInfo.network}
+    tls \${proxyInfo.tls}
+    sni \${proxyInfo.sni}
+  }
+}\`;
 	} else if (proxyInfo.type === 'shadowsocks') {
 		return \`listener socks-\${port} {
   type socks
@@ -2318,6 +2382,19 @@ function convertProxyToSocks(proxyInfo, port) {
     password \${proxyInfo.password}
   }
 }\`;
+	} else if (proxyInfo.type === 'ssr') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy ssr {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    method \${proxyInfo.method}
+    password \${proxyInfo.password}
+    protocol \${proxyInfo.protocol}
+    obfs \${proxyInfo.obfs}
+  }
+}\`;
 	} else if (proxyInfo.type === 'trojan') {
 		return \`listener socks-\${port} {
   type socks
@@ -2327,8 +2404,72 @@ function convertProxyToSocks(proxyInfo, port) {
     port \${proxyInfo.port}
     password \${proxyInfo.password}
     sni \${proxyInfo.sni}
-    allow_insecure \${proxyInfo.allowInsecure}
-    type \${proxyInfo.type_param}
+    skip_cert_verify \${proxyInfo['skip-cert-verify'] || false}
+    network \${proxyInfo.network}
+  }
+}\`;
+	} else if (proxyInfo.type === 'hysteria2') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy hysteria2 {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    auth \${proxyInfo.auth}
+    sni \${proxyInfo.sni}
+    skip_cert_verify \${proxyInfo['skip-cert-verify'] || false}
+    up_speed \${proxyInfo['up-speed']}mbps
+    down_speed \${proxyInfo['down-speed']}mbps
+  }
+}\`;
+	} else if (proxyInfo.type === 'tuic') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy tuic {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    uuid \${proxyInfo.uuid}
+    password \${proxyInfo.password}
+    version \${proxyInfo.version}
+    sni \${proxyInfo.sni}
+    skip_cert_verify \${proxyInfo['skip-cert-verify'] || false}
+  }
+}\`;
+	} else if (proxyInfo.type === 'snell') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy snell {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    psk \${proxyInfo.psk}
+    version \${proxyInfo.version}
+    obfs_mode \${proxyInfo['obfs-opts']?.mode || 'http'}
+    obfs_host \${proxyInfo['obfs-opts']?.host || proxyInfo.server}
+  }
+}\`;
+	} else if (proxyInfo.type === 'http') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy http {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    username \${proxyInfo.username || ''}
+    password \${proxyInfo.password || ''}
+    tls \${proxyInfo.tls}
+  }
+}\`;
+	} else if (proxyInfo.type === 'socks5') {
+		return \`listener socks-\${port} {
+  type socks
+  port \${port}
+  proxy socks5 {
+    server \${proxyInfo.server}
+    port \${proxyInfo.port}
+    username \${proxyInfo.username || ''}
+    password \${proxyInfo.password || ''}
   }
 }\`;
 	}
@@ -2512,57 +2653,6 @@ if (document.querySelector('.editor')) {
 	});
 }
 
-
-
-
-
-
-
-
-
-
-
-function setupFileDrop() {
-	const inputYAML = document.getElementById('inputYAML');
-	if (inputYAML) {
-		inputYAML.addEventListener('dragover', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			inputYAML.style.borderColor = '#667eea';
-			inputYAML.style.backgroundColor = '#f8f9ff';
-		});
-		
-		inputYAML.addEventListener('dragleave', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			inputYAML.style.borderColor = '#e0e0e0';
-			inputYAML.style.backgroundColor = '';
-		});
-		
-		inputYAML.addEventListener('drop', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			inputYAML.style.borderColor = '#e0e0e0';
-			inputYAML.style.backgroundColor = '';
-			
-			const files = e.dataTransfer.files;
-			if (files.length > 0) {
-				const file = files[0];
-				if (file.type === 'text/yaml' || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-					const reader = new FileReader();
-					reader.onload = (event) => {
-						inputYAML.value = event.target.result;
-						document.querySelector('input[name="conversionMode"][value="yaml"]').checked = true;
-						switchConversionMode();
-					};
-					reader.readAsText(file);
-				} else {
-					alert('请拖拽YAML文件（.yaml或.yml格式）');
-				}
-			}
-		});
-	}
-	
 	// 设置文件上传按钮事件
 	const yamlFileInput = document.getElementById('yamlFileInput');
 	if (yamlFileInput) {
