@@ -2334,8 +2334,16 @@ if (document.querySelector('.editor')) {
 	
 	function saveContent(button) {
 		try {
+			// 验证button参数
+			if (!button) {
+				console.error('saveContent: button参数未定义');
+				return;
+			}
+			
 			const updateButtonText = (step) => {
-				button.textContent = '保存中: ' + step;
+				if (button && button.textContent !== undefined) {
+					button.textContent = '保存中: ' + step;
+				}
 			};
 			
 			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -2344,7 +2352,9 @@ if (document.querySelector('.editor')) {
 				replaceFullwidthColon();
 			}
 			updateButtonText('开始保存');
-			button.disabled = true;
+			if (button) {
+				button.disabled = true;
+			}
 
 			const textarea = document.getElementById('content');
 			if (!textarea) {
@@ -2373,8 +2383,10 @@ if (document.querySelector('.editor')) {
 
 			updateButtonText('准备按钮重置函数');
 			const resetButton = () => {
-				button.textContent = '保存';
-				button.disabled = false;
+				if (button) {
+					button.textContent = '保存';
+					button.disabled = false;
+				}
 			};
 
 			if (newContent !== originalContent) {
@@ -2412,8 +2424,10 @@ if (document.querySelector('.editor')) {
 			}
 		} catch (error) {
 			console.error('保存过程出错:', error);
-			button.textContent = '保存';
-			button.disabled = false;
+			if (button) {
+				button.textContent = '保存';
+				button.disabled = false;
+			}
 			const statusElem = document.getElementById('saveStatus');
 			if (statusElem) {
 				statusElem.textContent = '错误: ' + error.message;
