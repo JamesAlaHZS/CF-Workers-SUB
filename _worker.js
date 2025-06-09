@@ -1376,6 +1376,10 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 					</style>
 					<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
 					<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+					<script>
+						// 全局变量
+						window.mytoken = '${mytoken}';
+					</script>
 				</head>
 				<body>
 					<div class="container">
@@ -1608,19 +1612,34 @@ function copyToClipboard(text, qrcode) {
 	}).catch(err => {
 		console.error(\`复制失败:\`, err);
 	});
-	const qrcodeDiv = document.getElementById(qrcode);
-	qrcodeDiv.innerHTML = \`\`;
-	new QRCode(qrcodeDiv, {
-		text: text,
-		width: 220,
-		height: 220,
-		colorDark: \`#000000\`,
-		colorLight: \`#ffffff\`,
-		correctLevel: QRCode.CorrectLevel.Q,
-		scale: 1
+	
+	// 显示所有二维码
+	const allQrCodes = [
+		{ id: 'qrcode_0', url: 'https://' + window.location.hostname + '/' + window.mytoken },
+		{ id: 'qrcode_1', url: 'https://' + window.location.hostname + '/' + window.mytoken + '?b64' },
+		{ id: 'qrcode_2', url: 'https://' + window.location.hostname + '/' + window.mytoken + '?clash' },
+		{ id: 'qrcode_3', url: 'https://' + window.location.hostname + '/' + window.mytoken + '?sb' },
+		{ id: 'qrcode_4', url: 'https://' + window.location.hostname + '/' + window.mytoken + '?surge' },
+		{ id: 'qrcode_5', url: 'https://' + window.location.hostname + '/' + window.mytoken + '?loon' }
+	];
+	
+	allQrCodes.forEach(qr => {
+		const qrcodeDiv = document.getElementById(qr.id);
+		if (qrcodeDiv) {
+			qrcodeDiv.innerHTML = \`\`;
+			new QRCode(qrcodeDiv, {
+				text: qr.url,
+				width: 220,
+				height: 220,
+				colorDark: \`#000000\`,
+				colorLight: \`#ffffff\`,
+				correctLevel: QRCode.CorrectLevel.Q,
+				scale: 1
+			});
+			// 显示二维码容器
+			qrcodeDiv.style.display = \`block\`;
+		}
 	});
-	// 显示二维码容器
-	qrcodeDiv.style.display = \`block\`;
 }
 
 // 切换通知显示
