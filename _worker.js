@@ -678,6 +678,12 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							text-align: center;
 						}
 						
+						.qr-container canvas,
+						.qr-container img {
+							display: block;
+							margin: 0 auto;
+						}
+						
 						.guest-section {
 							background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 							border-radius: 12px;
