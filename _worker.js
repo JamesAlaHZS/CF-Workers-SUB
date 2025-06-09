@@ -1859,16 +1859,16 @@ function generateClashYAMLConfig(proxies, startPort) {
 	}
 	
 	const socksConfig = {
-		allow-lan: true,
+		'allow-lan': true,
 		dns: {
-			enable: true,
-			enhanced-mode: \`fake-ip\`,
-			fake-ip-range: \`198.18.0.1/16\`,
-			default-nameserver: [\`114.114.114.114\`],
-			nameserver: [\`https://doh.pub/dns-query\`]
+			'enable': true,
+			'enhanced-mode': \`fake-ip\`,
+			'fake-ip-range': \`198.18.0.1/16\`,
+			'default-nameserver': [\`114.114.114.114\`],
+			'nameserver': [\`https://doh.pub/dns-query\`]
 		},
-		listeners: [],
-		proxies: clashProxies
+		'listeners': [],
+		'proxies': clashProxies
 	};
 	
 	// 生成监听器配置
