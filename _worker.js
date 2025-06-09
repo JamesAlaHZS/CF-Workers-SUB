@@ -1883,8 +1883,39 @@ function fetchSubscription() {
 					throw new Error('转换SOCKS配置失败');
 				}
 				
-				// 生成YAML格式的配置
-				const yamlConfig = \`# SOCKS代理配置\\n# 生成时间: \${new Date().toLocaleString()}\\n# 节点数量: \${socksConfigs.length}\\n# 端口范围: \${startPort}-\${startPort + socksConfigs.length - 1}\\n\\n\${socksConfigs.join('\\n\\n')}\`;
+				// 生成标准Clash YAML格式的配置
+				const clashProxies = proxies.map((proxy, index) => {
+					// 如果是Clash格式，直接使用
+					if (proxy.type && proxy.server) {
+						return proxy;
+					}
+					// 如果是其他格式，转换为Clash格式
+					return proxy;
+				}).filter(p => p !== null);
+				
+				const socksConfig = {
+					'allow-lan': true,
+					dns: {
+						enable: true,
+						'enhanced-mode': 'fake-ip',
+						'fake-ip-range': '198.18.0.1/16',
+						'default-nameserver': ['114.114.114.114'],
+						nameserver: ['https://doh.pub/dns-query']
+					},
+					listeners: [],
+					proxies: clashProxies
+				};
+				
+				// 生成监听器配置
+				socksConfig.listeners = clashProxies.map((proxy, i) => ({
+					name: \`mixed\${i}\`,
+					type: 'mixed',
+					port: startPort + i,
+					proxy: proxy.name
+				}));
+				
+				// 转换为YAML字符串
+				const yamlConfig = jsyaml.dump(socksConfig);
 				
 				// 显示在输出区域
 				if (outputYAML) {
@@ -1909,7 +1940,7 @@ function fetchSubscription() {
 				// 存储配置文本用于复制
 				window.socksConfigText = yamlConfig;
 				
-				infoDiv.textContent = \`成功转换 \${socksConfigs.length} 个代理配置\`;
+				infoDiv.textContent = \`成功转换 \${clashProxies.length} 个代理配置\`;
 				
 			} catch (parseError) {
 				infoDiv.textContent = \`解析订阅失败: \${parseError.message}\`;
@@ -2065,8 +2096,46 @@ function processBase64Conversion() {
 			throw new Error('未找到有效的代理配置');
 		}
 		
-		// 生成YAML格式的配置
-		const yamlConfig = \`# SOCKS代理配置\n# 生成时间: \${new Date().toLocaleString()}\n# 节点数量: \${socksConfigs.length}\n\n\${socksConfigs.join('\\n\\n')}\`;
+		// 生成标准Clash YAML格式的配置
+		const clashProxies = lines.map((line, index) => {
+			const proxyInfo = parseProxyUrl(line);
+			if (proxyInfo) {
+				// 转换为Clash格式
+				return {
+					name: \`proxy\${index}\`,
+					...proxyInfo
+				};
+			}
+			return null;
+		}).filter(p => p !== null);
+		
+		if (clashProxies.length === 0) {
+			throw new Error('未找到有效的代理配置');
+		}
+		
+		const socksConfig = {
+			'allow-lan': true,
+			dns: {
+				enable: true,
+				'enhanced-mode': 'fake-ip',
+				'fake-ip-range': '198.18.0.1/16',
+				'default-nameserver': ['114.114.114.114'],
+				nameserver: ['https://doh.pub/dns-query']
+			},
+			listeners: [],
+			proxies: clashProxies
+		};
+		
+		// 生成监听器配置
+		socksConfig.listeners = clashProxies.map((proxy, i) => ({
+			name: \`mixed\${i}\`,
+			type: 'mixed',
+			port: 10000 + i,
+			proxy: proxy.name
+		}));
+		
+		// 转换为YAML字符串
+		const yamlConfig = jsyaml.dump(socksConfig);
 		
 		// 显示在输出区域
 		if (outputYAML) {
@@ -2082,7 +2151,7 @@ function processBase64Conversion() {
 			downloadLink.style.opacity = '1';
 		}
 		
-		if (infoDiv) infoDiv.textContent = \`成功转换 \${socksConfigs.length} 个代理配置\`;
+		if (infoDiv) infoDiv.textContent = \`成功转换 \${clashProxies.length} 个代理配置\`;
 		if (copyBtn) {
 			copyBtn.disabled = false;
 			copyBtn.style.opacity = '1';
