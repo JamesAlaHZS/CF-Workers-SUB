@@ -674,7 +674,8 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							padding: 15px;
 							background: white;
 							border-radius: 8px;
-							display: block;
+							display: none;
+							text-align: center;
 						}
 						
 						.guest-section {
