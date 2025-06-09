@@ -2211,23 +2211,8 @@ function parseProxyUrl(url) {
 				} : undefined
 			};
 		} else if (url.startsWith('vless://')) {
-			// VLESS协议解析
-			const urlObj = new URL(url);
-			return {
-				type: 'vless',
-				server: urlObj.hostname,
-				port: parseInt(urlObj.port) || 443,
-				uuid: urlObj.username,
-				flow: urlObj.searchParams.get('flow') || '',
-				network: urlObj.searchParams.get('type') || 'tcp',
-				tls: urlObj.searchParams.get('security') === 'tls',
-				reality: urlObj.searchParams.get('security') === 'reality',
-				sni: urlObj.searchParams.get('sni') || urlObj.hostname,
-				'reality-opts': urlObj.searchParams.get('security') === 'reality' ? {
-					'public-key': urlObj.searchParams.get('pbk'),
-					'short-id': urlObj.searchParams.get('sid')
-				} : undefined
-			};
+			// VLESS协议暂不支持，过滤掉
+			return null;
 		} else if (url.startsWith('ss://')) {
 			// Shadowsocks协议解析
 			const decoded = atob(url.substring(5).split('#')[0]);
@@ -2358,19 +2343,8 @@ function convertProxyToSocks(proxyInfo, port) {
   }
 }\`;
 	} else if (proxyInfo.type === 'vless') {
-		return \`listener socks-\${port} {
-  type socks
-  port \${port}
-  proxy vless {
-    server \${proxyInfo.server}
-    port \${proxyInfo.port}
-    uuid \${proxyInfo.uuid}
-    flow \${proxyInfo.flow || ''}
-    network \${proxyInfo.network}
-    tls \${proxyInfo.tls}
-    sni \${proxyInfo.sni}
-  }
-}\`;
+		// VLESS协议暂不支持
+		return null;
 	} else if (proxyInfo.type === 'shadowsocks') {
 		return \`listener socks-\${port} {
   type socks
