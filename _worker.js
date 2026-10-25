@@ -1619,9 +1619,9 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							<p style="margin-bottom: 20px; color: #666;">点击链接自动复制订阅地址并生成二维码</p>
 							
 							<div class="subscription-grid">
-								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}','qrcode_0')">
+								<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/${mytoken}?remarks=ala-vps','qrcode_0')">
 									<h3>🔄 自适应订阅</h3>
-									<div class="url">https://${url.hostname}/${mytoken}</div>
+									<div class="url">https://${url.hostname}/${mytoken}?remarks=ala-vps</div>
 									<div id="qrcode_0" class="qr-container"></div>
 								</div>
 								
@@ -1667,9 +1667,9 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 								<p style="margin-bottom: 20px;"><strong>GUEST TOKEN:</strong> <span style="color: #c0392b; font-weight: 600;">${guest}</span></p>
 								
 								<div class="subscription-grid">
-									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}','guest_0')">
+									<div class="sub-item" onclick="copyToClipboard('https://${url.hostname}/sub?token=${guest}&remarks=ala-vps','guest_0')">
 										<h3>🔄 自适应订阅</h3>
-										<div class="url">https://${url.hostname}/sub?token=${guest}</div>
+										<div class="url">https://${url.hostname}/sub?token=${guest}&remarks=ala-vps</div>
 										<div id="guest_0" class="qr-container"></div>
 									</div>
 									
