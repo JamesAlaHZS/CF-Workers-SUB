@@ -347,17 +347,7 @@ async function nginx() {
 	
 	<p><em>Thank you for using nginx.</em></p>
 	
-					<div id="deleteConfirmModal" class="confirm-modal" aria-hidden="true">
-						<div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmMessage">
-							<h3 id="deleteConfirmTitle">确认删除链接</h3>
-							<p id="deleteConfirmMessage">确定删除此链接吗？删除后无法恢复。</p>
-							<div class="confirm-actions">
-								<button type="button" id="deleteCancelBtn" class="confirm-action-btn confirm-cancel-btn">取消</button>
-								<button type="button" id="deleteConfirmBtn" class="confirm-action-btn confirm-delete-btn">确认删除</button>
-							</div>
-						</div>
-					</div>
-</body>
+					</body>
 	</html>
 	`
 	return text;
@@ -3157,7 +3147,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	setupFileDrop();
 });
 					</script>
-				</body>
+									<div id="deleteConfirmModal" class="confirm-modal" aria-hidden="true">
+						<div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmMessage">
+							<h3 id="deleteConfirmTitle">确认删除链接</h3>
+							<p id="deleteConfirmMessage">确定删除此链接吗？删除后无法恢复。</p>
+							<div class="confirm-actions">
+								<button type="button" id="deleteCancelBtn" class="confirm-action-btn confirm-cancel-btn">取消</button>
+								<button type="button" id="deleteConfirmBtn" class="confirm-action-btn confirm-delete-btn">确认删除</button>
+							</div>
+						</div>
+					</div>
+</body>
 			</html>
 		`;
 
