@@ -346,7 +346,18 @@ async function nginx() {
 	<a href="http://nginx.com/">nginx.com</a>.</p>
 	
 	<p><em>Thank you for using nginx.</em></p>
-	</body>
+	
+					<div id="deleteConfirmModal" class="confirm-modal" aria-hidden="true">
+						<div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmMessage">
+							<h3 id="deleteConfirmTitle">确认删除链接</h3>
+							<p id="deleteConfirmMessage">确定删除此链接吗？删除后无法恢复。</p>
+							<div class="confirm-actions">
+								<button type="button" id="deleteCancelBtn" class="confirm-action-btn confirm-cancel-btn">取消</button>
+								<button type="button" id="deleteConfirmBtn" class="confirm-action-btn confirm-delete-btn">确认删除</button>
+							</div>
+						</div>
+					</div>
+</body>
 	</html>
 	`
 	return text;
@@ -1040,6 +1051,144 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 							box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 						}
 						
+						/* 轻量提示与居中删除确认框 */
+						.ui-toast-container {
+							position: fixed;
+							left: 50%;
+							bottom: 28px;
+							transform: translateX(-50%);
+							z-index: 10001;
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							gap: 8px;
+							pointer-events: none;
+						}
+
+						.ui-toast {
+							padding: 9px 17px;
+							border: 1px solid rgba(226, 232, 240, 0.58);
+							border-radius: 999px;
+							background: rgba(255, 255, 255, 0.72);
+							color: rgba(71, 85, 105, 0.86);
+							box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+							backdrop-filter: blur(14px);
+							-webkit-backdrop-filter: blur(14px);
+							font-size: 14px;
+							letter-spacing: 0.02em;
+							opacity: 0;
+							transform: translateY(7px);
+							transition: opacity 0.2s ease, transform 0.2s ease;
+						}
+
+						.ui-toast.is-visible {
+							opacity: 1;
+							transform: translateY(0);
+						}
+
+						.ui-toast.is-error {
+							color: rgba(185, 28, 28, 0.9);
+							background: rgba(255, 255, 255, 0.84);
+						}
+
+						.confirm-modal {
+							position: fixed;
+							inset: 0;
+							z-index: 10000;
+							display: none;
+							align-items: center;
+							justify-content: center;
+							padding: 20px;
+							background: rgba(15, 23, 42, 0.36);
+							backdrop-filter: blur(3px);
+							-webkit-backdrop-filter: blur(3px);
+						}
+
+						.confirm-modal.is-open {
+							display: flex;
+						}
+
+						.confirm-dialog {
+							width: min(100%, 420px);
+							padding: 24px;
+							border: 1px solid rgba(226, 232, 240, 0.9);
+							border-radius: 18px;
+							background: rgba(255, 255, 255, 0.97);
+							box-shadow: 0 24px 70px rgba(15, 23, 42, 0.2);
+							animation: confirmModalIn 0.18s ease-out;
+						}
+
+						@keyframes confirmModalIn {
+							from { opacity: 0; transform: translateY(8px) scale(0.98); }
+							to { opacity: 1; transform: translateY(0) scale(1); }
+						}
+
+						.confirm-dialog h3 {
+							margin: 0 0 10px;
+							color: #1e293b;
+							font-size: 18px;
+						}
+
+						.confirm-dialog p {
+							margin: 0;
+							color: #64748b;
+							line-height: 1.65;
+							overflow-wrap: anywhere;
+						}
+
+						.confirm-actions {
+							display: flex;
+							justify-content: flex-end;
+							gap: 10px;
+							margin-top: 24px;
+						}
+
+						.confirm-action-btn {
+							padding: 10px 18px;
+							border: 0;
+							border-radius: 10px;
+							cursor: pointer;
+							font-size: 14px;
+							transition: background 0.2s ease, transform 0.2s ease;
+						}
+
+						.confirm-cancel-btn {
+							background: #f1f5f9;
+							color: #475569;
+						}
+
+						.confirm-cancel-btn:hover {
+							background: #e2e8f0;
+						}
+
+						.confirm-delete-btn {
+							background: #ef4444;
+							color: #fff;
+						}
+
+						.confirm-delete-btn:hover {
+							background: #dc2626;
+						}
+
+						.confirm-action-btn:focus-visible {
+							outline: 3px solid rgba(59, 130, 246, 0.45);
+							outline-offset: 2px;
+						}
+
+						body.modal-open {
+							overflow: hidden;
+						}
+
+						@media (max-width: 480px) {
+							.confirm-dialog {
+								padding: 20px;
+								border-radius: 16px;
+							}
+							.confirm-actions > button {
+								flex: 1;
+							}
+						}
+
 						/* SOCKS转换功能样式 */
 						.socks-converter {
 							background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
@@ -1695,7 +1844,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 // 二维码和复制功能
 function copyToClipboard(text, qrcode) {
 	navigator.clipboard.writeText(text).then(() => {
-		alert(\`已复制到剪贴板\`);
+		showToast('已复制');
 	}).catch(err => {
 		console.error(\`复制失败:\`, err);
 	});
@@ -1870,26 +2019,107 @@ function importLinks() {
 	input.click();
 }
 
+// 统一的轻量提示：复制成功不再弹出浏览器提示框
+function showToast(message, type) {
+	let container = document.getElementById('uiToastContainer');
+	if (!container) {
+		container = document.createElement('div');
+		container.id = 'uiToastContainer';
+		container.className = 'ui-toast-container';
+		container.setAttribute('role', 'status');
+		container.setAttribute('aria-live', 'polite');
+		document.body.appendChild(container);
+	}
+
+	const toast = document.createElement('div');
+	toast.className = 'ui-toast' + (type === 'error' ? ' is-error' : '');
+	toast.textContent = message;
+	container.appendChild(toast);
+
+	window.requestAnimationFrame(() => toast.classList.add('is-visible'));
+	window.setTimeout(() => {
+		toast.classList.remove('is-visible');
+		window.setTimeout(() => toast.remove(), 220);
+	}, 1800);
+}
+
+function handleDeleteConfirmKeydown(event) {
+	if (event.key === 'Escape') closeDeleteConfirm();
+}
+
+function closeDeleteConfirm() {
+	const modal = document.getElementById('deleteConfirmModal');
+	if (!modal) return;
+
+	modal.classList.remove('is-open');
+	modal.setAttribute('aria-hidden', 'true');
+	document.body.classList.remove('modal-open');
+	document.removeEventListener('keydown', handleDeleteConfirmKeydown);
+
+	const previousFocus = modal._previousFocus;
+	modal._onConfirm = null;
+	modal._previousFocus = null;
+	if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+}
+
+function showDeleteConfirm(name, onConfirm) {
+	const modal = document.getElementById('deleteConfirmModal');
+	const message = document.getElementById('deleteConfirmMessage');
+	const cancelButton = document.getElementById('deleteCancelBtn');
+	const confirmButton = document.getElementById('deleteConfirmBtn');
+	if (!modal || !message || !cancelButton || !confirmButton) {
+		showToast('无法打开删除确认框，请刷新页面后重试。', 'error');
+		return;
+	}
+
+	modal._previousFocus = document.activeElement;
+	modal._onConfirm = onConfirm;
+	message.textContent = '确定删除链接“' + name + '”吗？删除后无法恢复。';
+	modal.classList.add('is-open');
+	modal.setAttribute('aria-hidden', 'false');
+	document.body.classList.add('modal-open');
+
+	cancelButton.onclick = closeDeleteConfirm;
+	confirmButton.onclick = function () {
+		const action = modal._onConfirm;
+		closeDeleteConfirm();
+		if (typeof action === 'function') action();
+	};
+	modal.onclick = function (event) {
+		if (event.target === modal) closeDeleteConfirm();
+	};
+
+	document.removeEventListener('keydown', handleDeleteConfirmKeydown);
+	document.addEventListener('keydown', handleDeleteConfirmKeydown);
+	window.setTimeout(() => cancelButton.focus(), 0);
+}
+
 // 复制链接到剪贴板
 function copyLinkToClipboard(url) {
 	navigator.clipboard.writeText(url).then(() => {
-		alert(\`链接已复制到剪贴板\`);
+		showToast('已复制');
 	}).catch(err => {
-		console.error(\`复制失败:\`, err);
-		alert(\`复制失败，请手动复制\`);
+		console.error('复制失败:', err);
+		showToast('复制失败，请手动复制', 'error');
 	});
 }
 
-// 删除链接
+// 删除链接：使用屏幕中央的自定义确认框
 function deleteLink(name) {
-	if (!confirm(\`确定要删除链接 "\` + name + \`" 吗？\`)) {
-		return;
-	}
-	
-	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
-	const filteredLinks = savedLinks.filter(link => link.name !== name);
-	localStorage.setItem(\`savedLinks\`, JSON.stringify(filteredLinks));
-	displaySavedLinks();
+	showDeleteConfirm(name, function () {
+		let savedLinks;
+		try {
+			savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+		} catch {
+			savedLinks = [];
+		}
+		if (!Array.isArray(savedLinks)) savedLinks = [];
+
+		const filteredLinks = savedLinks.filter(link => link && link.name !== name);
+		localStorage.setItem('savedLinks', JSON.stringify(filteredLinks));
+		displaySavedLinks();
+		showToast('链接已删除');
+	});
 }
 
 // 抽象函数：解析YAML格式数据
@@ -2016,15 +2246,15 @@ function setupCopyAndDownload(yamlConfig, copyBtn, downloadLink, outputDiv) {
 		}
 		
 		if (!textToCopy.trim()) {
-			alert(\`没有可复制的内容\`);
+			showToast('没有可复制的内容', 'error');
 			return;
 		}
 		
 		navigator.clipboard.writeText(textToCopy).then(() => {
-			alert(\`配置已复制到剪贴板\`);
+			showToast('已复制');
 		}).catch(err => {
 			console.error(\`复制失败:\`, err);
-			alert(\`复制失败，请手动复制\`);
+			showToast('复制失败，请手动复制', 'error');
 		});
 	};
 	
