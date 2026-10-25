@@ -66,6 +66,92 @@ export default {
 				},
 			});
 		} else {
+			// 订阅获取接口由 Worker 代为请求，避免前端跨域 fetch 失败。
+			if (url.searchParams.has('fetchSubscription')) {
+				const requestedUrl = url.searchParams.get('fetchSubscription') || '';
+				let targetUrl;
+				try {
+					targetUrl = new URL(requestedUrl);
+				} catch {
+					return new Response('订阅链接无效', {
+						status: 400,
+						headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+					});
+				}
+
+				const isAllowedSubscriptionUrl = (candidate) => {
+					if (!['http:', 'https:'].includes(candidate.protocol)) return false;
+					const hostname = candidate.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+					if (!hostname || hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) return false;
+
+					const octets = hostname.split('.');
+					const isIPv4 = octets.length === 4 && octets.every(part => /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255);
+					if (isIPv4) {
+						const [first, second] = octets.map(Number);
+						if (first === 0 || first === 10 || first === 127 || first >= 224 ||
+							(first === 169 && second === 254) ||
+							(first === 172 && second >= 16 && second <= 31) ||
+							(first === 192 && second === 168) ||
+							(first === 100 && second >= 64 && second <= 127)) return false;
+					}
+					if (hostname.includes(':') && /^(::|::1|fc|fd|fe80:|ff|::ffff:)/i.test(hostname)) return false;
+					return true;
+				};
+
+				if (!isAllowedSubscriptionUrl(targetUrl)) {
+					return new Response('订阅链接地址不允许访问', {
+						status: 400,
+						headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+					});
+				}
+
+				try {
+					let subscriptionResponse;
+					for (let redirectCount = 0; redirectCount <= 5; redirectCount++) {
+						subscriptionResponse = await fetch(targetUrl.toString(), {
+							method: 'GET',
+							redirect: 'manual',
+							headers: {
+								'Accept': 'text/plain, application/yaml, application/x-yaml, */*',
+								'User-Agent': 'Mozilla/5.0 (compatible; CF-Workers-SUB/1.0)'
+							}
+						});
+						if (![301, 302, 303, 307, 308].includes(subscriptionResponse.status)) break;
+
+						const location = subscriptionResponse.headers.get('Location');
+						if (!location) break;
+						if (redirectCount === 5) {
+							return new Response('订阅链接重定向次数过多', {
+								status: 502,
+								headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+							});
+						}
+						targetUrl = new URL(location, targetUrl);
+						if (!isAllowedSubscriptionUrl(targetUrl)) {
+							return new Response('订阅链接重定向地址不允许访问', {
+								status: 400,
+								headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+							});
+						}
+					}
+
+					const subscriptionContent = await subscriptionResponse.text();
+					return new Response(subscriptionContent, {
+						status: subscriptionResponse.status,
+						headers: {
+							'Content-Type': subscriptionResponse.headers.get('Content-Type') || 'text/plain; charset=utf-8',
+							'Cache-Control': 'no-store'
+						}
+					});
+				} catch (error) {
+					console.error('获取订阅内容失败:', error);
+					return new Response('获取订阅内容失败: ' + error.message, {
+						status: 502,
+						headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+					});
+				}
+			}
+
 			if (env.KV) {
 				await 迁移地址列表(env, 'LINK.txt');
 				if (userAgent.includes('mozilla') && !url.search) {
@@ -1502,6 +1588,7 @@ async function KV(request, env, txt = 'ADD.txt', guest) {
 									<input type="url" class="link-input" id="linkUrl" placeholder="输入完整链接地址（https://...）">
 									<button class="add-link-btn" onclick="addLink()">💾 添加链接</button>
 								</div>
+								<div id="linkSaveStatus" role="status" aria-live="polite" style="margin-top: 10px;"></div>
 								<div class="saved-links" id="savedLinks"></div>
 								<div class="link-management-controls">
 									<button class="export-import-btn" onclick="exportLinks()">📤 导出链接</button>
@@ -1657,33 +1744,60 @@ function toggleNotice() {
 
 // 添加链接功能
 function addLink() {
-	const name = prompt(\`请输入链接名称:\`);
-	if (!name) return;
-	
-	const url = prompt(\`请输入链接地址:\`);
-	if (!url) return;
-	
-	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
-	const existingLink = savedLinks.find(link => link.name === name);
-	
+	const nameInput = document.getElementById('linkName');
+	const urlInput = document.getElementById('linkUrl');
+	const status = document.getElementById('linkSaveStatus');
+	const name = nameInput ? nameInput.value.trim() : '';
+	const rawUrl = urlInput ? urlInput.value.trim() : '';
+	const setStatus = (message, isError) => {
+		if (!status) return;
+		status.textContent = message;
+		status.style.color = isError ? '#e74c3c' : '#198754';
+	};
+
+	if (!name || !rawUrl) {
+		setStatus('请填写链接名称和链接地址。', true);
+		return;
+	}
+
+	let parsedUrl;
+	try {
+		parsedUrl = new URL(rawUrl);
+	} catch {
+		setStatus('请输入有效的链接地址。', true);
+		return;
+	}
+	if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+		setStatus('链接地址仅支持 http 或 https。', true);
+		return;
+	}
+
+	let savedLinks;
+	try {
+		savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	} catch {
+		savedLinks = [];
+	}
+	if (!Array.isArray(savedLinks)) savedLinks = [];
+
+	const existingLink = savedLinks.find(link => link && link.name === name);
 	if (existingLink) {
-		if (confirm(\`链接名称已存在，是否覆盖？\`)) {
-			existingLink.url = url;
-			existingLink.timestamp = new Date().toISOString();
-		} else {
-			return;
-		}
+		existingLink.url = parsedUrl.href;
+		existingLink.timestamp = new Date().toISOString();
+		setStatus('同名链接已更新。', false);
 	} else {
 		savedLinks.push({
 			name: name,
-			url: url,
+			url: parsedUrl.href,
 			timestamp: new Date().toISOString()
 		});
+		setStatus('链接已保存。', false);
 	}
-	
-	localStorage.setItem(\`savedLinks\`, JSON.stringify(savedLinks));
+
+	localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
 	displaySavedLinks();
-	alert(\`链接已保存\`);
+	if (nameInput) nameInput.value = '';
+	if (urlInput) urlInput.value = '';
 }
 
 // 导出链接功能
@@ -1781,77 +1895,50 @@ function deleteLink(name) {
 // 抽象函数：解析YAML格式数据
 function parseYAMLData(data) {
 	try {
-		// 尝试Base64解码
-		let decoded;
-		try {
-			decoded = atob(data);
-		} catch {
-			// 如果不是Base64，直接使用原始数据
-			decoded = data;
-		}
-		
-		let proxies = [];
-		
-		// 检查是否为Clash YAML格式
-		if (decoded.includes(\`proxies:\`) || decoded.includes(\`- {name:\`)) {
-			// 解析Clash YAML格式
+		const source = String(data || '').trim();
+		if (!source) return [];
+
+		const parseContent = (text) => {
 			try {
-				// 提取proxies部分
-				const proxiesMatch = decoded.match(/proxies:\\s*([\\s\\S]*?)(?=\\n\\w|$)/i);
-				if (proxiesMatch) {
-					const proxiesSection = proxiesMatch[1];
-					// 匹配每个代理配置
-					const proxyMatches = proxiesSection.match(/- \\{[^}]+\\}/g);
-					if (proxyMatches) {
-						proxies = proxyMatches.map(match => {
-							try {
-								// 移除开头的\`- \`并解析为对象
-								const configStr = match.replace(/^- /, \`\`).replace(/[{}]/g, \`\`);
-								// 手动解析键值对
-								const config = {};
-								const pairs = configStr.split(\`,\`);
-								for (const pair of pairs) {
-									const colonIndex = pair.indexOf(\`:\`);
-									if (colonIndex > 0) {
-										const key = pair.substring(0, colonIndex).trim();
-										let value = pair.substring(colonIndex + 1).trim();
-										// 处理不同类型的值
-										if (value === \`true\`) {
-											config[key] = true;
-										} else if (value === \`false\`) {
-											config[key] = false;
-										} else if (/^\\d+$/.test(value)) {
-											config[key] = parseInt(value);
-										} else {
-											config[key] = value;
-										}
-									}
-								}
-								return config;
-							} catch (e) {
-								console.warn(\`解析代理配置失败:\`, match, e);
-								return null;
-							}
-						}).filter(p => p !== null);
-					}
+				const parsed = jsyaml.load(text);
+				if (parsed && Array.isArray(parsed.proxies)) {
+					return parsed.proxies.filter(proxy => proxy && typeof proxy === 'object');
 				}
 			} catch (yamlError) {
-				console.warn(\`YAML解析失败，尝试其他格式:\`, yamlError);
+				// 非 YAML 文本继续尝试逐行解析代理链接。
 			}
+
+			return text.split(/\\r?\\n/)
+				.map(line => line.trim())
+				.filter(line => line && !line.startsWith('#'))
+				.map(line => parseProxyUrl(line))
+				.filter(proxy => proxy !== null);
+		};
+
+		let proxies = parseContent(source);
+		if (proxies.length > 0) return proxies;
+
+		// 订阅服务常返回 Base64 编码的节点列表；先解码为 UTF-8，再解析 YAML 或节点链接。
+		let compact = source.replace(/\\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
+		if (!/^[A-Za-z0-9+/]*={0,2}$/.test(compact)) return [];
+		compact = compact.replace(/=+$/, '');
+		compact += '='.repeat((4 - compact.length % 4) % 4);
+
+		try {
+			const binary = atob(compact);
+			const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+			const decoded = new TextDecoder('utf-8').decode(bytes);
+			if (decoded.trim() && decoded !== source) {
+				proxies = parseContent(decoded);
+				if (proxies.length > 0) return proxies;
+			}
+		} catch (decodeError) {
+			// 原始内容不是有效的 Base64。
 		}
-		
-		// 如果没有解析到Clash格式，尝试解析单行代理URL格式
-		if (proxies.length === 0) {
-			const lines = decoded.split(\`\\n\`).filter(line => line.trim());
-			proxies = lines.map(line => {
-				const proxyInfo = parseProxyUrl(line);
-				return proxyInfo;
-			}).filter(p => p !== null);
-		}
-		
-		return proxies;
+
+		return [];
 	} catch (error) {
-		throw new Error(\`YAML数据解析失败: \` + error.message);
+		throw new Error('YAML数据解析失败: ' + error.message);
 	}
 }
 
@@ -1989,16 +2076,34 @@ function fetchSubscription() {
 	const copyBtn = document.querySelector('.copy-text-btn');
 	const downloadLink = document.getElementById('downloadLink');
 	const startPortInput = document.getElementById('startPort');
-	const url = urlInput.value.trim();
-	
+	const url = urlInput ? urlInput.value.trim() : '';
+
 	if (!url) {
-		alert('请输入订阅链接');
+		infoDiv.textContent = '请输入订阅链接';
 		return;
 	}
-	
+
+	let subscriptionUrl;
+	try {
+		subscriptionUrl = new URL(url);
+	} catch {
+		infoDiv.textContent = '订阅链接格式无效';
+		return;
+	}
+	if (!['http:', 'https:'].includes(subscriptionUrl.protocol)) {
+		infoDiv.textContent = '订阅链接仅支持 http 或 https';
+		return;
+	}
+
 	infoDiv.textContent = '正在获取订阅内容...';
-	
-	fetch(url)
+
+	// 通过当前 Worker 同源代理请求订阅，避免浏览器直接访问第三方链接时被 CORS 拦截。
+	const proxyUrl = new URL(window.location.href);
+	proxyUrl.searchParams.set('fetchSubscription', subscriptionUrl.href);
+
+	fetch(proxyUrl.toString(), {
+		headers: { 'Accept': 'text/plain, application/yaml, */*' }
+	})
 		.then(response => {
 			if (!response.ok) {
 				throw new Error('HTTP ' + response.status);
@@ -2007,30 +2112,19 @@ function fetchSubscription() {
 		})
 		.then(data => {
 			try {
-				// 使用抽象的YAML解析函数
 				const proxies = parseYAMLData(data);
-				const startPort = parseInt(startPortInput.value) || 42000;
-				
+				const startPort = parseInt(startPortInput.value, 10) || 42000;
+
 				if (proxies.length === 0) {
-					throw new Error('未找到有效的代理配置');
+					throw new Error('未找到有效的代理配置。请确认订阅返回的是 Clash YAML 或 Base64/节点链接格式。');
 				}
-				
-				// 使用统一的generateClashYAMLConfig函数生成配置
+
 				const { yamlConfig, clashProxies } = generateClashYAMLConfig(proxies, startPort);
-				
-				// 显示在输出区域
-				if (outputYAML) {
-					outputYAML.value = yamlConfig;
-				}
-				
-				// 使用抽象的节点数量显示函数
+				if (outputYAML) outputYAML.value = yamlConfig;
 				displayNodeCount(clashProxies.length, infoDiv);
-				
-				// 使用抽象的复制和下载链接生成函数
 				setupCopyAndDownload(yamlConfig, copyBtn, downloadLink);
-				
 			} catch (parseError) {
-				infoDiv.textContent = \`解析订阅失败: \${parseError.message}\`;
+				infoDiv.textContent = '解析订阅失败: ' + parseError.message;
 				if (outputYAML) outputYAML.value = '';
 				if (copyBtn) {
 					copyBtn.disabled = true;
@@ -2171,28 +2265,93 @@ function processBase64Conversion() {
 
 // 显示保存的链接
 function displaySavedLinks() {
-	const container = document.getElementById(\`savedLinksContainer\`);
+	const container = document.getElementById('savedLinks');
 	if (!container) return;
-	
-	const savedLinks = JSON.parse(localStorage.getItem(\`savedLinks\`) || \`[]\`);
-	
+
+	let savedLinks;
+	try {
+		savedLinks = JSON.parse(localStorage.getItem('savedLinks') || '[]');
+	} catch {
+		savedLinks = [];
+	}
+	if (!Array.isArray(savedLinks)) savedLinks = [];
+
+	container.innerHTML = '';
 	if (savedLinks.length === 0) {
-		container.innerHTML = \`<p style="color: #666; text-align: center; padding: 20px;">暂无保存的链接</p>\`;
+		const emptyMessage = document.createElement('p');
+		emptyMessage.style.color = '#666';
+		emptyMessage.style.textAlign = 'center';
+		emptyMessage.style.padding = '20px';
+		emptyMessage.textContent = '暂无保存的链接';
+		container.appendChild(emptyMessage);
 		return;
 	}
-	
-	container.innerHTML = savedLinks.map(link => 
-		\`<div class="saved-link-item">
-			<div class="link-info">
-				<div class="link-name">\${link.name}</div>
-				<div class="link-url">\${link.url}</div>
-				<div class="link-time">保存时间: \${new Date(link.timestamp).toLocaleString()}</div>
-			</div>
-			<div class="link-actions">
-				<button class="copy-link-btn" onclick="copyLinkToClipboard('\${link.url}')" title="复制链接">📋</button>
-				<button class="delete-link-btn" onclick="deleteLink('\${link.name}')">删除</button>
-			</div>
-		</div>\`).join(\`\`);
+
+	savedLinks.forEach(link => {
+		if (!link || typeof link.name !== 'string' || typeof link.url !== 'string') return;
+
+		const item = document.createElement('div');
+		item.className = 'saved-link-item';
+
+		const info = document.createElement('div');
+		info.className = 'link-info';
+
+		const name = document.createElement('div');
+		name.className = 'link-name';
+		name.textContent = link.name;
+
+		const urlElement = document.createElement('div');
+		urlElement.className = 'link-url';
+		try {
+			const parsedUrl = new URL(link.url);
+			if (['http:', 'https:'].includes(parsedUrl.protocol)) {
+				const anchor = document.createElement('a');
+				anchor.href = parsedUrl.href;
+				anchor.target = '_blank';
+				anchor.rel = 'noopener noreferrer';
+				anchor.textContent = link.url;
+				urlElement.appendChild(anchor);
+			} else {
+				urlElement.textContent = link.url;
+			}
+		} catch {
+			urlElement.textContent = link.url;
+		}
+
+		const time = document.createElement('div');
+		time.className = 'link-time';
+		const timestamp = link.timestamp ? new Date(link.timestamp) : null;
+		const savedAt = timestamp && !Number.isNaN(timestamp.getTime())
+			? timestamp.toLocaleString()
+			: '未知';
+		time.textContent = '保存时间: ' + savedAt;
+
+		info.appendChild(name);
+		info.appendChild(urlElement);
+		info.appendChild(time);
+
+		const actions = document.createElement('div');
+		actions.className = 'link-actions';
+
+		const copyButton = document.createElement('button');
+		copyButton.type = 'button';
+		copyButton.className = 'copy-link-btn';
+		copyButton.title = '复制链接';
+		copyButton.textContent = '📋';
+		copyButton.addEventListener('click', () => copyLinkToClipboard(link.url));
+
+		const deleteButton = document.createElement('button');
+		deleteButton.type = 'button';
+		deleteButton.className = 'delete-link-btn';
+		deleteButton.textContent = '删除';
+		deleteButton.addEventListener('click', () => deleteLink(link.name));
+
+		actions.appendChild(copyButton);
+		actions.appendChild(deleteButton);
+		item.appendChild(info);
+		item.appendChild(actions);
+		container.appendChild(item);
+	});
 }
 
 // 切换转换模式
