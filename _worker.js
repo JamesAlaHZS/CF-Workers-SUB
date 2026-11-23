@@ -12,17 +12,17 @@ let total = 99;//TB
 let timestamp = 4102329600000;//2099-12-31
 
 //节点链接 + 订阅链接
-let MainData = `
+const defaultLinks = `
 https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray
 `;
 
-let urls = [];
+const upstreamTimeoutMs = 6000;
 let subConverter = "subapi.473807.xyz"; //在线订阅转换后端，目前使用CM的订阅转换功能。支持自建psub 可自行搭建https://github.com/bulianglin/psub
 let subConfig = "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online_MultiCountry.ini"; //订阅配置文件
 let subProtocol = 'https';
 
 export default {
-	async fetch(request, env) {
+	async fetch(request, env, ctx) {
 		const userAgentHeader = request.headers.get('User-Agent');
 		const userAgent = userAgentHeader ? userAgentHeader.toLowerCase() : "null";
 		const url = new URL(request.url);
@@ -152,19 +152,18 @@ export default {
 				}
 			}
 
+			let configuredLinks;
 			if (env.KV) {
 				await 迁移地址列表(env, 'LINK.txt');
 				if (userAgent.includes('mozilla') && !url.search) {
 					await sendMessage(`#编辑订阅 ${FileName}`, request.headers.get('CF-Connecting-IP'), `UA: ${userAgentHeader}</tg-spoiler>\n域名: ${url.hostname}\n<tg-spoiler>入口: ${url.pathname + url.search}</tg-spoiler>`);
 					return await KV(request, env, 'LINK.txt', 访客订阅);
-				} else {
-					MainData = await env.KV.get('LINK.txt') || MainData;
 				}
+				configuredLinks = await env.KV.get('LINK.txt') ?? defaultLinks;
 			} else {
-				MainData = env.LINK || MainData;
-				if (env.LINKSUB) urls = await ADD(env.LINKSUB);
+				configuredLinks = `${env.LINK ?? defaultLinks}\n${env.LINKSUB ?? ''}`;
 			}
-			let 重新汇总所有链接 = await ADD(MainData + '\n' + urls.join('\n'));
+			const 重新汇总所有链接 = await ADD(configuredLinks);
 			let 自建节点 = "";
 			let 订阅链接 = "";
 			for (let x of 重新汇总所有链接) {
@@ -174,9 +173,8 @@ export default {
 					自建节点 += x + '\n';
 				}
 			}
-			MainData = 自建节点;
-			urls = await ADD(订阅链接);
-			await sendMessage(`#获取订阅 ${FileName}`, request.headers.get('CF-Connecting-IP'), `UA: ${userAgentHeader}</tg-spoiler>\n域名: ${url.hostname}\n<tg-spoiler>入口: ${url.pathname + url.search}</tg-spoiler>`);
+			ctx.waitUntil(sendMessage(`#获取订阅 ${FileName}`, request.headers.get('CF-Connecting-IP'), `UA: ${userAgentHeader}</tg-spoiler>\n域名: ${url.hostname}\n<tg-spoiler>入口: ${url.pathname + url.search}</tg-spoiler>`)
+				.catch(() => console.warn('subscription notification failed')));
 
 			let 订阅格式 = 'base64';
 			if (userAgent.includes('null') || userAgent.includes('subconverter') || userAgent.includes('nekobox') || userAgent.includes(('CF-Workers-SUB').toLowerCase())) {
@@ -196,7 +194,7 @@ export default {
 			let subConverterUrl;
 			let 订阅转换URL = `${url.origin}/${await MD5MD5(fakeToken)}?token=${fakeToken}`;
 			//console.log(订阅转换URL);
-			let req_data = MainData;
+			let req_data = 自建节点;
 
 			let 追加UA = 'v2rayn';
 			if (url.searchParams.has('b64') || url.searchParams.has('base64')) 订阅格式 = 'base64';
@@ -206,10 +204,9 @@ export default {
 			else if (url.searchParams.has('quanx')) 追加UA = 'Quantumult%20X';
 			else if (url.searchParams.has('loon')) 追加UA = 'Loon';
 
-			const 订阅链接数组 = [...new Set(urls)].filter(item => item?.trim?.()); // 去重
+			const 订阅链接数组 = [...new Set(await ADD(订阅链接))];
 			if (订阅链接数组.length > 0) {
 				const 请求订阅响应内容 = await getSUB(订阅链接数组, request, 追加UA, userAgentHeader);
-				console.log(请求订阅响应内容);
 				req_data += 请求订阅响应内容[0].join('\n');
 				订阅转换URL += "|" + 请求订阅响应内容[1];
 			}
@@ -468,14 +465,28 @@ async function getSUB(api, request, 追加UA, userAgentHeader) {
 	let newapi = "";
 	let 订阅转换URLs = "";
 	let 异常订阅 = "";
-	const controller = new AbortController(); // 创建一个AbortController实例，用于取消请求
-	const timeout = setTimeout(() => {
-		controller.abort(); // 2秒后取消所有请求
-	}, 2000);
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), upstreamTimeoutMs);
 
 	try {
 		// 使用Promise.allSettled等待所有API请求完成，无论成功或失败
-		const responses = await Promise.allSettled(api.map(apiUrl => getUrl(request, apiUrl, 追加UA, userAgentHeader).then(response => response.ok ? response.text() : Promise.reject(response))));
+		const responses = await Promise.allSettled(api.map(async apiUrl => {
+			const host = new URL(apiUrl).hostname;
+			const started = Date.now();
+			let status;
+			let outcome = 'error';
+			try {
+				const response = await getUrl(request, apiUrl, 追加UA, userAgentHeader, controller.signal);
+				status = response.status;
+				if (!response.ok) throw response;
+				const content = await response.text();
+				outcome = 'ok';
+				return content;
+			} finally {
+				if (outcome !== 'ok' && controller.signal.aborted) outcome = 'timeout';
+				console.log('subscription upstream', { host, status, outcome, elapsedMs: Date.now() - started });
+			}
+		}));
 
 		// 遍历所有响应
 		const modifiedResponses = responses.map((response, index) => {
@@ -489,7 +500,6 @@ async function getSUB(api, request, 追加UA, userAgentHeader) {
 						apiUrl: api[index] // 将原始的apiUrl添加到返回对象中
 					};
 				}
-				console.error(`请求失败: ${api[index]}, 错误信息: ${reason.status} ${reason.statusText}`);
 				return {
 					status: '请求失败',
 					value: null,
@@ -502,8 +512,6 @@ async function getSUB(api, request, 追加UA, userAgentHeader) {
 				apiUrl: api[index] // 将原始的apiUrl添加到返回对象中
 			};
 		});
-
-		console.log(modifiedResponses); // 输出修改后的响应数组
 
 		for (const response of modifiedResponses) {
 			// 检查响应状态是否为'fulfilled'
@@ -539,7 +547,7 @@ async function getSUB(api, request, 追加UA, userAgentHeader) {
 	return [订阅内容, 订阅转换URLs];
 }
 
-async function getUrl(request, targetUrl, 追加UA, userAgentHeader) {
+async function getUrl(request, targetUrl, 追加UA, userAgentHeader, signal) {
 	// 设置自定义 User-Agent
 	const newHeaders = new Headers(request.headers);
 	newHeaders.set("User-Agent", `${atob('djJyYXlOLzYuNDU=')} cmliu/CF-Workers-SUB ${追加UA}(${userAgentHeader})`);
@@ -548,8 +556,9 @@ async function getUrl(request, targetUrl, 追加UA, userAgentHeader) {
 	const modifiedRequest = new Request(targetUrl, {
 		method: request.method,
 		headers: newHeaders,
-		body: request.method === "GET" ? null : request.body,
+		body: ["GET", "HEAD"].includes(request.method) ? null : request.body,
 		redirect: "follow",
+		signal,
 		cf: {
 			// 忽略SSL证书验证
 			insecureSkipVerify: true,
@@ -559,12 +568,6 @@ async function getUrl(request, targetUrl, 追加UA, userAgentHeader) {
 			validateCertificate: false
 		}
 	});
-
-	// 输出请求的详细信息
-	console.log(`请求URL: ${targetUrl}`);
-	console.log(`请求头: ${JSON.stringify([...newHeaders])}`);
-	console.log(`请求方法: ${request.method}`);
-	console.log(`请求体: ${request.method === "GET" ? null : request.body}`);
 
 	// 发送请求并返回响应
 	return fetch(modifiedRequest);
