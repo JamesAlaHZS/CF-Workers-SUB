@@ -8,8 +8,6 @@ let ChatID = ''; //可以为空，或者@userinfobot中获取，/start
 let TG = 0; //小白勿动， 开发者专用，1 为推送所有的访问信息，0 为不推送订阅转换后端的访问信息与异常访问
 let FileName = 'CF-Workers-SUB';
 let SUBUpdateTime = 6; //自定义订阅更新时间，单位小时
-let total = 99;//TB
-let timestamp = 4102329600000;//2099-12-31
 
 //节点链接 + 订阅链接
 const defaultLinks = `
@@ -50,9 +48,6 @@ export default {
 		const 访客订阅 = guestToken;
 		//console.log(`${fakeUserID}\n${fakeHostName}`); // 打印fakeID
 
-		let UD = Math.floor(((timestamp - Date.now()) / timestamp * total * 1099511627776) / 2);
-		total = total * 1099511627776;
-		let expire = Math.floor(timestamp / 1000);
 		SUBUpdateTime = env.SUBUPTIME || SUBUpdateTime;
 
 		if (!([mytoken, fakeToken, 访客订阅].includes(token) || url.pathname == ("/" + mytoken) || url.pathname.includes("/" + mytoken + "?"))) {
@@ -176,137 +171,352 @@ export default {
 			ctx.waitUntil(sendMessage(`#获取订阅 ${FileName}`, request.headers.get('CF-Connecting-IP'), `UA: ${userAgentHeader}</tg-spoiler>\n域名: ${url.hostname}\n<tg-spoiler>入口: ${url.pathname + url.search}</tg-spoiler>`)
 				.catch(() => console.warn('subscription notification failed')));
 
-			let 订阅格式 = 'base64';
-			if (userAgent.includes('null') || userAgent.includes('subconverter') || userAgent.includes('nekobox') || userAgent.includes(('CF-Workers-SUB').toLowerCase())) {
-				订阅格式 = 'base64';
-			} else if (userAgent.includes('clash') || (url.searchParams.has('clash') && !userAgent.includes('subconverter'))) {
-				订阅格式 = 'clash';
-			} else if (userAgent.includes('sing-box') || userAgent.includes('singbox') || ((url.searchParams.has('sb') || url.searchParams.has('singbox')) && !userAgent.includes('subconverter'))) {
-				订阅格式 = 'singbox';
-			} else if (userAgent.includes('surge') || (url.searchParams.has('surge') && !userAgent.includes('subconverter'))) {
-				订阅格式 = 'surge';
-			} else if (userAgent.includes('quantumult%20x') || (url.searchParams.has('quanx') && !userAgent.includes('subconverter'))) {
-				订阅格式 = 'quanx';
-			} else if (userAgent.includes('loon') || (url.searchParams.has('loon') && !userAgent.includes('subconverter'))) {
-				订阅格式 = 'loon';
-			}
-
-			let subConverterUrl;
-			let 订阅转换URL = `${url.origin}/${await MD5MD5(fakeToken)}?token=${fakeToken}`;
-			//console.log(订阅转换URL);
-			let req_data = 自建节点;
-
-			let 追加UA = 'v2rayn';
-			if (url.searchParams.has('b64') || url.searchParams.has('base64')) 订阅格式 = 'base64';
-			else if (url.searchParams.has('clash')) 追加UA = 'clash';
-			else if (url.searchParams.has('singbox')) 追加UA = 'singbox';
-			else if (url.searchParams.has('surge')) 追加UA = 'surge';
-			else if (url.searchParams.has('quanx')) 追加UA = 'Quantumult%20X';
-			else if (url.searchParams.has('loon')) 追加UA = 'Loon';
-
-			const 订阅链接数组 = [...new Set(await ADD(订阅链接))];
-			if (订阅链接数组.length > 0) {
-				const 请求订阅响应内容 = await getSUB(订阅链接数组, request, 追加UA, userAgentHeader);
-				req_data += 请求订阅响应内容[0].join('\n');
-				订阅转换URL += "|" + 请求订阅响应内容[1];
-			}
-
-			if (env.WARP) 订阅转换URL += "|" + (await ADD(env.WARP)).join("|");
-			//修复中文错误
-			const utf8Encoder = new TextEncoder();
-			const encodedData = utf8Encoder.encode(req_data);
-			//const text = String.fromCharCode.apply(null, encodedData);
-			const utf8Decoder = new TextDecoder();
-			const text = utf8Decoder.decode(encodedData);
-
-			//去重
-			const uniqueLines = new Set(text.split('\n'));
-			const result = [...uniqueLines].join('\n');
-			//console.log(result);
-
-			let base64Data;
-			try {
-				base64Data = btoa(result);
-			} catch (e) {
-				function encodeBase64(data) {
-					const binary = new TextEncoder().encode(data);
-					let base64 = '';
-					const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-					for (let i = 0; i < binary.length; i += 3) {
-						const byte1 = binary[i];
-						const byte2 = binary[i + 1] || 0;
-						const byte3 = binary[i + 2] || 0;
-
-						base64 += chars[byte1 >> 2];
-						base64 += chars[((byte1 & 3) << 4) | (byte2 >> 4)];
-						base64 += chars[((byte2 & 15) << 2) | (byte3 >> 6)];
-						base64 += chars[byte3 & 63];
-					}
-
-					const padding = 3 - (binary.length % 3 || 3);
-					return base64.slice(0, base64.length - padding) + '=='.slice(0, padding);
+			const format = token === fakeToken ? 'base64' : subscriptionFormat(url.searchParams, userAgent);
+			const native = format === 'clash' || format === 'singbox';
+			const sources = (await ADD(订阅链接)).filter(Boolean);
+			const localNodes = 自建节点.split('\n');
+			const warp = env.WARP ? (await ADD(env.WARP)).filter(Boolean) : [];
+			if (native) {
+				for (const entry of warp) {
+					if (/^https?:\/\//i.test(entry)) sources.push(entry);
+					else localNodes.push(entry);
 				}
-
-				base64Data = encodeBase64(result)
 			}
-
-			if (订阅格式 == 'base64' || token == fakeToken) {
-				return new Response(base64Data, {
-					headers: {
-						"content-type": "text/plain; charset=utf-8",
-						"Profile-Update-Interval": `${SUBUpdateTime}`,
-						//"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
-					}
-				});
-			} else if (订阅格式 == 'clash') {
-				subConverterUrl = `${subProtocol}://${subConverter}/sub?target=clash&url=${encodeURIComponent(订阅转换URL)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-			} else if (订阅格式 == 'singbox') {
-				subConverterUrl = `${subProtocol}://${subConverter}/sub?target=singbox&url=${encodeURIComponent(订阅转换URL)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-			} else if (订阅格式 == 'surge') {
-				subConverterUrl = `${subProtocol}://${subConverter}/sub?target=surge&ver=4&url=${encodeURIComponent(订阅转换URL)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-			} else if (订阅格式 == 'quanx') {
-				subConverterUrl = `${subProtocol}://${subConverter}/sub?target=quanx&url=${encodeURIComponent(订阅转换URL)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&udp=true`;
-			} else if (订阅格式 == 'loon') {
-				subConverterUrl = `${subProtocol}://${subConverter}/sub?target=loon&url=${encodeURIComponent(订阅转换URL)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false`;
+			const [upstreamNodes, formattedSources, failedSources] = sources.length
+				? await getSUB([...new Set(sources)], request, 'v2rayn', native ? 'v2rayN/7.25.6' : userAgentHeader, native)
+				: [[], [], 0];
+			const nodes = [...new Set([...localNodes, ...upstreamNodes].map(node => node.trim()).filter(Boolean))];
+			const headers = new Headers({ 'Profile-Update-Interval': String(SUBUpdateTime), 'Cache-Control': 'no-store' });
+			if (format === 'base64') {
+				headers.set('Content-Type', 'text/plain; charset=utf-8');
+				return new Response(encodeSubscriptionBase64(nodes.join('\n')), {headers});
 			}
-			//console.log(订阅转换URL);
-			try {
-				const subConverterResponse = await fetch(subConverterUrl);
-
-				if (!subConverterResponse.ok) {
-					return new Response(base64Data, {
-						headers: {
-							"content-type": "text/plain; charset=utf-8",
-							"Profile-Update-Interval": `${SUBUpdateTime}`,
-							//"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
-						}
-					});
-					//throw new Error(`Error fetching subConverterUrl: ${subConverterResponse.status} ${subConverterResponse.statusText}`);
-				}
-				let subConverterContent = await subConverterResponse.text();
-				if (订阅格式 == 'clash') subConverterContent = await clashFix(subConverterContent);
-				return new Response(subConverterContent, {
-					headers: {
-						"Content-Disposition": `attachment; filename*=utf-8''${encodeURIComponent(FileName)}`,
-						"content-type": "text/plain; charset=utf-8",
-						"Profile-Update-Interval": `${SUBUpdateTime}`,
-						//"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
-
-					},
-				});
-			} catch (error) {
-				return new Response(base64Data, {
-					headers: {
-						"content-type": "text/plain; charset=utf-8",
-						"Profile-Update-Interval": `${SUBUpdateTime}`,
-						//"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
-					}
-				});
+			if (native) {
+				return nativeSubscription(nodes, format, url.searchParams.get('sb-version'), userAgent,
+					{formatted: formattedSources.length, failed: failedSources}, headers);
 			}
+			const source = `${url.origin}/${await MD5MD5(fakeToken)}?token=${fakeToken}`;
+			const upstreamUrls = [source, ...formattedSources, ...warp];
+			return externalSubscription(format, upstreamUrls, headers);
 		}
 	}
 };
+
+function subscriptionFormat(query, userAgent) {
+	for (const [format, aliases] of [
+		['base64', ['b64', 'base64']], ['clash', ['clash']], ['singbox', ['sb', 'singbox']],
+		['surge', ['surge']], ['quanx', ['quanx']], ['loon', ['loon']],
+	]) {
+		if (aliases.some(alias => query.has(alias))) return format;
+	}
+	if (/subconverter|nekobox|cf-workers-sub/.test(userAgent)) return 'base64';
+	if (/clash|mihomo/.test(userAgent)) return 'clash';
+	if (/sing-?box/.test(userAgent)) return 'singbox';
+	if (/quantumult(?:%20| )x/.test(userAgent)) return 'quanx';
+	return /surge|loon/.exec(userAgent)?.[0] ?? 'base64';
+}
+
+function encodeSubscriptionBase64(text) {
+	const bytes = new TextEncoder().encode(text);
+	let binary = '';
+	for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+	return btoa(binary);
+}
+
+async function externalSubscription(format, sources, headers) {
+	try {
+		const url = new URL('/sub', `${subProtocol}://${subConverter}`);
+		url.search = new URLSearchParams({target: format, url: sources.join('|'), config: subConfig,
+			insert: 'false', emoji: 'true', list: 'false', tfo: 'false', scv: 'true', fdn: 'false', sort: 'false', new_name: 'true'});
+		if (format === 'surge') url.searchParams.set('ver', '4');
+		if (format === 'quanx') url.searchParams.set('udp', 'true');
+		const response = await fetch(url.toString(), {signal: AbortSignal.timeout(12000)});
+		if (!response.ok) return Response.json({error: `${format} converter HTTP ${response.status}`}, {status: 502, headers});
+		const content = await response.text();
+		const expected = format === 'quanx' ? /^\s*\[server_local\]|^\s*(?:shadowsocks|vmess|trojan|http|socks5)\s*=/mi : /^\s*\[proxy\]/mi;
+		if (!expected.test(content)) return Response.json({error: `${format} converter returned an unexpected format`}, {status: 502, headers});
+		headers.set('Content-Type', 'text/plain; charset=utf-8');
+		headers.set('Content-Disposition', `attachment; filename*=utf-8''${encodeURIComponent(FileName)}`);
+		return new Response(content, {headers});
+	} catch (error) {
+		const timedOut = error.name === 'TimeoutError' || error.name === 'AbortError';
+		return Response.json({error: `${format} converter ${timedOut ? 'timed out' : 'could not be reached'}`},
+			{status: timedOut ? 504 : 502, headers});
+	}
+}
+
+function decodeBase64Bytes(value) {
+	const normal = value.replace(/[\s=]+$/g, '').replace(/-/g, '+').replace(/_/g, '/');
+	return Uint8Array.from(atob(normal), char => char.charCodeAt(0));
+}
+
+function queryValue(query, ...keys) {
+	return keys.map(key => query.get(key)).find(value => value !== null && value !== '') || undefined;
+}
+
+function checkNode(condition, reason) {
+	if (!condition) throw new Error(reason);
+}
+
+function certificatePin(value) {
+	const hex = value.replace(/:/g, '');
+	const bytes = /^[\da-f]{64}$/i.test(hex)
+		? Uint8Array.from(hex.match(/../g), pair => parseInt(pair, 16)) : decodeBase64Bytes(value);
+	checkNode(bytes.length === 32, 'Invalid certificate pin');
+	return {hex: Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join(''), base64: btoa(String.fromCharCode(...bytes))};
+}
+
+function readEch(value, serverName) {
+	if (!value) return;
+	const dynamic = /^(?:([^+]+)\+)?(https:\/\/.+)$/i.exec(value);
+	if (dynamic) {
+		const resolver = new URL(dynamic[2]);
+		checkNode(!resolver.username && !resolver.password && !resolver.search && !resolver.hash, 'Unsupported ECH resolver');
+		return {name: dynamic[1] || serverName, resolver};
+	}
+	checkNode(!value.includes('://'), 'Unsupported ECH resolver');
+	const config = value.replace(/-----BEGIN ECH CONFIGS-----|-----END ECH CONFIGS-----|\s/g, '');
+	return {config: btoa(String.fromCharCode(...decodeBase64Bytes(config)))};
+}
+
+function parseSubscriptionNode(line, type) {
+	const text = value => new TextDecoder().decode(decodeBase64Bytes(value));
+	let query, server, port, name, username, password, method, vmess;
+	if (type === 'vmess') {
+		vmess = JSON.parse(text(line.slice(8).split('#', 1)[0]));
+		({add: server, port, ps: name, id: username} = vmess);
+		query = new URLSearchParams(Object.entries({type: vmess.net, path: vmess.path, host: vmess.host,
+			security: vmess.tls, sni: vmess.sni, alpn: vmess.alpn, fp: vmess.fp, ech: vmess.ech})
+			.filter(([, value]) => value !== undefined && value !== null));
+		checkNode(!vmess.type || vmess.type === 'none', 'Unsupported VMess header');
+	} else {
+		let authorityPorts;
+		if (type === 'hysteria2') {
+			line = line.replace(/^(hysteria2|hy2):\/\/([^/?#]+):([\d,-]*[-,][\d,-]*)(?=[/?#]|$)/i, (_, scheme, authority, ports) => {
+				authorityPorts = ports;
+				return `${scheme}://${authority}`;
+			});
+		}
+		if (type === 'ss') {
+			const [authority, suffix = ''] = /^ss:\/\/([^/?#]+)(.*)$/i.exec(line)?.slice(1) ?? [];
+			checkNode(authority, 'Invalid Shadowsocks URI');
+			const endpoint = authority.lastIndexOf('@');
+			const parts = endpoint === -1 ? text(authority) : authority;
+			const at = parts.lastIndexOf('@');
+			checkNode(at !== -1, 'Invalid Shadowsocks endpoint');
+			const userInfo = parts.slice(0, at);
+			const credentials = endpoint !== -1 && !userInfo.includes(':') ? text(userInfo) : userInfo;
+			const colon = credentials.indexOf(':');
+			checkNode(colon > 0, 'Invalid Shadowsocks credentials');
+			method = decodeURIComponent(credentials.slice(0, colon));
+			password = endpoint !== -1 && userInfo.includes(':') ? decodeURIComponent(credentials.slice(colon + 1)) : credentials.slice(colon + 1);
+			line = `ss://${parts.slice(at + 1)}${suffix}`;
+		}
+		const parsed = new URL(line);
+		query = parsed.searchParams;
+		if (authorityPorts && !query.has('mport')) query.set('mport', authorityPorts);
+		server = parsed.hostname.replace(/^\[|\]$/g, '');
+		port = parsed.port || (parsed.protocol === 'http:' ? 80 : ({socks5: 1080, ss: 8388}[type] ?? 443));
+		name = decodeURIComponent(parsed.hash.slice(1));
+		username = decodeURIComponent(parsed.username);
+		password ??= decodeURIComponent(parsed.password);
+	}
+	port = Number(port);
+	checkNode(server && Number.isInteger(port) && port >= 1 && port <= 65535, 'Invalid node endpoint');
+	return {query, server, port, name, username, password, method, vmess};
+}
+
+function subscriptionTransport(query, target) {
+	const network = queryValue(query, 'type', 'network');
+	const host = queryValue(query, 'host');
+	const path = queryValue(query, 'path') ?? '/';
+	if (!network || ['tcp', 'raw', 'none'].includes(network)) {
+		checkNode(!queryValue(query, 'headerType') || query.get('headerType') === 'none', 'Unsupported TCP header type');
+		return {};
+	}
+	if (network === 'ws') {
+		const earlyData = Number(queryValue(query, 'ed') ?? new URL(path, 'https://local.invalid').searchParams.get('ed'));
+		const wsPath = earlyData ? path.replace(/([?&])ed=\d+(&|$)/, (_, prefix, suffix) => suffix ? prefix : '') : path;
+		const headers = host ? {Host: host} : undefined;
+		return target === 'clash'
+			? {network, 'ws-opts': {path: wsPath, headers, 'max-early-data': earlyData || undefined, 'early-data-header-name': earlyData ? 'Sec-WebSocket-Protocol' : undefined}}
+			: {transport: {type: 'ws', path: wsPath, headers, max_early_data: earlyData || undefined, early_data_header_name: earlyData ? 'Sec-WebSocket-Protocol' : undefined}};
+	}
+	if (network === 'grpc') {
+		const service = queryValue(query, 'serviceName') ?? '';
+		return target === 'clash' ? {network, 'grpc-opts': {'grpc-service-name': service}} : {transport: {type: 'grpc', service_name: service}};
+	}
+	throw new Error(`Unsupported transport: ${/^[a-z0-9-]{1,20}$/i.test(network) ? network : 'unknown'}`);
+}
+
+function convertSubscriptionNode(line, type, target, allowCertificatePin, addEchResolver) {
+	const node = parseSubscriptionNode(line, type);
+	const {query: q, server, port, username, password, method, vmess} = node;
+	const v = (...keys) => queryValue(q, ...keys);
+	const flag = (...keys) => /^(?:true|1)$/i.test(v(...keys) ?? '');
+	const clash = target === 'clash';
+	const out = clash ? {type, server, port, udp: true} : {type: type === 'ss' ? 'shadowsocks' : type === 'socks5' ? 'socks' : type, server, server_port: port};
+	const tlsMode = v('security', 'tls');
+	checkNode(!tlsMode || ['none', 'tls', 'reality'].includes(tlsMode), 'Unsupported TLS mode');
+	const reality = tlsMode === 'reality';
+	const tls = reality || tlsMode === 'tls' || ['hysteria2', 'tuic', 'anytls', 'trojan'].includes(type) || /^https:\/\//i.test(line);
+	if (tls) {
+		const name = v('sni', 'servername', 'peer', 'serverName');
+		const alpn = v('alpn')?.split(',');
+		const insecure = flag('insecure', 'allowInsecure', 'allow_insecure');
+		const fingerprint = v('fp') ?? (reality ? 'chrome' : undefined);
+		const rawPin = v('pinSHA256');
+		checkNode(!rawPin || clash || allowCertificatePin, 'sing-box 1.15+ required for certificate pinning');
+		const pin = rawPin ? certificatePin(rawPin) : undefined;
+		const publicKey = reality ? v('pbk', 'publicKey') : undefined;
+		checkNode(!reality || publicKey, 'Missing REALITY public key');
+		const ech = v('ech') ? readEch(v('ech'), name ?? server) : undefined;
+		if (ech?.resolver) addEchResolver(ech.name, ech.resolver);
+		if (clash) {
+			if (['vless', 'vmess', 'http', 'socks5'].includes(type)) out.tls = true;
+			out[type === 'vless' || type === 'vmess' ? 'servername' : 'sni'] = name;
+			Object.assign(out, {alpn, 'skip-cert-verify': insecure, 'client-fingerprint': fingerprint, fingerprint: pin?.hex});
+			if (reality) out['reality-opts'] = {'public-key': publicKey, 'short-id': v('sid') ?? ''};
+			if (ech) out['ech-opts'] = {enable: true, config: ech.config, 'query-server-name': ech.name};
+		} else {
+			out.tls = {enabled: true, server_name: name, alpn, insecure, certificate_sha256: pin ? [pin.base64] : undefined};
+			if (fingerprint) out.tls.utls = {enabled: true, fingerprint};
+			if (reality) out.tls.reality = {enabled: true, public_key: publicKey, short_id: v('sid') ?? ''};
+			if (ech) out.tls.ech = {enabled: true, query_server_name: ech.name,
+				config: ech.config ? ['-----BEGIN ECH CONFIGS-----', ...(ech.config.match(/.{1,64}/g) ?? []), '-----END ECH CONFIGS-----'] : undefined};
+		}
+	}
+
+	if (type === 'vless' || type === 'vmess') {
+		checkNode(username, `Missing ${type} UUID`);
+		out.uuid = username;
+		Object.assign(out, subscriptionTransport(q, target));
+		if (type === 'vless') {
+			if (v('flow') !== 'none') out.flow = v('flow');
+			const encryption = v('encryption');
+			if (encryption && encryption !== 'none') {
+				checkNode(clash, 'Unsupported VLESS encryption');
+				out.encryption = encryption;
+			}
+			out[clash ? 'packet-encoding' : 'packet_encoding'] = v('packetEncoding', 'packet-encoding');
+		} else {
+			out[clash ? 'alterId' : 'alter_id'] = Number(vmess.aid || 0);
+			out[clash ? 'cipher' : 'security'] = vmess.scy || 'auto';
+		}
+	} else if (type === 'ss') {
+		checkNode(method && password, 'Missing Shadowsocks credentials');
+		out[clash ? 'cipher' : 'method'] = method;
+		out.password = password;
+		const plugin = v('plugin');
+		if (plugin) {
+			const [name, ...options] = plugin.split(';');
+			checkNode(['obfs-local', 'simple-obfs', 'v2ray-plugin'].includes(name), 'Unsupported Shadowsocks plugin');
+			out.plugin = name === 'v2ray-plugin' ? name : clash ? 'obfs' : 'obfs-local';
+			out[clash ? 'plugin-opts' : 'plugin_opts'] = clash
+				? Object.fromEntries(options.map(option => {
+					const [key, ...value] = option.split('=');
+					return [{obfs: 'mode', 'obfs-host': 'host'}[key] ?? key, value.length ? value.join('=') : true];
+				}))
+				: options.join(';');
+		}
+	} else if (type === 'hysteria2') {
+		out.password = password ? `${username}:${password}` : username || v('auth') || '';
+		const ports = v('mport', 'ports');
+		if (ports) {
+			const ranges = ports.split(',').map(range => range.split(/[:-]/).map(Number));
+			checkNode(ranges.every(range => {
+				const [start, end = start] = range;
+				return range.length <= 2 && Number.isInteger(start) && Number.isInteger(end) && start > 0 && end <= 65535 && end >= start;
+			}), 'Invalid Hysteria2 port range');
+			if (clash) out.ports = ranges.map(([a, b]) => b === undefined ? String(a) : `${a}-${b}`).join(',');
+			else { delete out.server_port; out.server_ports = ranges.map(([a, b = a]) => `${a}:${b}`); }
+		}
+		if (v('obfs')) {
+			const mask = v('obfs-password', 'obfsPassword');
+			checkNode(mask, 'Missing Hysteria2 obfuscation password');
+			if (clash) Object.assign(out, {obfs: v('obfs'), 'obfs-password': mask});
+			else out.obfs = {type: v('obfs'), password: mask};
+		}
+	} else if (type === 'tuic') {
+		checkNode(username && password, 'Missing TUIC v5 credentials');
+		Object.assign(out, {uuid: username, password});
+		out[clash ? 'congestion-controller' : 'congestion_control'] = v('congestion_control', 'congestion-controller');
+		out[clash ? 'udp-relay-mode' : 'udp_relay_mode'] = v('udp_relay_mode', 'udp-relay-mode');
+	} else if (type === 'http' || type === 'socks5') {
+		Object.assign(out, {username: username || undefined, password: password || undefined});
+	} else {
+		checkNode(username || password, `Missing ${type} password`);
+		out.password = username || password;
+		if (type === 'trojan') Object.assign(out, subscriptionTransport(q, target));
+	}
+	return {node: out, name: node.name || `${type}-${server}:${port}`};
+}
+
+function nativeSubscription(lines, format, requestedVersion, userAgent, upstream, headers) {
+	const nodes = [];
+	const names = new Set(['PROXY', 'DIRECT', 'REJECT', 'PASS', 'proxy', 'direct']);
+	const warnings = new Map();
+	const dns = new Map();
+	const version = /(?:^|sing-?box[\s\/]+)v?(\d+)\.(\d+)/i.exec(requestedVersion ?? userAgent);
+	const allowCertificatePin = version && (Number(version[1]) > 1 || Number(version[1]) === 1 && Number(version[2]) >= 15);
+	for (const line of lines) {
+		if (line.startsWith('#')) continue;
+		const protocol = /^([a-z\d+.-]{1,28}):\/\//i.exec(line)?.[1].toLowerCase() ?? 'unknown';
+		const type = ({hy2: 'hysteria2', https: 'http', socks: 'socks5'})[protocol] ?? protocol;
+		try {
+			checkNode(['vless', 'vmess', 'ss', 'hysteria2', 'anytls', 'tuic', 'trojan', 'http', 'socks5'].includes(type), `Unsupported protocol: ${type}`);
+			const {node, name} = convertSubscriptionNode(line, type, format, allowCertificatePin, (key, resolver) => {
+				checkNode(!dns.has(key) || dns.get(key).href === resolver.href, 'Conflicting ECH resolvers');
+				dns.set(key, resolver);
+			});
+			let unique = name;
+			for (let i = 2; names.has(unique); i++) unique = `${name} (${i})`;
+			names.add(unique);
+			node[format === 'clash' ? 'name' : 'tag'] = unique;
+			nodes.push(node);
+		} catch (error) {
+			const reason = error instanceof SyntaxError || error instanceof TypeError || error instanceof URIError || error.name === 'InvalidCharacterError'
+				? `Invalid ${type} node` : error.message;
+			warnings.set(reason, (warnings.get(reason) ?? 0) + 1);
+		}
+	}
+	headerStats(headers, nodes.length, warnings, upstream);
+	if (!nodes.length) return Response.json({error: 'No nodes could be converted', format, skipped: Object.fromEntries(warnings), upstream},
+		{status: upstream.failed ? 502 : 422, headers});
+	if (format === 'clash') {
+		const yaml = ['mixed-port: 7890', 'allow-lan: false', 'mode: rule'];
+		if (dns.size) yaml.push(`dns: ${JSON.stringify({enable: true, nameserver: ['system'], 'nameserver-policy': Object.fromEntries([...dns].map(([name, resolver]) => [name, [resolver.href]]))})}`);
+		yaml.push('proxies:', ...nodes.map(node => `  - ${JSON.stringify(node)}`), 'proxy-groups:',
+			`  - ${JSON.stringify({name: 'PROXY', type: 'select', proxies: nodes.map(node => node.name)})}`, 'rules:', '  - MATCH,PROXY');
+		headers.set('Content-Type', 'application/yaml; charset=utf-8');
+		headers.set('Content-Disposition', 'attachment; filename="subscription.yaml"');
+		return new Response(yaml.join('\n') + '\n', {headers});
+	}
+	const servers = [{type: 'local', tag: 'local'}];
+	const rules = [];
+	for (const [name, resolver] of dns) {
+		const tag = `ech-${servers.length}`;
+		servers.push({type: 'https', tag, server: resolver.hostname.replace(/^\[|\]$/g, ''), server_port: Number(resolver.port || 443),
+			path: resolver.pathname, domain_resolver: 'local'});
+		rules.push({domain: [name], query_type: ['HTTPS'], action: 'route', server: tag});
+	}
+	const config = {log: {level: 'warn'}, dns: {servers, rules, final: 'local'},
+		inbounds: [{type: 'mixed', tag: 'mixed', listen: '127.0.0.1', listen_port: 1080}],
+		outbounds: [{type: 'selector', tag: 'proxy', outbounds: nodes.map(node => node.tag)}, ...nodes, {type: 'direct', tag: 'direct'}],
+		route: {final: 'proxy', default_domain_resolver: 'local'}};
+	headers.set('Content-Type', 'application/json; charset=utf-8');
+	headers.set('Content-Disposition', 'attachment; filename="subscription.json"');
+	return new Response(JSON.stringify(config, null, 2) + '\n', {headers});
+}
+
+function headerStats(headers, converted, warnings, upstream) {
+	const details = [...warnings].map(([reason, count]) => `${reason}: ${count}`);
+	if (upstream.failed) details.push(`Upstream fetch failures: ${upstream.failed}`);
+	if (upstream.formatted) details.push(`Upstreams without URI lists: ${upstream.formatted}`);
+	headers.set('X-Subscription-Converted', String(converted));
+	headers.set('X-Subscription-Skipped', String([...warnings.values()].reduce((total, count) => total + count, 0)));
+	if (details.length) headers.set('X-Subscription-Warnings', details.join('; ').slice(0, 1024));
+}
 
 async function ADD(envadd) {
 	var addtext = envadd.replace(/[	"'|\r\n]+/g, '\n').replace(/\n+/g, '\n');	// 替换为换行
@@ -373,12 +583,6 @@ async function sendMessage(type, ip, add_data = "") {
 	}
 }
 
-function base64Decode(str) {
-	const bytes = new Uint8Array(atob(str).split('').map(c => c.charCodeAt(0)));
-	const decoder = new TextDecoder('utf-8');
-	return decoder.decode(bytes);
-}
-
 async function MD5MD5(text) {
 	const encoder = new TextEncoder();
 
@@ -391,31 +595,6 @@ async function MD5MD5(text) {
 	const secondHex = secondPassArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
 	return secondHex.toLowerCase();
-}
-
-function clashFix(content) {
-	if (content.includes('wireguard') && !content.includes('remote-dns-resolve')) {
-		let lines;
-		if (content.includes('\r\n')) {
-			lines = content.split('\r\n');
-		} else {
-			lines = content.split('\n');
-		}
-
-		let result = "";
-		for (let line of lines) {
-			if (line.includes('type: wireguard')) {
-				const 备改内容 = `, mtu: 1280, udp: true`;
-				const 正确内容 = `, mtu: 1280, remote-dns-resolve: true, udp: true`;
-				result += line.replace(new RegExp(备改内容, 'g'), 正确内容) + '\n';
-			} else {
-				result += line + '\n';
-			}
-		}
-
-		content = result;
-	}
-	return content;
 }
 
 async function proxyURL(proxyURL, url) {
@@ -458,13 +637,10 @@ async function proxyURL(proxyURL, url) {
 	return newResponse;
 }
 
-async function getSUB(api, request, 追加UA, userAgentHeader) {
-	if (!api || api.length === 0) {
-		return [];
-	} else api = [...new Set(api)]; // 去重
-	let newapi = "";
-	let 订阅转换URLs = "";
-	let 异常订阅 = "";
+async function getSUB(api, request, 追加UA, userAgentHeader, uriOnly = false) {
+	let nodes = [];
+	const formattedSources = [];
+	let failures = 0;
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), upstreamTimeoutMs);
 
@@ -476,7 +652,7 @@ async function getSUB(api, request, 追加UA, userAgentHeader) {
 			let status;
 			let outcome = 'error';
 			try {
-				const response = await getUrl(request, apiUrl, 追加UA, userAgentHeader, controller.signal);
+				const response = await getUrl(request, apiUrl, 追加UA, userAgentHeader, controller.signal, uriOnly);
 				status = response.status;
 				if (!response.ok) throw response;
 				const content = await response.text();
@@ -488,69 +664,35 @@ async function getSUB(api, request, 追加UA, userAgentHeader) {
 			}
 		}));
 
-		// 遍历所有响应
-		const modifiedResponses = responses.map((response, index) => {
-			// 检查是否请求成功
-			if (response.status === 'rejected') {
-				const reason = response.reason;
-				if (reason && reason.name === 'AbortError') {
-					return {
-						status: '超时',
-						value: null,
-						apiUrl: api[index] // 将原始的apiUrl添加到返回对象中
-					};
-				}
-				return {
-					status: '请求失败',
-					value: null,
-					apiUrl: api[index] // 将原始的apiUrl添加到返回对象中
-				};
+		responses.forEach((response, index) => {
+			if (response.status !== 'fulfilled') { failures++; return; }
+			let content = response.value.trim();
+			if (content && isValidBase64(content)) {
+				try { content = new TextDecoder().decode(decodeBase64Bytes(content)); } catch { failures++; return; }
 			}
-			return {
-				status: response.status,
-				value: response.value,
-				apiUrl: api[index] // 将原始的apiUrl添加到返回对象中
-			};
+			if (/^\s*(?:proxies|proxy-providers)\s*:/m.test(content) || /^\s*\{/.test(content) && /"(?:outbounds|endpoints)"\s*:/.test(content)) {
+				formattedSources.push(api[index]);
+			} else if (/^[\t ]*[a-z][a-z\d+.-]*:\/\//mi.test(content)) {
+				nodes = nodes.concat(content.split(/\r?\n/).map(line => line.trim()).filter(line => /^[a-z][a-z\d+.-]*:\/\//i.test(line)));
+			} else {
+				failures++;
+				if (!uriOnly) {
+					const host = new URL(api[index]).hostname;
+					nodes.push(`trojan://CMLiussss@127.0.0.1:8888?security=tls&allowInsecure=1&type=tcp&headerType=none#%E5%BC%82%E5%B8%B8%E8%AE%A2%E9%98%85%20${host}`);
+				}
+			}
 		});
-
-		for (const response of modifiedResponses) {
-			// 检查响应状态是否为'fulfilled'
-			if (response.status === 'fulfilled') {
-				const content = await response.value || 'null'; // 获取响应的内容
-				if (content.includes('proxies:')) {
-					//console.log('Clash订阅: ' + response.apiUrl);
-					订阅转换URLs += "|" + response.apiUrl; // Clash 配置
-				} else if (content.includes('outbounds"') && content.includes('inbounds"')) {
-					//console.log('Singbox订阅: ' + response.apiUrl);
-					订阅转换URLs += "|" + response.apiUrl; // Singbox 配置
-				} else if (content.includes('://')) {
-					//console.log('明文订阅: ' + response.apiUrl);
-					newapi += content + '\n'; // 追加内容
-				} else if (isValidBase64(content)) {
-					//console.log('Base64订阅: ' + response.apiUrl);
-					newapi += base64Decode(content) + '\n'; // 解码并追加内容
-				} else {
-					const 异常订阅LINK = `trojan://CMLiussss@127.0.0.1:8888?security=tls&allowInsecure=1&type=tcp&headerType=none#%E5%BC%82%E5%B8%B8%E8%AE%A2%E9%98%85%20${response.apiUrl.split('://')[1].split('/')[0]}`;
-					console.log('异常订阅: ' + 异常订阅LINK);
-					异常订阅 += `${异常订阅LINK}\n`;
-				}
-			}
-		}
-	} catch (error) {
-		console.error(error); // 捕获并输出错误信息
 	} finally {
-		clearTimeout(timeout); // 清除定时器
+		clearTimeout(timeout);
 	}
-
-	const 订阅内容 = await ADD(newapi + 异常订阅); // 将处理后的内容转换为数组
-	// 返回处理后的结果
-	return [订阅内容, 订阅转换URLs];
+	return [nodes, formattedSources, failures];
 }
 
-async function getUrl(request, targetUrl, 追加UA, userAgentHeader, signal) {
+async function getUrl(request, targetUrl, 追加UA, userAgentHeader, signal, uriOnly) {
 	// 设置自定义 User-Agent
 	const newHeaders = new Headers(request.headers);
 	newHeaders.set("User-Agent", `${atob('djJyYXlOLzYuNDU=')} cmliu/CF-Workers-SUB ${追加UA}(${userAgentHeader})`);
+	if (uriOnly) newHeaders.set('Accept', '*/*');
 
 	// 构建新的请求对象
 	const modifiedRequest = new Request(targetUrl, {
@@ -576,7 +718,7 @@ async function getUrl(request, targetUrl, 追加UA, userAgentHeader, signal) {
 function isValidBase64(str) {
 	// 先移除所有空白字符(空格、换行、回车等)
 	const cleanStr = str.replace(/\s/g, '');
-	const base64Regex = /^[A-Za-z0-9+/=]+$/;
+	const base64Regex = /^[A-Za-z0-9+/_-]+={0,2}$/;
 	return base64Regex.test(cleanStr);
 }
 
